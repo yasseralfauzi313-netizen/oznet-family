@@ -5,7 +5,7 @@
  * sekaligus mendukung instalasi PWA (beforeinstallprompt) & cadangan offline.
  */
 
-const CACHE_NAME = "oznet-family-pwa-v1";
+const CACHE_NAME = "oznet-family-pwa-v2";
 const CORE_ASSETS = [
   "/",
   "/index.html",
