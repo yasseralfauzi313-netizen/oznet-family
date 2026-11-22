@@ -17,11 +17,12 @@
   <!-- Firebase SDK (Auto-Sync Real-Time Cloud Firestore) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
   <style>
     :root {
       --bg-grad: radial-gradient(circle at 15% 15%, #123c36 0%, #081c24 45%, #050f18 100%);
       --glass: rgba(255, 255, 255, 0.08);
-      --glass-strong: rgba(15, 32, 42, 0.78);
+      --glass-strong: rgba(15, 32, 42, 0.84);
       --glass-border: rgba(255, 255, 255, 0.16);
       --text: #f3f7f6;
       --text-muted: #a6bec0;
@@ -33,25 +34,25 @@
       --input-bg: rgba(0, 0, 0, 0.28);
       --chat-me: rgba(16, 185, 129, 0.24);
       --chat-other: rgba(255, 255, 255, 0.1);
-      --nav-bg: rgba(7, 22, 30, 0.88);
+      --nav-bg: rgba(7, 22, 30, 0.9);
     }
 
     [data-theme="light"] {
-      --bg-grad: linear-gradient(155deg, #dceae4 0%, #e7ece8 50%, #d5e2dc 100%);
+      --bg-grad: linear-gradient(155deg, #d7e4de 0%, #e1e8e4 50%, #cfddd7 100%);
       --glass: rgba(255, 255, 255, 0.62);
-      --glass-strong: rgba(242, 247, 244, 0.92);
-      --glass-border: rgba(18, 60, 54, 0.16);
-      --text: #152b29;
-      --text-muted: #4b6764;
-      --accent: #b47b06;
-      --accent-soft: rgba(180, 123, 6, 0.15);
+      --glass-strong: rgba(238, 244, 241, 0.94);
+      --glass-border: rgba(18, 60, 54, 0.18);
+      --text: #142a28;
+      --text-muted: #45605d;
+      --accent: #a66e04;
+      --accent-soft: rgba(166, 110, 4, 0.15);
       --emerald: #0f766e;
       --danger: #dc2626;
       --shadow: 0 8px 24px rgba(15, 45, 40, 0.12);
       --input-bg: rgba(255, 255, 255, 0.72);
       --chat-me: rgba(15, 118, 110, 0.18);
       --chat-other: rgba(255, 255, 255, 0.78);
-      --nav-bg: rgba(236, 243, 240, 0.92);
+      --nav-bg: rgba(232, 240, 236, 0.94);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -75,13 +76,11 @@
     #cover-screen {
       position: fixed; inset: 0; z-index: 100;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; background: var(--bg-grad);
-      overflow-y: auto;
+      padding: 24px; background: var(--bg-grad); overflow-y: auto;
     }
     .cover-card {
       width: 100%; max-width: 390px; border-radius: 28px;
-      padding: 32px 22px 26px; text-align: center;
-      animation: fadeUp 0.45s ease;
+      padding: 32px 22px 26px; text-align: center; animation: fadeUp 0.45s ease;
     }
     .cover-logo {
       width: 104px; height: 104px; border-radius: 26px; object-fit: cover;
@@ -143,15 +142,19 @@
     .brand-title { font-weight: 800; font-size: 0.98rem; letter-spacing: 0.4px; color: var(--accent); }
     .brand-sub-row { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; color: var(--text-muted); }
     .sync-pill {
-      padding: 1px 6px; border-radius: 99px; font-weight: 700; font-size: 0.64rem;
-      background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
+      padding: 2px 7px; border-radius: 99px; font-weight: 700; font-size: 0.64rem;
+      background: rgba(255, 255, 255, 0.12); border: 1px solid var(--glass-border);
+      color: var(--text); cursor: pointer; font-family: inherit;
     }
     .header-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
     .icon-btn {
       width: 36px; height: 36px; border-radius: 12px; border: 1px solid var(--glass-border);
       background: var(--glass); color: var(--text); font-size: 1.05rem;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
+      position: relative;
     }
+    .icon-btn.notif-on { border-color: var(--emerald); background: rgba(16, 185, 129, 0.16); }
+    .icon-btn.notif-off { border-color: var(--accent); background: var(--accent-soft); }
     .profile-chip {
       display: flex; align-items: center; gap: 6px; padding: 3px 9px 3px 3px;
       border-radius: 99px; border: 1px solid var(--accent);
@@ -427,6 +430,13 @@
     .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .modal-title { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--accent); }
 
+    /* DIAGNOSTIC LOG BOX */
+    .diag-box {
+      padding: 12px; border-radius: 14px; background: var(--input-bg);
+      border: 1px solid var(--glass-border); font-size: 0.8rem; line-height: 1.55;
+      color: var(--text); margin-bottom: 12px; word-break: break-word;
+    }
+
     /* INSTALL PWA BANNER */
     #pwa-install-banner {
       position: fixed; left: 12px; right: 12px; bottom: calc(74px + env(safe-area-inset-bottom));
@@ -494,11 +504,12 @@
           <div class="brand-title">OZNET FAMILY</div>
           <div class="brand-sub-row">
             <span id="header-loc-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Rangkasbitung</span>
-            <span id="sync-status-pill" class="sync-pill">⚪ Lokal</span>
+            <button type="button" id="sync-status-pill" class="sync-pill" title="Cek status sinkronisasi Cloud">🟡 Sync...</button>
           </div>
         </div>
       </div>
       <div class="header-actions">
+        <button class="icon-btn notif-off" id="btn-notif-toggle" title="Notifikasi Push Background">🔔</button>
         <button class="icon-btn" id="btn-theme-toggle" title="Tema Siang/Malam">🌙</button>
         <button class="profile-chip" id="btn-open-profile" title="Profil">
           <span class="profile-chip-avatar" id="header-avatar">👨</span>
@@ -669,6 +680,21 @@
     </nav>
   </div>
 
+  <!-- MODAL: DIAGNOSTIK CLOUD SYNC & PUSH FCM -->
+  <div id="sync-diag-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="modal-title">☁️ Status Cloud & Notifikasi</h3>
+        <button class="btn btn-sm" id="btn-close-sync-diag">✕</button>
+      </div>
+      <div id="sync-diag-content" class="diag-box">Memeriksa koneksi...</div>
+      <button class="btn btn-primary btn-full" id="btn-enable-fcm">🔔 Aktifkan Notifikasi Push (Background)</button>
+      <button class="btn btn-emerald btn-full" id="btn-test-fcm-push" style="margin-top:8px;">🧪 Tes Kirim Notifikasi ke HP Ini</button>
+      <button class="btn btn-full" id="btn-test-cloud-sync" style="margin-top:8px;">🔄 Tes Sinkron Cloud Firestore</button>
+      <button class="btn btn-danger btn-full" id="btn-force-refresh-cache" style="margin-top:8px;">🧹 Bersihkan Cache Lama & Muat Ulang</button>
+    </div>
+  </div>
+
   <!-- MODAL: LOGIN ADMIN -->
   <div id="admin-login-modal" class="modal-backdrop hidden">
     <div class="modal-box">
@@ -817,38 +843,21 @@
   <div id="toast-box"></div>
 
   <script>
-    /* =========================================================================
-       KONFIGURASI FIREBASE (GANTI DENGAN DATA PROJECT FIREBASE KAMU)
-       Ambil di Firebase Console -> Project Settings -> Your Apps -> Web App
-       ========================================================================= */
+    /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
+    const APP_VERSION = "v7-fcm";
+    const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
-
-
-  apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
-
-
-  authDomain: "oznet-f368b.firebaseapp.com",
-
-
-  projectId: "oznet-f368b",
-
-
-  storageBucket: "oznet-f368b.firebasestorage.app",
-
-
-  messagingSenderId: "677062960891",
-
-
-  appId: "1:677062960891:web:e1862ca23fc5333725725e",
-
-
-  measurementId: "G-XZEYQ5W4HD"
-
-
-};
+      apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
+      authDomain: "oznet-f368b.firebaseapp.com",
+      projectId: "oznet-f368b",
+      storageBucket: "oznet-f368b.firebasestorage.app",
+      messagingSenderId: "677062960891",
+      appId: "1:677062960891:web:e1862ca23fc5333725725e",
+      measurementId: "G-XZEYQ5W4HD"
+    };
 
     /* ================= STORAGE & INITIAL STATE ================= */
-    const STORE_KEY = "oznet_family_state_v5";
+    const STORE_KEY = "oznet_family_state_v6";
 
     const DEFAULT_MEMBERS = {
       ayah: { id: "ayah", name: "Ayah", isAdmin: true, emoji: "👨", photo: "" },
@@ -892,38 +901,14 @@
       location: { name: "Rangkasbitung, Lebak", lat: -6.3592, lng: 106.2494, tz: 7 }
     };
 
-    function createSampleVoiceDataUrl() {
-      const sampleRate = 8000;
-      const duration = 1.6;
-      const len = Math.floor(sampleRate * duration);
-      const buffer = new ArrayBuffer(44 + len * 2);
-      const view = new DataView(buffer);
-      const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
-      writeStr(0, "RIFF");
-      view.setUint32(4, 36 + len * 2, true);
-      writeStr(8, "WAVE");
-      writeStr(12, "fmt ");
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeStr(36, "data");
-      view.setUint32(40, len * 2, true);
-      const notes = [523.25, 659.25, 783.99, 1046.5];
-      for (let i = 0; i < len; i++) {
-        const t = i / sampleRate;
-        const note = notes[Math.min(notes.length - 1, Math.floor(t / 0.4))];
-        const env = Math.sin(Math.PI * ((t % 0.4) / 0.4));
-        const val = Math.sin(2 * Math.PI * note * t) * 0.35 * env;
-        view.setInt16(44 + i * 2, val * 32767, true);
+    function mergeMembers(base, incoming) {
+      const out = JSON.parse(JSON.stringify(base));
+      if (incoming && typeof incoming === "object") {
+        ["ayah", "ibu", "kakak", "adik"].forEach((k) => {
+          if (incoming[k]) out[k] = Object.assign({}, out[k], incoming[k]);
+        });
       }
-      let bin = "";
-      const bytes = new Uint8Array(buffer);
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      return "data:audio/wav;base64," + btoa(bin);
+      return out;
     }
 
     function loadState() {
@@ -935,27 +920,11 @@
             theme: parsed.theme || "dark",
             adminPass: parsed.adminPass || "ojing",
             webauthnCredId: parsed.webauthnCredId || "",
-            members: Object.assign({}, DEFAULT_MEMBERS, parsed.members || {}),
+            members: mergeMembers(DEFAULT_MEMBERS, parsed.members),
             alarm: Object.assign({}, DEFAULT_ALARM, parsed.alarm || {}),
-            doas: Array.isArray(parsed.doas) && parsed.doas.length ? parsed.doas : DEFAULT_DOAS,
+            doas: Array.isArray(parsed.doas) && parsed.doas.length ? parsed.doas : JSON.parse(JSON.stringify(DEFAULT_DOAS)),
             reports: Array.isArray(parsed.reports) ? parsed.reports : [],
-            messages: Array.isArray(parsed.messages) && parsed.messages.length ? parsed.messages : [
-              {
-                id: "m-welcome",
-                senderId: "ayah",
-                text: "Assalamu'alaikum keluarga OZNET! Jangan lupa absen sholat & belajar hari ini ya 😊",
-                time: "06:00",
-                createdAt: 1
-              },
-              {
-                id: "m-vn-sample",
-                senderId: "ayah",
-                voiceUrl: createSampleVoiceDataUrl(),
-                voiceDur: "0:02",
-                time: "06:01",
-                createdAt: 2
-              }
-            ]
+            messages: Array.isArray(parsed.messages) ? parsed.messages : []
           };
         }
       } catch (e) {}
@@ -967,23 +936,7 @@
         alarm: JSON.parse(JSON.stringify(DEFAULT_ALARM)),
         doas: JSON.parse(JSON.stringify(DEFAULT_DOAS)),
         reports: [],
-        messages: [
-          {
-            id: "m-welcome",
-            senderId: "ayah",
-            text: "Assalamu'alaikum keluarga OZNET! Jangan lupa absen sholat & belajar hari ini ya 😊",
-            time: "06:00",
-            createdAt: 1
-          },
-          {
-            id: "m-vn-sample",
-            senderId: "ayah",
-            voiceUrl: createSampleVoiceDataUrl(),
-            voiceDur: "0:02",
-            time: "06:01",
-            createdAt: 2
-          }
-        ]
+        messages: []
       };
     }
 
@@ -1007,7 +960,7 @@
     }
 
     let toastTimer = null;
-    function showToast(msg, ms = 2400) {
+    function showToast(msg, ms = 2500) {
       const box = $("toast-box");
       box.textContent = msg;
       box.classList.add("show");
@@ -1020,9 +973,11 @@
       return `<span>${(member && member.emoji) || "👤"}</span>`;
     }
 
-    /* ================= FIREBASE REAL-TIME AUTO-SYNC ================= */
+    /* ================= FIREBASE REAL-TIME AUTO-SYNC (MOBILE-SAFE LONG POLLING) ================= */
     let db = null;
     let cloudReady = false;
+    let lastSyncSuccessAt = "";
+    let lastSyncErrorText = "";
     let initialMessagesLoaded = false;
     let initialReportsLoaded = false;
     const knownMessageIds = new Set();
@@ -1033,10 +988,175 @@
       if (el) el.textContent = text;
     }
 
-    function isFirebaseConfigured() {
-      return typeof firebase !== "undefined" &&
-             FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith("ISI_") &&
-             FIREBASE_CONFIG.projectId && !FIREBASE_CONFIG.projectId.startsWith("ISI_");
+    let fcmToken = localStorage.getItem("oznet_fcm_token") || "";
+    let fcmStatusNote = "";
+    let swRegistrationRef = null;
+    let pendingOpenTab = new URLSearchParams(window.location.search).get("tab") || "";
+
+    function updateNotifBellUI() {
+      const btn = $("btn-notif-toggle");
+      if (!btn) return;
+      const granted = ("Notification" in window) && Notification.permission === "granted" && !!fcmToken;
+      btn.classList.toggle("notif-on", granted);
+      btn.classList.toggle("notif-off", !granted);
+      btn.textContent = granted ? "🔔" : "🔕";
+      btn.title = granted ? "Notifikasi Push Aktif" : "Aktifkan Notifikasi Push";
+    }
+
+    function updateDiagView() {
+      const box = $("sync-diag-content");
+      if (!box) return;
+      const onlineStr = navigator.onLine ? "Online" : "Offline (tidak ada internet)";
+      const statusStr = lastSyncErrorText
+        ? `<span style="color:var(--danger);font-weight:700;">Gagal: ${escapeHtml(lastSyncErrorText)}</span>`
+        : (lastSyncSuccessAt
+            ? `<span style="color:var(--emerald);font-weight:700;">Tersambung aktif (${lastSyncSuccessAt})</span>`
+            : `<span style="color:var(--accent);font-weight:700;">Menunggu respons server Firestore...</span>`);
+
+      const perm = ("Notification" in window) ? Notification.permission : "unsupported";
+      let fcmHtml = "";
+      if (perm === "granted" && fcmToken) {
+        fcmHtml = `<span style="color:var(--emerald);font-weight:700;">Aktif ✅ (Token terdaftar)</span>`;
+      } else if (perm === "denied") {
+        fcmHtml = `<span style="color:var(--danger);font-weight:700;">Diblokir browser (izinkan di Pengaturan Situs Chrome)</span>`;
+      } else if (perm === "unsupported") {
+        fcmHtml = `<span style="color:var(--text-muted);">Browser belum mendukung Push (di iPhone, Install ke Layar Utama dulu)</span>`;
+      } else {
+        fcmHtml = `<span style="color:var(--accent);font-weight:700;">Belum aktif — ketuk tombol Aktifkan di bawah</span>`;
+      }
+
+      box.innerHTML = `
+        <div><strong>Versi Aplikasi:</strong> ${APP_VERSION}</div>
+        <div><strong>Project Firebase:</strong> ${escapeHtml(FIREBASE_CONFIG.projectId)}</div>
+        <div><strong>Jaringan HP:</strong> ${onlineStr}</div>
+        <div><strong>Status Cloud:</strong> ${statusStr}</div>
+        <div><strong>Notifikasi Push (FCM):</strong> ${fcmHtml}</div>
+        ${fcmStatusNote ? `<div style="margin-top:4px;font-size:0.74rem;color:var(--accent);">${escapeHtml(fcmStatusNote)}</div>` : ""}
+        <div style="margin-top:8px;color:var(--text-muted);font-size:0.74rem;">
+          Notifikasi otomatis masuk saat aplikasi ditutup atau layar HP terkunci (jika HP mati total, otomatis masuk saat HP dinyalakan lagi).
+        </div>
+      `;
+    }
+
+    function getTokenDocId(token) {
+      const clean = String(token || "").replace(/[^a-zA-Z0-9_-]/g, "");
+      if (clean.length <= 44) return clean || ("tok-" + Date.now());
+      return clean.slice(0, 24) + "_" + clean.slice(-20);
+    }
+
+    async function saveFcmTokenToFirestore(token) {
+      if (!token || !db) return;
+      try {
+        const docId = getTokenDocId(token);
+        const me = currentUserId ? state.members[currentUserId] : null;
+        await db.collection("oznet_tokens").doc(docId).set({
+          token,
+          userId: currentUserId || "guest",
+          userName: me ? me.name : "Anggota",
+          updatedAt: Date.now(),
+          ua: navigator.userAgent.slice(0, 120)
+        }, { merge: true });
+        fcmStatusNote = "Token HP tersimpan di Cloud Firestore.";
+      } catch (err) {
+        fcmStatusNote = "Gagal simpan token: " + (err.code || err.message);
+      }
+      updateNotifBellUI();
+      updateDiagView();
+    }
+
+    async function registerFcmPush(interactive = false) {
+      if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+        if (interactive) showToast("Browser ini belum mendukung Notifikasi Push.", 3200);
+        return false;
+      }
+      if (typeof firebase === "undefined" || typeof firebase.messaging !== "function") {
+        if (interactive) showToast("Modul Firebase Messaging gagal dimuat.", 3000);
+        return false;
+      }
+      try {
+        let perm = Notification.permission;
+        if (perm !== "granted") {
+          if (!interactive) { updateNotifBellUI(); return false; }
+          perm = await Notification.requestPermission();
+        }
+        if (perm !== "granted") {
+          fcmStatusNote = perm === "denied"
+            ? "Izin notifikasi ditolak. Buka Pengaturan Situs Chrome untuk mengizinkan."
+            : "Izin notifikasi belum diberikan.";
+          if (interactive) showToast(fcmStatusNote, 3600);
+          updateNotifBellUI();
+          updateDiagView();
+          return false;
+        }
+
+        const reg = swRegistrationRef || await navigator.serviceWorker.ready;
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        const messaging = firebase.messaging();
+        const token = await messaging.getToken({
+          vapidKey: FCM_VAPID_KEY,
+          serviceWorkerRegistration: reg
+        });
+
+        if (token) {
+          fcmToken = token;
+          localStorage.setItem("oznet_fcm_token", token);
+          await saveFcmTokenToFirestore(token);
+          if (interactive) showToast("🔔 Notifikasi Push Background AKTIF di HP ini!", 3000);
+
+          if (!window.__oznetFcmOnMsgBound) {
+            window.__oznetFcmOnMsgBound = true;
+            messaging.onMessage(() => {
+              // Saat aplikasi sedang terbuka di depan layar, notifikasi sudah ditangani real-time Firestore.
+            });
+          }
+          return true;
+        } else {
+          fcmStatusNote = "Token tidak diterima dari server FCM.";
+          if (interactive) showToast(fcmStatusNote, 3200);
+        }
+      } catch (err) {
+        fcmStatusNote = "FCM error: " + (err.code || err.message || err);
+        if (interactive) showToast("Gagal aktifkan notifikasi: " + (err.message || err), 3800);
+      }
+      updateNotifBellUI();
+      updateDiagView();
+      return false;
+    }
+
+    async function sendFamilyPush({ title, body, tab = "chat", testOnly = false }) {
+      try {
+        const res = await fetch("/api/send-push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            body,
+            tab,
+            senderId: currentUserId || "system",
+            senderToken: fcmToken || "",
+            testOnly
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (testOnly) {
+          if (res.ok && data.ok) {
+            fcmStatusNote = `Tes terkirim (${data.sent || 0} berhasil, ${data.failed || 0} gagal).`;
+            showToast("✅ Notifikasi tes dikirim! Cek bilah notifikasi HP.", 3500);
+          } else {
+            fcmStatusNote = "Gagal kirim tes: " + (data.error || ("HTTP " + res.status));
+            showToast("❌ " + fcmStatusNote, 4200);
+          }
+          updateDiagView();
+        }
+        return data;
+      } catch (err) {
+        if (testOnly) {
+          fcmStatusNote = "Endpoint /api/send-push belum aktif atau offline.";
+          showToast("❌ " + fcmStatusNote, 4000);
+          updateDiagView();
+        }
+        return null;
+      }
     }
 
     function playGentleNotifBeep() {
@@ -1064,24 +1184,49 @@
       }
     }
 
+    function handleCloudError(err) {
+      const code = (err && err.code) ? err.code : "unknown";
+      const msg = (err && err.message) ? err.message : String(err || "Gagal terhubung");
+      lastSyncErrorText = `${code} — ${msg}`;
+      if (code === "permission-denied") {
+        setSyncPill("🔴 Rules");
+        showToast("Firestore ditolak (permission-denied). Cek Rules di Firebase!", 4000);
+      } else if (code === "not-found") {
+        setSyncPill("🔴 No DB");
+        showToast("Firestore Database belum dibuat di Firebase Console!", 4000);
+      } else {
+        setSyncPill("🟠 Offline");
+      }
+      updateDiagView();
+    }
+
+    function markServerConnected() {
+      lastSyncErrorText = "";
+      lastSyncSuccessAt = new Date().toLocaleTimeString("id-ID");
+      setSyncPill("🟢 Cloud");
+      updateDiagView();
+    }
+
     function initCloudSync() {
-      if (!isFirebaseConfigured()) {
-        setSyncPill("⚪ Lokal");
+      if (typeof firebase === "undefined") {
+        lastSyncErrorText = "SDK Firebase gagal dimuat (cek koneksi internet).";
+        setSyncPill("🔴 SDK");
         return;
       }
       try {
         if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         db = firebase.firestore();
-        db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+        // Paksa Long Polling agar stabil 100% di jaringan HP / Chrome Android Indonesia
+        db.settings({ experimentalForceLongPolling: true, merge: true });
         cloudReady = true;
-        setSyncPill("🟡 Menghubungkan...");
+        setSyncPill("🟡 Sync...");
 
-        // 1. Sync Config (Anggota, Nama/Foto Profil, Alarm, Password Admin)
-        db.collection("oznet_config").doc("main").onSnapshot((docSnap) => {
-          setSyncPill("🟢 Cloud");
+        // 1. Real-time Config (Nama/Foto Anggota, Alarm, Password Admin)
+        db.collection("oznet_config").doc("main").onSnapshot({ includeMetadataChanges: true }, (docSnap) => {
+          if (!docSnap.metadata.fromCache) markServerConnected();
           if (docSnap.exists) {
             const d = docSnap.data();
-            if (d.members) state.members = Object.assign({}, DEFAULT_MEMBERS, d.members);
+            if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
             if (d.alarm) state.alarm = Object.assign({}, DEFAULT_ALARM, d.alarm);
             if (d.adminPass) state.adminPass = d.adminPass;
             saveState();
@@ -1093,26 +1238,30 @@
               updateClockAndPrayers();
               if (!$("profile-modal").classList.contains("hidden")) renderProfileModal();
             }
-          } else {
-            syncConfigToCloud();
+          } else if (!docSnap.metadata.fromCache) {
+            syncFullConfigToCloud();
           }
         }, handleCloudError);
 
-        // 2. Sync Doa Harian
-        db.collection("oznet_doas").orderBy("createdAt", "desc").onSnapshot((snap) => {
-          if (snap.empty) {
+        // 2. Real-time Doa Harian
+        db.collection("oznet_doas").onSnapshot({ includeMetadataChanges: true }, (snap) => {
+          if (!snap.metadata.fromCache) markServerConnected();
+          if (snap.empty && !snap.metadata.fromCache) {
             const batch = db.batch();
             DEFAULT_DOAS.forEach((d) => batch.set(db.collection("oznet_doas").doc(d.id), d));
-            batch.commit().catch(() => {});
+            batch.commit().catch(handleCloudError);
             return;
           }
-          state.doas = snap.docs.map((doc) => doc.data());
-          saveState();
-          if (currentUserId) renderDoaList();
+          if (!snap.empty) {
+            state.doas = snap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            saveState();
+            if (currentUserId) renderDoaList();
+          }
         }, handleCloudError);
 
-        // 3. Sync Laporan & Absen Anak
-        db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).onSnapshot((snap) => {
+        // 3. Real-time Laporan & Absen Anak
+        db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).onSnapshot({ includeMetadataChanges: true }, (snap) => {
+          if (!snap.metadata.fromCache) markServerConnected();
           const list = snap.docs.map((doc) => doc.data());
           if (initialReportsLoaded && currentUserId) {
             list.forEach((r) => {
@@ -1130,16 +1279,18 @@
           if (currentUserId) renderReports();
         }, handleCloudError);
 
-        // 4. Sync Chat Keluarga Real-Time
-        db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).onSnapshot((snap) => {
-          if (snap.empty) {
-            db.collection("oznet_messages").doc("m-welcome").set({
+        // 4. Real-time Chat Keluarga
+        db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).onSnapshot({ includeMetadataChanges: true }, (snap) => {
+          if (!snap.metadata.fromCache) markServerConnected();
+          if (snap.empty && !snap.metadata.fromCache) {
+            const welcome = {
               id: "m-welcome",
               senderId: "ayah",
-              text: "Assalamu'alaikum keluarga OZNET! Chat keluarga sekarang sudah tersinkronisasi otomatis 😊",
+              text: "Assalamu'alaikum keluarga OZNET! Chat keluarga sudah tersinkron otomatis 🟢",
               time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
               createdAt: Date.now()
-            }).catch(() => {});
+            };
+            db.collection("oznet_messages").doc(welcome.id).set(welcome).catch(handleCloudError);
             return;
           }
           const list = snap.docs.map((doc) => doc.data()).reverse();
@@ -1163,61 +1314,88 @@
           if (currentUserId && activeTab === "chat" && !activeAudio) renderChat();
         }, handleCloudError);
       } catch (e) {
-        setSyncPill("🔴 Error");
+        handleCloudError(e);
         cloudReady = false;
       }
     }
 
-    function handleCloudError(err) {
-      if (err && err.code === "permission-denied") {
-        setSyncPill("🔴 Rules");
-        showToast("Akses Firestore ditolak. Pastikan Rules sudah dipublish!", 4000);
-      } else {
-        setSyncPill("🟠 Offline");
-      }
-    }
-
-    function syncConfigToCloud() {
+    function syncFullConfigToCloud() {
       if (!cloudReady || !db) return;
       db.collection("oznet_config").doc("main").set({
         members: state.members,
         alarm: state.alarm,
         adminPass: state.adminPass,
         updatedAt: Date.now()
-      }, { merge: true }).catch(() => showToast("Gagal sinkron pengaturan ke Cloud."));
+      }, { merge: true }).then(markServerConnected).catch((err) => {
+        handleCloudError(err);
+        showToast("Gagal sinkron pengaturan: " + (err.code || err.message), 3500);
+      });
+    }
+
+    function syncPartialConfigToCloud(partialObj) {
+      if (!cloudReady || !db) return;
+      partialObj.updatedAt = Date.now();
+      db.collection("oznet_config").doc("main").set(partialObj, { merge: true })
+        .then(markServerConnected)
+        .catch((err) => {
+          handleCloudError(err);
+          showToast("Gagal sinkron perubahan: " + (err.code || err.message), 3500);
+        });
     }
 
     function syncDoaSave(doaObj) {
       if (!cloudReady || !db) return;
       db.collection("oznet_doas").doc(doaObj.id).set(doaObj)
-        .catch(() => showToast("Gagal menyimpan doa ke Cloud."));
+        .then(markServerConnected)
+        .catch((err) => { handleCloudError(err); showToast("Gagal simpan doa ke Cloud: " + (err.code || err.message), 3500); });
     }
 
     function syncDoaDelete(id) {
       if (!cloudReady || !db) return;
-      db.collection("oznet_doas").doc(id).delete().catch(() => {});
+      db.collection("oznet_doas").doc(id).delete().then(markServerConnected).catch(handleCloudError);
     }
 
     function syncReportAdd(repObj) {
       if (!cloudReady || !db) return;
       db.collection("oznet_reports").doc(repObj.id).set(repObj)
-        .catch(() => showToast("Ukuran foto terlalu besar atau koneksi terputus."));
+        .then(markServerConnected)
+        .catch((err) => { handleCloudError(err); showToast("Gagal kirim laporan ke Cloud: " + (err.code || err.message), 3500); });
     }
 
     function syncReportLove(id, loves) {
       if (!cloudReady || !db) return;
-      db.collection("oznet_reports").doc(id).update({ loves }).catch(() => {});
+      db.collection("oznet_reports").doc(id).set({ loves }, { merge: true }).then(markServerConnected).catch(handleCloudError);
     }
 
     function syncReportDelete(id) {
       if (!cloudReady || !db) return;
-      db.collection("oznet_reports").doc(id).delete().catch(() => {});
+      db.collection("oznet_reports").doc(id).delete().then(markServerConnected).catch(handleCloudError);
     }
 
     function syncMessageAdd(msgObj) {
       if (!cloudReady || !db) return;
       db.collection("oznet_messages").doc(msgObj.id).set(msgObj)
-        .catch(() => showToast("Gagal mengirim ke Cloud (cek koneksi / ukuran file maks 600KB)."));
+        .then(markServerConnected)
+        .catch((err) => { handleCloudError(err); showToast("Gagal kirim chat ke Cloud: " + (err.code || err.message), 3500); });
+    }
+
+    async function runCloudSyncTest() {
+      if (!db) {
+        showToast("Firebase belum terhubung.");
+        return;
+      }
+      setSyncPill("🟡 Tes...");
+      try {
+        await db.collection("oznet_config").doc("ping").set({ lastPing: Date.now(), from: currentUserId || "cover" });
+        const snap = await db.collection("oznet_config").doc("ping").get();
+        if (snap.exists) {
+          markServerConnected();
+          showToast("✅ Koneksi Cloud Firestore 100% AKTIF & TERSINKRON!", 3000);
+        }
+      } catch (err) {
+        handleCloudError(err);
+        showToast("❌ Gagal: " + (err.code || err.message), 4000);
+      }
     }
 
     /* ================= THEME ================= */
@@ -1267,6 +1445,14 @@
       document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.tab === "beranda"));
       pushNavState("tab:beranda");
       renderAll();
+      updateNotifBellUI();
+      if (fcmToken) saveFcmTokenToFirestore(fcmToken);
+      else if (("Notification" in window) && Notification.permission === "granted") registerFcmPush(false);
+      if (pendingOpenTab && ["beranda", "laporan", "doa", "chat", "alarm"].includes(pendingOpenTab)) {
+        const target = pendingOpenTab;
+        pendingOpenTab = "";
+        switchTab(target, false);
+      }
       showToast(`Selamat datang, ${state.members[roleId].name}!`);
     }
 
@@ -1539,7 +1725,7 @@
           }
           state.alarm.prayers[chk.dataset.prayer] = chk.checked;
           saveState();
-          syncConfigToCloud();
+          syncPartialConfigToCloud({ alarm: state.alarm });
           showToast(`Alarm ${chk.dataset.prayer} ${chk.checked ? "diaktifkan" : "dimatikan"}`);
         };
       });
@@ -1868,6 +2054,10 @@
 
     function renderChat() {
       const box = $("chat-messages");
+      if (!state.messages.length) {
+        box.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.86rem;padding:24px;">Belum ada pesan. Mulai obrolan keluarga sekarang!</div>';
+        return;
+      }
       box.innerHTML = state.messages.map((msg) => {
         const isMe = msg.senderId === currentUserId;
         const sender = state.members[msg.senderId] || { name: "Anggota", emoji: "👤", photo: "" };
@@ -1952,6 +2142,13 @@
       saveState();
       renderChat();
       syncMessageAdd(msgObj);
+      const senderName = (state.members[currentUserId] && state.members[currentUserId].name) || "Keluarga";
+      let pushBody = "Pesan baru di obrolan keluarga";
+      if (msgObj.text) pushBody = msgObj.text.slice(0, 140);
+      else if (msgObj.img) pushBody = "📷 Mengirim foto baru";
+      else if (msgObj.voiceUrl) pushBody = `🎙️ Mengirim pesan suara (${msgObj.voiceDur || "VN"})`;
+      else if (msgObj.fileUrl) pushBody = `📎 Mengirim file: ${msgObj.fileName || "Lampiran"}`;
+      sendFamilyPush({ title: `💬 ${senderName}`, body: pushBody, tab: "chat" });
     }
 
     /* ================= PROFILE MODAL ================= */
@@ -1991,7 +2188,7 @@
             if (!val) return;
             state.members[k].name = val;
             saveState();
-            syncConfigToCloud();
+            syncPartialConfigToCloud({ members: { [k]: state.members[k] } });
             renderAll();
             showToast(`Nama diubah menjadi ${val}`);
           };
@@ -2001,10 +2198,11 @@
           inp.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            compressImageFile(file, 240, (dataUrl) => {
-              state.members[inp.dataset.key].photo = dataUrl;
+            compressImageFile(file, 160, 0.65, (dataUrl) => {
+              const k = inp.dataset.key;
+              state.members[k].photo = dataUrl;
               saveState();
-              syncConfigToCloud();
+              syncPartialConfigToCloud({ members: { [k]: state.members[k] } });
               renderProfileModal();
               renderAll();
               showToast("Foto profil anggota diperbarui.");
@@ -2018,26 +2216,30 @@
     let camStream = null;
     let camFacing = "environment";
     let camTargetCallback = null;
+    let camMaxW = 540;
+    let camQuality = 0.68;
 
-    function compressImageFile(file, maxW, cb) {
+    function compressImageFile(file, maxW, quality, cb) {
       const reader = new FileReader();
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
           const scale = Math.min(1, maxW / img.width);
           const canvas = document.createElement("canvas");
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
           canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-          cb(canvas.toDataURL("image/jpeg", 0.72));
+          cb(canvas.toDataURL("image/jpeg", quality));
         };
         img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    async function openCamera(cb) {
+    async function openCamera(cb, maxW = 540, quality = 0.68) {
       camTargetCallback = cb;
+      camMaxW = maxW;
+      camQuality = quality;
       openModalById("camera-modal");
       await startCameraStream();
     }
@@ -2065,7 +2267,7 @@
       if (id === "camera-modal") stopCameraStream();
     }
     function closeAllModals() {
-      ["admin-login-modal", "profile-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
+      ["sync-diag-modal", "admin-login-modal", "profile-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
     }
     window.openLightbox = (src) => { $("lightbox-img").src = src; openModalById("lightbox-modal"); };
     window.closeModalById = closeModalById;
@@ -2089,7 +2291,7 @@
     }
 
     function handleBackAction() {
-      const openModal = ["lightbox-modal", "camera-modal", "doa-editor-modal", "profile-modal", "admin-login-modal"]
+      const openModal = ["lightbox-modal", "camera-modal", "doa-editor-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
         .find((id) => !$(id).classList.contains("hidden"));
       if (openModal) { closeModalById(openModal); return; }
       if (currentUserId && tabHistory.length > 0) {
@@ -2172,8 +2374,19 @@
         setTimeout(() => window.location.reload(), 600);
       });
 
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "OPEN_TAB" && event.data.tab) {
+          if (currentUserId) switchTab(event.data.tab, true);
+          else pendingOpenTab = event.data.tab;
+        }
+      });
+
       navigator.serviceWorker.register("./sw.js").then((reg) => {
+        swRegistrationRef = reg;
         reg.update();
+        if (("Notification" in window) && Notification.permission === "granted") {
+          registerFcmPush(false);
+        }
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "visible") reg.update();
         });
@@ -2185,6 +2398,48 @@
       $("btn-theme-toggle").onclick = () => {
         state.theme = state.theme === "dark" ? "light" : "dark";
         saveState(); applyTheme();
+      };
+
+      // Notification Bell Button
+      $("btn-notif-toggle").onclick = async () => {
+        if (("Notification" in window) && Notification.permission === "granted" && fcmToken) {
+          updateDiagView();
+          openModalById("sync-diag-modal");
+        } else {
+          await registerFcmPush(true);
+        }
+      };
+
+      // Diagnostic Sync & Push Modal
+      $("sync-status-pill").onclick = () => { updateDiagView(); openModalById("sync-diag-modal"); };
+      $("btn-close-sync-diag").onclick = () => closeModalById("sync-diag-modal");
+      $("btn-enable-fcm").onclick = () => registerFcmPush(true);
+      $("btn-test-fcm-push").onclick = async () => {
+        if (!fcmToken) {
+          const ok = await registerFcmPush(true);
+          if (!ok) return;
+        }
+        showToast("Mengirim notifikasi tes...");
+        await sendFamilyPush({
+          title: "🔔 Tes OZNET FAMILY",
+          body: "Mantap! Notifikasi Push FCM berhasil tersambung ke HP ini.",
+          tab: "chat",
+          testOnly: true
+        });
+      };
+      $("btn-test-cloud-sync").onclick = runCloudSyncTest;
+      $("btn-force-refresh-cache").onclick = async () => {
+        try {
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+          if ("serviceWorker" in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.unregister()));
+          }
+        } catch (e) {}
+        window.location.reload(true);
       };
 
       document.querySelectorAll(".nav-item").forEach((btn) => {
@@ -2213,29 +2468,40 @@
 
       $("btn-prof-cam").onclick = () => openCamera((dataUrl) => {
         state.members[currentUserId].photo = dataUrl;
-        saveState(); syncConfigToCloud(); renderProfileModal(); renderAll(); showToast("Foto profil diperbarui!");
-      });
+        saveState();
+        syncPartialConfigToCloud({ members: { [currentUserId]: state.members[currentUserId] } });
+        renderProfileModal(); renderAll(); showToast("Foto profil diperbarui!");
+      }, 160, 0.65);
+
       $("prof-file-input").onchange = (e) => {
         const f = e.target.files[0];
         if (!f) return;
-        compressImageFile(f, 240, (dataUrl) => {
+        compressImageFile(f, 160, 0.65, (dataUrl) => {
           state.members[currentUserId].photo = dataUrl;
-          saveState(); syncConfigToCloud(); renderProfileModal(); renderAll(); showToast("Foto profil diperbarui!");
+          saveState();
+          syncPartialConfigToCloud({ members: { [currentUserId]: state.members[currentUserId] } });
+          renderProfileModal(); renderAll(); showToast("Foto profil diperbarui!");
         });
       };
+
       $("btn-save-my-name").onclick = () => {
         const val = $("prof-name-input").value.trim();
         if (!val) return showToast("Nama tidak boleh kosong.");
         state.members[currentUserId].name = val;
-        saveState(); syncConfigToCloud(); renderProfileModal(); renderAll(); showToast("Nama berhasil disimpan!");
+        saveState();
+        syncPartialConfigToCloud({ members: { [currentUserId]: state.members[currentUserId] } });
+        renderProfileModal(); renderAll(); showToast("Nama berhasil disimpan!");
       };
+
       $("btn-change-admin-pass").onclick = () => {
         if (!isAdmin()) return;
         const np = $("new-admin-pass").value.trim();
         if (np.length < 3) return showToast("Password minimal 3 karakter.");
         state.adminPass = np;
         $("new-admin-pass").value = "";
-        saveState(); syncConfigToCloud(); showToast("✅ Password Admin berhasil diubah!");
+        saveState();
+        syncPartialConfigToCloud({ adminPass: state.adminPass });
+        showToast("✅ Password Admin berhasil diubah!");
       };
       $("btn-reg-fp").onclick = registerFingerprint;
       $("btn-del-fp").onclick = () => {
@@ -2253,7 +2519,7 @@
       $("report-file-input").onchange = (e) => {
         const f = e.target.files[0];
         if (!f) return;
-        compressImageFile(f, 640, (dataUrl) => {
+        compressImageFile(f, 540, 0.68, (dataUrl) => {
           pendingReportPhoto = dataUrl;
           $("report-preview").src = dataUrl;
           $("report-preview").classList.remove("hidden");
@@ -2281,6 +2547,11 @@
         saveState();
         renderReports();
         syncReportAdd(repObj);
+        sendFamilyPush({
+          title: `📸 Laporan ${repObj.userName}`,
+          body: repObj.activity + (repObj.note ? " — " + repObj.note : ""),
+          tab: "laporan"
+        });
         showToast("✅ Laporan absen berhasil dikirim!");
       };
 
@@ -2379,10 +2650,10 @@
         const f = e.target.files[0];
         if (!f) return;
         if (f.type.startsWith("image/")) {
-          compressImageFile(f, 640, (dataUrl) => sendChatMessage({ img: dataUrl }));
+          compressImageFile(f, 540, 0.68, (dataUrl) => sendChatMessage({ img: dataUrl }));
         } else {
-          if (f.size > 600 * 1024) {
-            showToast("Ukuran file maksimal 600 KB agar bisa tersinkron ke semua HP.");
+          if (f.size > 550 * 1024) {
+            showToast("Ukuran file maksimal 550 KB agar bisa tersinkron ke semua HP.");
             e.target.value = "";
             return;
           }
@@ -2412,7 +2683,7 @@
             const sec = Math.max(1, Math.round((Date.now() - recStartTime) / 1000));
             const dur = `0:${String(sec).padStart(2, "0")}`;
             const blob = new Blob(recChunks, { type: "audio/webm" });
-            if (blob.size > 650 * 1024) {
+            if (blob.size > 550 * 1024) {
               showToast("Rekaman terlalu panjang untuk disinkronkan (maks ±1 menit).");
               return;
             }
@@ -2435,7 +2706,7 @@
           return showToast("🔒 Pengaturan alarm dikunci oleh Admin.");
         }
         state.alarm.enabled = e.target.checked;
-        saveState(); syncConfigToCloud(); renderReports();
+        saveState(); syncPartialConfigToCloud({ alarm: state.alarm }); renderReports();
         showToast(state.alarm.enabled ? "Alarm Sholat diaktifkan" : "Alarm Sholat dimatikan");
       };
 
@@ -2443,7 +2714,7 @@
         btn.onclick = () => {
           if (!isAdmin()) return showToast("🔒 Timer sebelum sholat hanya bisa diubah Admin.");
           state.alarm.offsetMinutes = Number(btn.dataset.offset);
-          saveState(); syncConfigToCloud(); renderAlarmUI(); renderReports();
+          saveState(); syncPartialConfigToCloud({ alarm: state.alarm }); renderAlarmUI(); renderReports();
           showToast(state.alarm.offsetMinutes > 0 ? `Alarm diset ${state.alarm.offsetMinutes} menit sebelum sholat` : "Alarm diset tepat waktu sholat");
         };
       });
@@ -2454,7 +2725,7 @@
           return showToast("🔒 Nada alarm hanya bisa diubah oleh Admin.");
         }
         state.alarm.sound = e.target.value;
-        saveState(); syncConfigToCloud(); showToast("Nada alarm diperbarui!");
+        saveState(); syncPartialConfigToCloud({ alarm: state.alarm }); showToast("Nada alarm diperbarui!");
       };
 
       $("btn-test-sound").onclick = () => playLoudAlarmBurst(state.alarm.sound);
@@ -2473,7 +2744,7 @@
               lng: pos.coords.longitude,
               tz: -new Date().getTimezoneOffset() / 60
             };
-            saveState(); syncConfigToCloud(); renderAlarmUI(); updateClockAndPrayers();
+            saveState(); syncPartialConfigToCloud({ alarm: state.alarm }); renderAlarmUI(); updateClockAndPrayers();
             showToast("✅ Jadwal sholat disesuaikan ke lokasi GPS!");
           },
           () => showToast("Gagal mengakses GPS. Pastikan izin lokasi aktif.")
@@ -2483,7 +2754,7 @@
       $("btn-reset-rangkas").onclick = () => {
         if (!isAdmin()) return showToast("🔒 Lokasi jadwal sholat dikunci oleh Admin.");
         state.alarm.location = { name: "Rangkasbitung, Lebak", lat: -6.3592, lng: 106.2494, tz: 7 };
-        saveState(); syncConfigToCloud(); renderAlarmUI(); updateClockAndPrayers();
+        saveState(); syncPartialConfigToCloud({ alarm: state.alarm }); renderAlarmUI(); updateClockAndPrayers();
         showToast("✅ Lokasi diatur ke Rangkasbitung.");
       };
 
@@ -2496,12 +2767,12 @@
       $("btn-snap-cam").onclick = () => {
         const video = $("cam-video");
         const canvas = document.createElement("canvas");
-        const maxW = 640;
-        const scale = Math.min(1, maxW / (video.videoWidth || 640));
-        canvas.width = (video.videoWidth || 640) * scale;
-        canvas.height = (video.videoHeight || 480) * scale;
+        const maxW = camMaxW || 540;
+        const scale = Math.min(1, maxW / (video.videoWidth || maxW));
+        canvas.width = Math.round((video.videoWidth || 640) * scale);
+        canvas.height = Math.round((video.videoHeight || 480) * scale);
         canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
+        const dataUrl = canvas.toDataURL("image/jpeg", camQuality || 0.68);
         closeModalById("camera-modal");
         if (camTargetCallback) camTargetCallback(dataUrl);
       };
@@ -2530,6 +2801,7 @@
     setInterval(updateClockAndPrayers, 1000);
     pushNavState("cover");
     setupIosInstallHint();
+    updateNotifBellUI();
     initServiceWorkerAutoUpdate();
     initCloudSync();
   </script>
