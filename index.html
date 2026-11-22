@@ -651,6 +651,122 @@
     }
     #toast-box.show { opacity: 1; }
 
+
+    /* BELAJAR SMP MODULE (FULLSCREEN GLASSMORPHISM) */
+    #smp-modal {
+      position: fixed; inset: 0; z-index: 118;
+      background: var(--bg-grad); display: flex; flex-direction: column;
+    }
+    .smp-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+      background: var(--nav-bg); backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .smp-grade-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 8px 14px 0;
+    }
+    .smp-grade-pills { display: flex; gap: 6px; }
+    .smp-grade-pill {
+      padding: 5px 12px; border-radius: 99px; border: 1px solid var(--glass-border);
+      background: var(--glass); color: var(--text-muted); font-family: inherit;
+      font-size: 0.76rem; font-weight: 800; cursor: pointer;
+    }
+    .smp-grade-pill.active {
+      background: var(--accent); color: #091318; border-color: var(--accent);
+    }
+    .smp-subtabs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      padding: 9px 14px 10px; border-bottom: 1px solid var(--glass-border);
+    }
+    .smp-subtab {
+      padding: 8px 4px; border-radius: 12px; border: 1px solid var(--glass-border);
+      background: var(--glass); color: var(--text-muted); font-family: inherit;
+      font-size: 0.72rem; font-weight: 700; cursor: pointer; text-align: center;
+      position: relative;
+    }
+    .smp-subtab.active {
+      background: var(--accent-soft); color: var(--accent); border-color: var(--accent);
+    }
+    .smp-body {
+      flex: 1; overflow-y: auto; padding: 12px 14px calc(24px + env(safe-area-inset-bottom));
+      -webkit-overflow-scrolling: touch;
+    }
+    .smp-mapel-card {
+      border-radius: 18px; padding: 13px 14px; margin-bottom: 10px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+    }
+    .smp-mapel-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      cursor: pointer;
+    }
+    .smp-mapel-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .smp-mapel-ico {
+      width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+      background: var(--accent-soft); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .smp-chap-item {
+      margin-top: 9px; padding: 10px 11px; border-radius: 13px;
+      background: var(--input-bg); border: 1px solid var(--glass-border);
+    }
+    .smp-chap-title { font-weight: 800; font-size: 0.85rem; color: var(--accent); margin-bottom: 4px; }
+    .smp-chap-body { font-size: 0.81rem; line-height: 1.55; color: var(--text); white-space: pre-wrap; }
+    .smp-link-chip {
+      display: inline-flex; align-items: center; gap: 5px; margin-top: 7px;
+      padding: 5px 10px; border-radius: 9px; background: var(--accent-soft);
+      color: var(--accent); text-decoration: none; font-size: 0.76rem; font-weight: 700;
+      border: 1px solid rgba(234, 179, 8, 0.35);
+    }
+    .smp-day-card {
+      border-radius: 16px; padding: 12px 13px; margin-bottom: 10px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+    }
+    .smp-day-card.is-today { border-color: var(--emerald); box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25); }
+    .smp-day-card.is-tomorrow { border-color: var(--accent); }
+    .smp-chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .smp-subject-chip {
+      padding: 5px 9px; border-radius: 99px; font-size: 0.75rem; font-weight: 700;
+      background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text);
+    }
+    .smp-task-card {
+      display: flex; align-items: flex-start; gap: 10px;
+      border-radius: 16px; padding: 12px; margin-bottom: 9px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+    }
+    .smp-task-card.done { opacity: 0.62; }
+    .smp-task-chk {
+      width: 22px; height: 22px; margin-top: 2px; accent-color: var(--emerald);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .smp-due-pill {
+      font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 99px;
+      background: var(--accent-soft); color: var(--accent);
+    }
+    .smp-due-pill.urgent { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+    [data-theme="light"] .smp-due-pill.urgent { color: #b91c1c; }
+    .smp-due-pill.ok { background: rgba(16, 185, 129, 0.18); color: var(--emerald); }
+    .smp-quiz-opt {
+      width: 100%; text-align: left; padding: 11px 13px; border-radius: 13px;
+      margin-bottom: 8px; border: 1px solid var(--glass-border);
+      background: var(--input-bg); color: var(--text); font-family: inherit;
+      font-size: 0.86rem; font-weight: 600; cursor: pointer; display: block;
+    }
+    .smp-quiz-opt.correct { background: rgba(16, 185, 129, 0.24); border-color: var(--emerald); color: var(--text); }
+    .smp-quiz-opt.wrong { background: rgba(239, 68, 68, 0.24); border-color: var(--danger); color: var(--text); }
+    .smp-formula-card {
+      border-radius: 15px; padding: 12px 13px; margin-bottom: 9px;
+      background: var(--input-bg); border: 1px solid var(--glass-border);
+    }
+    .smp-formula-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.84rem; font-weight: 700; color: var(--accent);
+      background: rgba(0, 0, 0, 0.22); padding: 6px 9px; border-radius: 9px;
+      margin: 6px 0; display: block; white-space: pre-wrap;
+    }
+    [data-theme="light"] .smp-formula-code { background: rgba(15, 45, 40, 0.08); }
+
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
     @keyframes vnWave { from { height: 5px; } to { height: 20px; } }
@@ -717,6 +833,19 @@
             <div id="home-chat-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Buka obrolan keluarga real-time</div>
           </div>
           <span class="unread-pill hidden" id="home-chat-unread-badge">0</span>
+          <span style="font-size:1rem;color:var(--text-muted);font-weight:800;">›</span>
+        </button>
+
+        <button type="button" class="home-chat-shortcut glass" id="home-smp-card">
+          <div class="home-chat-ico">
+            📚
+            <span class="home-chat-dot hidden" id="home-smp-dot"></span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:0.94rem;color:var(--accent);">Belajar SMP (Kelas 7, 8 & 9)</div>
+            <div id="home-smp-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Materi 11 Mapel • Jadwal • PR • Kuis & Rumus</div>
+          </div>
+          <span class="unread-pill hidden" id="home-smp-badge">0</span>
           <span style="font-size:1rem;color:var(--text-muted);font-weight:800;">›</span>
         </button>
 
@@ -1082,6 +1211,158 @@
     </div>
   </div>
 
+  <!-- FULLSCREEN WORKSPACE: BELAJAR SMP (KELAS 7, 8 & 9) -->
+  <div id="smp-modal" class="hidden">
+    <div class="smp-top">
+      <button type="button" class="btn btn-sm" id="btn-close-smp">← Kembali</button>
+      <strong style="color:var(--accent);font-size:0.96rem;">📚 Ruang Belajar SMP</strong>
+      <span id="smp-sync-tag" style="font-size:0.7rem;color:var(--emerald);font-weight:700;">☁️ Sinkron</span>
+    </div>
+
+    <div class="smp-grade-bar">
+      <span style="font-size:0.76rem;font-weight:700;color:var(--text-muted);">Pilih Kelas:</span>
+      <div class="smp-grade-pills" id="smp-grade-pills">
+        <button type="button" class="smp-grade-pill active" data-grade="7">Kelas 7</button>
+        <button type="button" class="smp-grade-pill" data-grade="8">Kelas 8</button>
+        <button type="button" class="smp-grade-pill" data-grade="9">Kelas 9</button>
+      </div>
+    </div>
+
+    <div class="smp-subtabs" id="smp-subtabs">
+      <button type="button" class="smp-subtab active" data-smptab="materi">📖 Materi</button>
+      <button type="button" class="smp-subtab" data-smptab="jadwal">📅 Jadwal</button>
+      <button type="button" class="smp-subtab" data-smptab="pr">📝 PR & Tes</button>
+      <button type="button" class="smp-subtab" data-smptab="kuis">🧠 Kuis</button>
+    </div>
+
+    <div class="smp-body" id="smp-body">
+      <!-- SUBTAB 1: MATERI 11 MAPEL SMP -->
+      <div id="smp-pane-materi">
+        <div style="display:flex;gap:7px;margin-bottom:11px;align-items:center;">
+          <input type="search" id="smp-materi-search" class="input" placeholder="🔍 Cari mapel atau bab (misal: Pythagoras, Fotosintesis)..." style="padding:9px 12px;font-size:0.84rem;" />
+          <button type="button" class="btn btn-sm btn-primary hidden" id="btn-smp-add-materi" style="flex-shrink:0;padding:9px 11px;">+ Catatan</button>
+        </div>
+        <div id="smp-materi-list"></div>
+      </div>
+
+      <!-- SUBTAB 2: JADWAL PELAJARAN HARIAN -->
+      <div id="smp-pane-jadwal" class="hidden">
+        <div class="card glass" id="smp-jadwal-highlight" style="margin-bottom:12px;padding:13px;"></div>
+        <div id="smp-jadwal-list"></div>
+      </div>
+
+      <!-- SUBTAB 3: DAFTAR PR & JADWAL ULANGAN -->
+      <div id="smp-pane-pr" class="hidden">
+        <div class="card glass" style="padding:13px;margin-bottom:12px;">
+          <div class="card-title" style="margin-bottom:8px;"><span>➕ Tambah PR / Jadwal Ulangan</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <select id="smp-pr-subject" class="input" style="padding:9px 10px;font-size:0.82rem;"></select>
+            <select id="smp-pr-type" class="input" style="padding:9px 10px;font-size:0.82rem;">
+              <option value="PR / Tugas">📝 PR / Tugas</option>
+              <option value="Ulangan Harian">📄 Ulangan Harian</option>
+              <option value="PTS / PAS">🏆 PTS / PAS</option>
+              <option value="Proyek / Praktik">🛠️ Proyek / Praktik</option>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px;">
+            <input type="text" id="smp-pr-title" class="input" placeholder="Contoh: Kerjakan LKS Hal. 42 no 1-10" style="padding:9px 11px;font-size:0.84rem;" />
+            <input type="date" id="smp-pr-due" class="input" style="padding:8px 9px;font-size:0.8rem;width:136px;" />
+          </div>
+          <button type="button" class="btn btn-primary btn-full btn-sm" id="btn-smp-add-pr">✅ Simpan & Sinkron ke Keluarga</button>
+        </div>
+
+        <div style="display:flex;gap:6px;margin-bottom:10px;" id="smp-pr-filters">
+          <button type="button" class="pill-opt active" data-prfilter="pending">Belum Selesai</button>
+          <button type="button" class="pill-opt" data-prfilter="all">Semua</button>
+          <button type="button" class="pill-opt" data-prfilter="done">Selesai</button>
+        </div>
+        <div id="smp-pr-list"></div>
+      </div>
+
+      <!-- SUBTAB 4: KUIS INTERAKTIF & RUMUS CEPAT -->
+      <div id="smp-pane-kuis" class="hidden">
+        <div style="display:flex;gap:7px;margin-bottom:12px;">
+          <button type="button" class="btn btn-sm btn-primary" id="btn-smp-mode-quiz" style="flex:1;">🎯 Latihan Kuis</button>
+          <button type="button" class="btn btn-sm" id="btn-smp-mode-rumus" style="flex:1;">📐 Rumus Cepat MTK & IPA</button>
+        </div>
+
+        <div id="smp-quiz-section">
+          <div class="card glass" style="padding:13px;margin-bottom:12px;">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+              <select id="smp-quiz-subject" class="input" style="flex:1;padding:8px 10px;font-size:0.84rem;">
+                <option value="ALL">🌟 Semua Mapel Inti</option>
+                <option value="Matematika">📐 Matematika</option>
+                <option value="IPA">🔬 IPA (Fisika & Biologi)</option>
+                <option value="IPS">🌍 IPS</option>
+                <option value="Bahasa Indonesia">📖 Bahasa Indonesia</option>
+                <option value="Bahasa Inggris">🇬🇧 Bahasa Inggris</option>
+                <option value="PAI">🕌 PAI</option>
+                <option value="Pendidikan Pancasila">🇮🇩 Pendidikan Pancasila</option>
+                <option value="Informatika">💻 Informatika</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-emerald" id="btn-smp-start-quiz">▶ Mulai</button>
+            </div>
+            <div id="smp-quiz-best" style="font-size:0.75rem;color:var(--text-muted);"></div>
+          </div>
+          <div id="smp-quiz-stage"></div>
+        </div>
+
+        <div id="smp-rumus-section" class="hidden">
+          <div style="display:flex;gap:6px;margin-bottom:10px;" id="smp-rumus-tabs">
+            <button type="button" class="pill-opt active" data-rf="mtk">📐 Rumus Matematika</button>
+            <button type="button" class="pill-opt" data-rf="ipa">🔬 Rumus IPA</button>
+          </div>
+          <div id="smp-rumus-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TAMBAH MATERI / LINK CATATAN SMP -->
+  <div id="smp-add-materi-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="modal-title">📝 Tambah Catatan / Link Materi</h3>
+        <button class="btn btn-sm" id="btn-close-smp-add-materi">✕</button>
+      </div>
+      <div class="field">
+        <label>Mata Pelajaran</label>
+        <select id="smp-cm-subject" class="input"></select>
+      </div>
+      <div class="field">
+        <label>Judul Bab / Catatan</label>
+        <input type="text" id="smp-cm-title" class="input" placeholder="Contoh: Rangkuman Bab 3 Persamaan Garis" />
+      </div>
+      <div class="field">
+        <label>Isi Rangkuman / Catatan Belajar</label>
+        <textarea id="smp-cm-body" class="input" rows="4" placeholder="Tulis poin-poin penting materi di sini..."></textarea>
+      </div>
+      <div class="field">
+        <label>Link PDF / Google Drive / Video YouTube (Opsional)</label>
+        <input type="url" id="smp-cm-link" class="input" placeholder="https://drive.google.com/... atau https://youtu.be/..." />
+      </div>
+      <button type="button" class="btn btn-primary btn-full" id="btn-save-smp-cm">💾 Simpan ke Cloud</button>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT JADWAL HARIAN SMP -->
+  <div id="smp-edit-day-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="modal-title" id="smp-edit-day-title">📅 Edit Jadwal</h3>
+        <button class="btn btn-sm" id="btn-close-smp-edit-day">✕</button>
+      </div>
+      <div class="field">
+        <label>Daftar Pelajaran (pisahkan dengan koma)</label>
+        <textarea id="smp-edit-day-input" class="input" rows="3" placeholder="Contoh: Upacara, Matematika, IPA, Bahasa Indonesia, PAI"></textarea>
+      </div>
+      <div style="font-size:0.74rem;color:var(--text-muted);margin-bottom:12px;">
+        Perubahan langsung tersinkron ke semua HP keluarga agar Ayah, Ibu, Kakak & Adik melihat jadwal yang sama.
+      </div>
+      <button type="button" class="btn btn-primary btn-full" id="btn-save-smp-day">💾 Simpan Jadwal</button>
+    </div>
+  </div>
+
   <!-- MODAL: LIGHTBOX -->
   <div id="lightbox-modal" class="modal-backdrop hidden" onclick="closeModalById('lightbox-modal')">
     <img id="lightbox-img" src="" alt="Preview" style="max-width:95vw;max-height:86vh;border-radius:18px;border:2px solid var(--accent);" />
@@ -1111,7 +1392,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v13-bg-alarm";
+    const APP_VERSION = "v14-smp-belajar";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1855,9 +2136,10 @@
     async function pullLatestCloudData(silent = true) {
       if (!cloudReady || !db) return;
       try {
-        const [cfgSnap, sessSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
+        const [cfgSnap, sessSnap, smpSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
           db.collection("oznet_config").doc("main").get(),
           db.collection("oznet_config").doc("sessions").get(),
+          db.collection("oznet_config").doc("smp").get(),
           db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get(),
           db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(),
           db.collection("oznet_doas").get()
@@ -1872,6 +2154,7 @@
           if (d.lastReadChatAt) state.lastReadChatAt = mergeLastReadMap(state.lastReadChatAt, d.lastReadChatAt);
         }
         applyCloudSessions(sessSnap.exists ? (sessSnap.data() || {}) : {});
+        if (smpSnap.exists && typeof applyCloudSmpData === "function") applyCloudSmpData(smpSnap.data());
         if (!doaSnap.empty) {
           state.doas = doaSnap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         }
@@ -2057,6 +2340,16 @@
         db.collection("oznet_config").doc("sessions").onSnapshot((docSnap) => {
           markServerConnected();
           applyCloudSessions(docSnap.exists ? (docSnap.data() || {}) : {});
+        }, handleCloudError)
+      );
+
+      // 1c. Real-time Data Belajar SMP (Jadwal, PR/Ulangan, Catatan Materi)
+      cloudUnsubs.push(
+        db.collection("oznet_config").doc("smp").onSnapshot((docSnap) => {
+          markServerConnected();
+          if (docSnap.exists && typeof applyCloudSmpData === "function") {
+            applyCloudSmpData(docSnap.data());
+          }
         }, handleCloudError)
       );
 
@@ -4037,7 +4330,7 @@
       if (id === "chat-action-modal") activeChatActionMsgId = null;
     }
     function closeAllModals() {
-      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
+      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
     }
     window.openLightbox = (src) => { $("lightbox-img").src = src; openModalById("lightbox-modal"); };
     window.closeModalById = closeModalById;
@@ -4063,7 +4356,7 @@
     }
 
     function handleBackAction() {
-      const openModal = ["lightbox-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
+      const openModal = ["lightbox-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
         .find((id) => !$(id).classList.contains("hidden"));
       if (openModal) { closeModalById(openModal); return; }
       if (currentUserId && tabHistory.length > 0) {
@@ -4103,6 +4396,7 @@
       renderAlarmUI();
       renderChat();
       updateUnreadBadge();
+      if (typeof renderHomeSmpCard === "function") renderHomeSmpCard();
       updateClockAndPrayers();
     }
 
@@ -4624,11 +4918,889 @@
       $("btn-pwa-dismiss").onclick = () => $("pwa-install-banner").classList.add("hidden");
     }
 
+
+    /* ================= MODUL BELAJAR SMP (KELAS 7, 8 & 9 — FULL KURIKULUM MERDEKA) ================= */
+    const SMP_STORE_KEY = "oznet_smp_state_v1";
+
+    const SMP_SUBJECTS = [
+      { id: "Matematika", ico: "📐", label: "Matematika" },
+      { id: "IPA", ico: "🔬", label: "IPA" },
+      { id: "IPS", ico: "🌍", label: "IPS" },
+      { id: "Bahasa Indonesia", ico: "📖", label: "Bahasa Indonesia" },
+      { id: "Bahasa Inggris", ico: "🇬🇧", label: "Bahasa Inggris" },
+      { id: "PAI", ico: "🕌", label: "PAI & Budi Pekerti" },
+      { id: "Pendidikan Pancasila", ico: "🇮🇩", label: "Pendidikan Pancasila" },
+      { id: "Informatika", ico: "💻", label: "Informatika" },
+      { id: "PJOK", ico: "⚽", label: "PJOK" },
+      { id: "Seni Budaya", ico: "🎨", label: "Seni Budaya" },
+      { id: "Prakarya", ico: "🛠️", label: "Prakarya" }
+    ];
+
+    const SMP_DAYS = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
+    const DEFAULT_SMP_SCHEDULES = {
+      "7": {
+        Senin: ["Upacara", "Matematika", "Bahasa Indonesia", "PAI"],
+        Selasa: ["IPA", "Bahasa Inggris", "IPS"],
+        Rabu: ["Matematika", "Informatika", "Pendidikan Pancasila"],
+        Kamis: ["IPA", "Bahasa Indonesia", "Seni Budaya"],
+        Jumat: ["PJOK", "Bahasa Inggris", "Prakarya"],
+        Sabtu: ["Ekstrakurikuler / Pramuka", "Literasi & Mengaji"]
+      },
+      "8": {
+        Senin: ["Upacara", "IPA", "Matematika", "Pendidikan Pancasila"],
+        Selasa: ["Bahasa Indonesia", "IPS", "PAI"],
+        Rabu: ["Bahasa Inggris", "Matematika", "Informatika"],
+        Kamis: ["IPA", "Seni Budaya", "Bahasa Indonesia"],
+        Jumat: ["PJOK", "Prakarya", "Bahasa Inggris"],
+        Sabtu: ["Ekstrakurikuler / Pramuka", "Review Materi Mingguan"]
+      },
+      "9": {
+        Senin: ["Upacara", "Matematika", "IPA", "Bahasa Inggris"],
+        Selasa: ["Bahasa Indonesia", "IPS", "Informatika"],
+        Rabu: ["Matematika", "PAI", "Pendidikan Pancasila"],
+        Kamis: ["IPA", "Bahasa Inggris", "Seni Budaya"],
+        Jumat: ["PJOK", "Bahasa Indonesia", "Prakarya"],
+        Sabtu: ["Latihan Soal Ujian", "Ekstrakurikuler"]
+      }
+    };
+
+    const SMP_BUILTIN_MATERIALS = {
+      "7": {
+        "Matematika": [
+          { t: "Bab 1: Bilangan Bulat & Pecahan", b: "• Operasi hitung bilangan bulat: (+)×(+)=(+), (+)×(-)=(-), (-)×(-)=(+).\n• Urutan pengerjaan (KABATAKU): Kurung → Pangkat → Kali/Bagi → Tambah/Kurang.\n• KPK dipakai untuk jadwal bersamaan; FPB dipakai untuk membagi sama rata.\n• Pecahan: samakan penyebut saat tambah/kurang; kali silang/balik pecahan kedua saat membagi." },
+          { t: "Bab 2: Aljabar & PLSV", b: "• Bentuk aljabar terdiri dari variabel (huruf), koefisien (angka depan variabel), dan konstanta.\n• Hanya suku sejenis (variabel & pangkat sama) yang bisa dijumlahkan/dikurangkan.\n• PLSV (ax + b = c): pindahkan suku sejenis ke ruas yang sama dengan membalik tanda (+/-)." },
+          { t: "Bab 3: Perbandingan, Garis & Sudut", b: "• Perbandingan Senilai (a₁/b₁ = a₂/b₂): makin banyak barang makin mahal.\n• Perbandingan Berbalik Nilai (a₁×b₁ = a₂×b₂): makin banyak pekerja makin cepat selesai.\n• Sudut berpelurus = 180°, berpenyiku = 90°, bertolak belakang besarnya sama." }
+        ],
+        "IPA": [
+          { t: "Bab 1: Hakikat Sains & Pengukuran", b: "• Besaran Pokok (7): Panjang (m), Massa (kg), Waktu (s), Suhu (K), Kuat Arus (A), Intensitas Cahaya (cd), Jumlah Zat (mol).\n• Besaran Turunan: Luas (m²), Volume (m³), Kecepatan (m/s), Massa Jenis (kg/m³).\n• Massa jenis ρ = m / V." },
+          { t: "Bab 2: Zat, Suhu & Kalor", b: "• Perubahan Fisika tidak menghasilkan zat baru (es mencair); Perubahan Kimia menghasilkan zat baru (besi berkarat, kertas terbakar).\n• Skala Suhu: C : R : (F-32) = 5 : 4 : 9, dan K = C + 273.\n• Kalor: Q = m · c · ΔT (perubahan suhu), Q = m · L (melebur/menguap)." },
+          { t: "Bab 3: Klasifikasi Makhluk Hidup & Ekosistem", b: "• Urutan takson: Kingdom → Filum/Divisi → Kelas → Ordo → Famili → Genus → Spesies.\n• 5 Kingdom: Monera, Protista, Fungi, Plantae, Animalia.\n• Rantai makanan: Produsen → Konsumen I → Konsumen II → Pengurai (Dekomposer)." }
+        ],
+        "IPS": [
+          { t: "Bab 1: Keluarga, Lokasi & Peta", b: "• Letak astronomis Indonesia: 6°LU–11°LS dan 95°BT–141°BT (iklim tropis, 3 zona waktu: WIB, WITA, WIT).\n• Komponen peta: judul, skala, orientasi utara, simbol, legenda, garis astronomis, inset.\n• Skala = Jarak Peta / Jarak Sebenarnya." },
+          { t: "Bab 2: Interaksi Sosial & Aktivitas Ekonomi", b: "• Syarat interaksi sosial: kontak sosial & komunikasi.\n• 3 kegiatan ekonomi: Produksi (membuat), Distribusi (menyalurkan), Konsumsi (memakai).\n• Hukum permintaan: harga naik → permintaan turun (ceteris paribus)." }
+        ],
+        "Bahasa Indonesia": [
+          { t: "Bab 1: Teks Deskripsi & Cerita Fantasi", b: "• Teks Deskripsi menggambarkan objek secara rinci melibatkan pancaindra. Struktur: Identifikasi → Deskripsi Bagian → Simpulan.\n• Teks Narasi/Fantasi: Orientasi → Komplikasi → Resolusi." },
+          { t: "Bab 2: Teks Prosedur & Teks Berita", b: "• Teks Prosedur menjelaskan langkah membuat/melakukan sesuatu (memakai kalimat perintah/imperatif).\n• Teks Berita wajib memenuhi unsur ADIKSIMBA (Apa, Di mana, Kapan, Siapa, Mengapa, Bagaimana)." }
+        ],
+        "Bahasa Inggris": [
+          { t: "Unit 1: Greetings, Introduction & Family", b: "• Greeting: Good morning/afternoon/evening, How are you?\n• Introducing self: 'Hi, my name is...', 'I am from...', 'My hobby is...'.\n• Pronoun: I/My, You/Your, He/His, She/Her, We/Our, They/Their." },
+          { t: "Unit 2: Simple Present Tense & Daily Activities", b: "• Rumus: S + V1(s/es) untuk kebiasaan sehari-hari.\n• He/She/It memakai V1+s/es dan 'does/doesn't'; I/You/We/They memakai V1 dan 'do/don't'.\n• Contoh: 'She studies Math every evening.'" }
+        ],
+        "PAI": [
+          { t: "Bab 1: Iman kepada Allah (Asmaul Husna) & Thaharah", b: "• Al-'Alim (Maha Mengetahui), Al-Khabir (Maha Teliti), As-Sami' (Maha Mendengar), Al-Bashir (Maha Melihat).\n• Thaharah: bersuci dari hadas kecil (wudhu/tayamum) & hadas besar (mandi wajib).\n• Sholat berjamaah pahalanya 27 derajat lebih utama dibanding sholat munfarid." },
+          { t: "Bab 2: Sejarah Nabi Muhammad SAW di Makkah", b: "• Dakwah sembunyi-sembunyi (3 tahun) dimulai dari keluarga & sahabat terdekat (Assabiqunal Awwalun).\n• Dakwah terang-terangan di Bukit Shafa hingga peristiwa Hijrah ke Madinah." }
+        ],
+        "Pendidikan Pancasila": [
+          { t: "Bab 1: Sejarah Kelahiran Pancasila & Norma", b: "• BPUPKI dibentuk 1 Maret 1945; sidang pertama (29 Mei–1 Juni 1945) merumuskan dasar negara; Hari Lahir Pancasila: 1 Juni.\n• 4 macam norma: Agama, Kesusilaan, Kesopanan, dan Hukum (sanksi tegas & memaksa)." }
+        ],
+        "Informatika": [
+          { t: "Bab 1: Berpikir Komputasional & Sistem Komputer", b: "• 4 pilar Berpikir Komputasional: Dekomposisi, Pengenalan Pola, Abstraksi, Algoritma.\n• Komponen komputer: Hardware (perangkat keras: CPU, RAM, SSD), Software (OS, aplikasi), Brainware (pengguna)." }
+        ],
+        "PJOK": [
+          { t: "Bab 1: Permainan Bola Besar & Kebugaran Jasmani", b: "• Sepak bola: passing (kaki bagian dalam), dribbling, shooting.\n• Bola voli: servis bawah/atas, passing bawah/atas, smash.\n• Unsur kebugaran jasmani: kekuatan, daya tahan, kecepatan, kelenturan, kelincahan." }
+        ],
+        "Seni Budaya": [
+          { t: "Bab 1: Menggambar Flora, Fauna & Seni Musik", b: "• Prinsip menggambar: proporsi, komposisi, keseimbangan, kesatuan, perspektif.\n• Unsur musik: ritme, melodi, harmoni, tempo, dinamika, timbre." }
+        ],
+        "Prakarya": [
+          { t: "Bab 1: Kerajinan Bahan Serat & Pengolahan Pangan", b: "• Serat alam: kapas, eceng gondok, daun pandan, sabut kelapa, wol, sutra.\n• Tahapan kerajinan: Perencanaan → Persiapan alat/bahan → Pembuatan → Finishing & Pengemasan." }
+        ]
+      },
+      "8": {
+        "Matematika": [
+          { t: "Bab 1: Pola Bilangan & Koordinat Kartesius", b: "• Barisan Aritmetika: Un = a + (n - 1)b; Sn = (n/2)(a + Un).\n• Barisan Geometri: Un = a · r^(n-1).\n• Koordinat Kartesius (x, y): Kuadran I (+,+), II (-,+), III (-,-), IV (+,-)." },
+          { t: "Bab 2: Relasi, Fungsi & Persamaan Garis Lurus", b: "• Fungsi memetakan setiap anggota domain tepat satu ke kodomain.\n• Gradien garis melalui (x₁,y₁) dan (x₂,y₂): m = (y₂ - y₁)/(x₂ - x₁).\n• Sejajar: m₁ = m₂; Tegak lurus: m₁ × m₂ = -1." },
+          { t: "Bab 3: Teorema Pythagoras, SPLDV & Lingkaran", b: "• Pythagoras: c² = a² + b² (Tripel: 3-4-5, 5-12-13, 7-24-25, 8-15-17).\n• SPLDV diselesaikan dengan Substitusi, Eliminasi, atau Gabungan.\n• Lingkaran: Keliling = 2πr, Luas = πr², Sudut pusat = 2 × Sudut keliling." }
+        ],
+        "IPA": [
+          { t: "Bab 1: Gerak, Gaya, Usaha & Pesawat Sederhana", b: "• Hukum Newton I (Kelembaman: ΣF = 0), II (F = m · a), III (Aksi = -Reaksi).\n• Usaha W = F · s (Joule); Daya P = W / t (Watt).\n• Pesawat sederhana: Tuas (w·lb = F·lk), Bidang Miring (KM = s/h), Katrol (tetap KM=1, bebas KM=2)." },
+          { t: "Bab 2: Tekanan, Getaran, Gelombang & Cahaya", b: "• Tekanan zat padat P = F / A; Tekanan hidrostatis Ph = ρ · g · h.\n• Frekuensi f = n / t; Periode T = 1 / f; Cepat rambat gelombang v = λ · f.\n• Cermin & Lensa: 1/f = 1/s + 1/s', Perbesaran M = |s'/s|." },
+          { t: "Bab 3: Sistem Pencernaan, Pernapasan & Peredaran Darah", b: "• Enzim pencernaan: Amilase (amilum→maltosa), Pepsin (protein→pepton), Lipase (lemak→asam lemak).\n• Peredaran darah kecil: Jantung (bilik kanan) → Paru-paru → Jantung (serambi kiri)." }
+        ],
+        "IPS": [
+          { t: "Bab 1: Kondisi Geografis & Interaksi ASEAN", b: "• 10 negara pendiri/anggota utama ASEAN + Timor Leste; Indonesia berperan aktif sejak Deklarasi Bangkok 8 Agustus 1967.\n• Mobilitas sosial: perpindahan status sosial (vertikal naik/turun dan horizontal)." },
+          { t: "Bab 2: Perdagangan Antarpulau & Pergerakan Nasional", b: "• Faktor pendorong perdagangan: perbedaan sumber daya, tingkat harga, dan kebutuhan.\n• Budi Utomo (20 Mei 1908) menandai Kebangkitan Nasional; Sumpah Pemuda (28 Oktober 1928)." }
+        ],
+        "Bahasa Indonesia": [
+          { t: "Bab 1: Teks Laporan Hasil Observasi & Iklan", b: "• LHO bersifat objektif & faktual. Struktur: Definisi Umum → Deskripsi Bagian → Deskripsi Manfaat.\n• Iklan, Slogan, dan Poster harus singkat, persuasif, dan mudah diingat." },
+          { t: "Bab 2: Teks Eksposisi, Puisi & Ulasan", b: "• Eksposisi: Tesis → Rangkaian Argumen → Penegasan Ulang.\n• Unsur intrinsik puisi: diksi, imaji, majas, rima, amanat." }
+        ],
+        "Bahasa Inggris": [
+          { t: "Unit 1: Simple Past Tense & Recount Text", b: "• Simple Past (S + V2) dipakai untuk kejadian yang sudah selesai di masa lalu (yesterday, last week, ago).\n• Kalimat negatif/tanya pakai 'did/didn't' + V1.\n• Recount Text: Orientation → Events → Re-orientation." },
+          { t: "Unit 2: Degrees of Comparison & Asking Opinion", b: "• Positive (as tall as), Comparative (taller than / more diligent than), Superlative (the tallest / the most diligent)." }
+        ],
+        "PAI": [
+          { t: "Bab 1: Iman kepada Kitab & Rasul Allah, Puasa", b: "• 4 Kitab suci: Taurat (Musa), Zabur (Daud), Injil (Isa), Al-Qur'an (Muhammad SAW).\n• Sifat wajib Rasul: Shiddiq, Amanah, Tabligh, Fathanah.\n• Puasa wajib (Ramadhan, Nazar, Qadha) & Puasa sunnah (Senin-Kamis, Arafah, Asyura, Syawal)." }
+        ],
+        "Pendidikan Pancasila": [
+          { t: "Bab 1: Kedudukan Pancasila & Tata Urutan Peraturan", b: "• Pancasila sebagai Dasar Negara & Pandangan Hidup Bangsa.\n• Hierarki peraturan (UU No. 12/2011): UUD 1945 → Tap MPR → UU/Perppu → PP → Perpres → Perda Provinsi → Perda Kab/Kota." }
+        ],
+        "Informatika": [
+          { t: "Bab 1: Jaringan Komputer, Internet & Algoritma Dasar", b: "• Jenis jaringan: LAN (lokal), MAN (antarkota), WAN (global/internet).\n• Flowchart memakai simbol: Oval (Start/End), Jajar Genjang (Input/Output), Persegi Panjang (Proses), Belah Ketupat (Keputusan)." }
+        ],
+        "PJOK": [
+          { t: "Bab 1: Bulu Tangkis, Atletik & Pergaulan Sehat", b: "• Bulu tangkis: servis pendek/panjang, lob, dropshot, smash.\n• Lari jarak pendek memakai start jongkok (aba-aba: Bersedia – Siap – Ya)." }
+        ],
+        "Seni Budaya": [
+          { t: "Bab 1: Gambar Model, Poster & Tari Tradisional", b: "• Menggambar ilustrasi & poster memadukan teks singkat dengan visual menarik.\n• Pola lantai tari: garis lurus (vertikal, horizontal, diagonal) & garis lengkung." }
+        ],
+        "Prakarya": [
+          { t: "Bab 1: Kerajinan Bahan Lunak & Budidaya", b: "• Bahan lunak alami (tanah liat, getah nyatu, flour clay) dan buatan (sabun, lilin, gips, polimer clay)." }
+        ]
+      },
+      "9": {
+        "Matematika": [
+          { t: "Bab 1: Perpangkatan, Bentuk Akar & Persamaan Kuadrat", b: "• Sifat pangkat: a^m × a^n = a^(m+n); a^m / a^n = a^(m-n); (a^m)^n = a^(m·n); a^0 = 1.\n• Persamaan kuadrat ax² + bx + c = 0 diselesaikan dengan Pemfaktoran atau Rumus ABC: x = (-b ± √(b²-4ac)) / 2a.\n• Diskriminan D = b² - 4ac." },
+          { t: "Bab 2: Transformasi Geometri & Kesebangunan", b: "• 4 Transformasi: Translasi (geser), Refleksi (cermin), Rotasi (putar), Dilatasi (perbesar/perkecil skala k).\n• Kongruen: bentuk & ukuran persis sama. Sebangun: sudut bersesuaian sama besar & sisi bersesuaian sebanding." },
+          { t: "Bab 3: Bangun Ruang Sisi Lengkung (Tabung, Kerucut, Bola)", b: "• Tabung: V = πr²t, Lp = 2πr(r + t).\n• Kerucut: V = ⅓πr²t, Lp = πr(r + s) dengan s = √(r² + t²).\n• Bola: V = 4/3·πr³, Lp = 4πr²." }
+        ],
+        "IPA": [
+          { t: "Bab 1: Sistem Reproduksi & Pewarisan Sifat (Genetika)", b: "• Pembelahan sel: Mitosis (2 sel anakan identik, sel tubuh) & Meiosis (4 sel anakan haploid, sel gamet).\n• Hukum Mendel: Monohibrid dominan penuh F2 perbandingan fenotipe 3:1, genotipe 1:2:1; Dihibrid F2 = 9:3:3:1." },
+          { t: "Bab 2: Listrik Statis, Listrik Dinamis & Kemagnetan", b: "• Hukum Coulomb: F = k · q₁·q₂ / r².\n• Hukum Ohm: V = I · R; Rangkaian Seri Rtotal = R₁+R₂; Paralel 1/Rp = 1/R₁+1/R₂.\n• Daya listrik P = V·I = I²R = V²/R; Energi listrik W = P · t.\n• Transformator: Vp/Vs = Np/Ns = Is/Ip." },
+          { t: "Bab 3: Bioteknologi & Atom/Partikel Materi", b: "• Bioteknologi konvensional: tempe (Rhizopus), tapai/roti (Saccharomyces), yoghurt (Lactobacillus).\n• Atom terdiri dari Proton (+), Neutron (netral) di inti, dan Elektron (-) di kulit." }
+        ],
+        "IPS": [
+          { t: "Bab 1: Perubahan Sosial, Globalisasi & Ekonomi Digital", b: "• Globalisasi mempercepat arus informasi, transportasi, dan perdagangan lintas negara.\n• Dampak positif: teknologi maju & efisiensi; tantangan: westernisasi & konsumerisme.\n• Literasi finansial & transaksi digital (QRIS, e-wallet) perlu digunakan bijak." },
+          { t: "Bab 2: Sejarah Kemerdekaan hingga Reformasi", b: "• Proklamasi 17 Agustus 1945 di Jl. Pegangsaan Timur No. 56 Jakarta.\n• Masa Demokrasi Parlementer (1950-1959), Demokrasi Terpimpin (1959-1965), Orde Baru (1966-1998), dan Era Reformasi (1998–sekarang)." }
+        ],
+        "Bahasa Indonesia": [
+          { t: "Bab 1: Teks Pidato Persuasif & Cerpen", b: "• Pidato persuasif bertujuan meyakinkan pendengar (Pembukaan → Isi/Argumen → Penutup).\n• Unsur intrinsik cerpen: tema, tokoh/penokohan, alur, latar, sudut pandang, gaya bahasa, amanat." },
+          { t: "Bab 2: Teks Tanggapan & Teks Diskusi", b: "• Teks Diskusi memuat dua sisi pendapat: Isu → Argumen Mendukung (Pro) → Argumen Menentang (Kontra) → Simpulan/Saran." }
+        ],
+        "Bahasa Inggris": [
+          { t: "Unit 1: Present Perfect, Passive Voice & Procedure/Report Text", b: "• Present Perfect: S + have/has + V3 (kejadian yang masih berdampak hingga kini).\n• Passive Voice: S + to be + V3 + (by ...). Contoh: 'The cake is made by Mom.'\n• Report Text mendeskripsikan sesuatu secara umum/ilmiah: General Classification → Description." },
+          { t: "Unit 2: Narrative Text & Congratulations", b: "• Narrative Text (dongeng/legenda): Orientation → Complication → Resolution → Re-orientation (moral value)." }
+        ],
+        "PAI": [
+          { t: "Bab 1: Iman kepada Hari Akhir, Qadha & Qadar, Zakat", b: "• Kiamat Sughra (kecil: kematian, bencana) & Kiamat Kubra (kehancuran alam semesta).\n• Takdir Mubram (pasti, tak bisa diubah) & Takdir Mu'allaq (bisa diikhtiarkan dengan usaha & doa).\n• Zakat Fitrah (2,5 kg / 3,5 liter beras) & Zakat Mal (harta yang mencapai nisab & haul)." }
+        ],
+        "Pendidikan Pancasila": [
+          { t: "Bab 1: Kedaulatan NKRI, Bhinneka Tunggal Ika & Bela Negara", b: "• Pasal 1 ayat (2) UUD 1945: Kedaulatan berada di tangan rakyat dan dilaksanakan menurut UUD.\n• Trias Politika: Legislatif (DPR/DPD/MPR), Eksekutif (Presiden), Yudikatif (MA/MK/KY)." }
+        ],
+        "Informatika": [
+          { t: "Bab 1: Keamanan Digital, Analisis Data & Pemrograman", b: "• Keamanan digital: password kuat, 2FA, waspada phishing & hoaks.\n• Dasar pemrograman: variabel, tipe data, percabangan (if-else), perulangan (for/while)." }
+        ],
+        "PJOK": [
+          { t: "Bab 1: Bela Diri Pencak Silat, Senam Lantai & P3K", b: "• Pencak silat: kuda-kuda, pukulan, tendangan, tangkisan, elakan.\n• Prinsip P3K: menolong korban secara cepat, tepat, dan aman sebelum penanganan medis." }
+        ],
+        "Seni Budaya": [
+          { t: "Bab 1: Seni Lukis, Seni Patung & Pameran Sekolah", b: "• Aliran seni lukis: Realisme, Naturalisme, Ekspresionisme, Impresionisme, Abstrak.\n• Teknik patung: memahat, membutsir, mencetak/cor, merakit." }
+        ],
+        "Prakarya": [
+          { t: "Bab 1: Kerajinan Bahan Keras & Rekayasa Kelistrikan", b: "• Bahan keras alami (kayu, bambu, rotan) & buatan (kaca, logam).\n• Prinsip keselamatan kelistrikan: sakelar, sekering/MCB, kabel berisolasi baik." }
+        ]
+      }
+    };
+
+    const SMP_QUIZ_BANK = [
+      // === KELAS 7 ===
+      { g:"7", s:"Matematika", q:"Hasil dari -12 + 7 × (-3) adalah ...", o:["-33","15","-15","33"], a:0, e:"Kerjakan perkalian dulu: 7 × (-3) = -21, lalu -12 + (-21) = -33." },
+      { g:"7", s:"Matematika", q:"FPB dari 24 dan 36 adalah ...", o:["6","12","18","72"], a:1, e:"24 = 2³ × 3 dan 36 = 2² × 3². FPB = 2² × 3 = 12." },
+      { g:"7", s:"Matematika", q:"Jika 3x - 5 = 16, maka nilai x adalah ...", o:["5","6","7","8"], a:2, e:"3x = 16 + 5 = 21 → x = 21 / 3 = 7." },
+      { g:"7", s:"Matematika", q:"Dua sudut saling berpelurus. Jika sudut pertama 65°, besar sudut kedua adalah ...", o:["25°","115°","125°","135°"], a:1, e:"Sudut berpelurus jumlahnya 180°, jadi 180° - 65° = 115°." },
+      { g:"7", s:"IPA", q:"Manakah yang termasuk kelompok besaran pokok SI?", o:["Luas, volume, massa","Panjang, massa, waktu","Kecepatan, gaya, suhu","Energi, waktu, panjang"], a:1, e:"Panjang (m), massa (kg), dan waktu (s) adalah bagian dari 7 besaran pokok SI." },
+      { g:"7", s:"IPA", q:"Suhu suatu benda 50°C. Jika dinyatakan dalam skala Kelvin (K) menjadi ...", o:["223 K","273 K","323 K","350 K"], a:2, e:"K = °C + 273 = 50 + 273 = 323 K." },
+      { g:"7", s:"IPA", q:"Peristiwa berikut yang merupakan perubahan kimia adalah ...", o:["Es mencair","Air menguap","Besi berkarat","Lilin meleleh"], a:2, e:"Besi berkarat menghasilkan zat baru (oksida besi), sehingga termasuk perubahan kimia." },
+      { g:"7", s:"IPS", q:"Letak astronomis Indonesia berada pada ...", o:["6°LU–11°LS dan 95°BT–141°BT","6°LS–11°LU dan 95°BB–141°BB","0°–23,5°LU dan 90°BT–140°BT","6°LU–11°LU dan 95°BT–141°BT"], a:0, e:"Letak astronomis Indonesia adalah 6°LU–11°LS dan 95°BT–141°BT." },
+      { g:"7", s:"IPS", q:"Jarak kota A–B di peta berskala 1 : 500.000 adalah 4 cm. Jarak sebenarnya adalah ...", o:["2 km","20 km","200 km","2.000 km"], a:1, e:"4 cm × 500.000 = 2.000.000 cm = 20 km." },
+      { g:"7", s:"Bahasa Indonesia", q:"Struktur teks deskripsi yang benar adalah ...", o:["Orientasi – Komplikasi – Resolusi","Identifikasi – Deskripsi Bagian – Simpulan","Tesis – Argumen – Penegasan","Tujuan – Bahan – Langkah"], a:1, e:"Teks deskripsi tersusun dari Identifikasi, Deskripsi Bagian, dan Simpulan/Kesan." },
+      { g:"7", s:"Bahasa Inggris", q:"My sister ___ to school by bicycle every morning.", o:["go","goes","going","went"], a:1, e:"Subjek 'My sister' (she) pada Simple Present Tense memakai kata kerja + es → goes." },
+      { g:"7", s:"Bahasa Inggris", q:"'What time is it?' — 07:30 in English is ...", o:["Half past seven","Half past eight","A quarter to seven","Seven o'clock"], a:0, e:"07:30 dibaca 'half past seven' (lewat 30 menit dari pukul 7)." },
+      { g:"7", s:"PAI", q:"Asmaul Husna 'Al-Khabir' memiliki arti Allah Maha ...", o:["Mendengar","Melihat","Teliti / Waspada","Mengetahui"], a:2, e:"Al-Khabir artinya Maha Teliti/Waspada terhadap segala hal sekecil apa pun." },
+      { g:"7", s:"Pendidikan Pancasila", q:"Norma yang bersumber dari peraturan negara dan memiliki sanksi tegas serta memaksa adalah norma ...", o:["Agama","Kesusilaan","Kesopanan","Hukum"], a:3, e:"Norma hukum dibuat lembaga negara dan memiliki sanksi tegas dan memaksa." },
+      { g:"7", s:"Informatika", q:"Memecah masalah besar menjadi bagian-bagian kecil agar mudah diselesaikan disebut ...", o:["Abstraksi","Dekomposisi","Algoritma","Kompilasi"], a:1, e:"Dekomposisi adalah teknik memecah masalah kompleks menjadi sub-masalah kecil." },
+
+      // === KELAS 8 ===
+      { g:"8", s:"Matematika", q:"Suku ke-10 dari barisan aritmetika 3, 7, 11, 15, ... adalah ...", o:["35","39","43","47"], a:1, e:"a = 3, b = 4. U10 = a + 9b = 3 + 36 = 39." },
+      { g:"8", s:"Matematika", q:"Segitiga siku-siku memiliki sisi siku-siku 6 cm dan 8 cm. Panjang sisi miringnya adalah ...", o:["9 cm","10 cm","12 cm","14 cm"], a:1, e:"c = √(6² + 8²) = √(36 + 64) = √100 = 10 cm." },
+      { g:"8", s:"Matematika", q:"Gradien garis yang melalui titik (2, 3) dan (4, 11) adalah ...", o:["2","3","4","5"], a:2, e:"m = (11 - 3) / (4 - 2) = 8 / 2 = 4." },
+      { g:"8", s:"Matematika", q:"Jika x + y = 10 dan x - y = 4, maka nilai x adalah ...", o:["3","5","7","8"], a:2, e:"Jumlahkan kedua persamaan: 2x = 14 → x = 7." },
+      { g:"8", s:"IPA", q:"Sebuah benda bermassa 4 kg diberi gaya 20 N. Percepatan benda tersebut adalah ...", o:["2 m/s²","4 m/s²","5 m/s²","80 m/s²"], a:2, e:"Hukum II Newton: a = F / m = 20 / 4 = 5 m/s²." },
+      { g:"8", s:"IPA", q:"Gaya 50 N mendorong meja sejauh 3 meter. Besar usaha yang dilakukan adalah ...", o:["16,7 J","53 J","150 J","250 J"], a:2, e:"W = F × s = 50 N × 3 m = 150 Joule." },
+      { g:"8", s:"IPA", q:"Enzim yang berfungsi mengubah protein menjadi pepton di lambung adalah ...", o:["Amilase","Pepsin","Lipase","Ptialin"], a:1, e:"Pepsin dihasilkan di lambung untuk memecah protein menjadi pepton." },
+      { g:"8", s:"IPA", q:"Jika sebuah gelombang memiliki frekuensi 50 Hz dan panjang gelombang 2 m, cepat rambatnya adalah ...", o:["25 m/s","52 m/s","100 m/s","200 m/s"], a:2, e:"v = λ × f = 2 m × 50 Hz = 100 m/s." },
+      { g:"8", s:"IPS", q:"ASEAN resmi didirikan pada tanggal 8 Agustus 1967 melalui Deklarasi ...", o:["Jakarta","Bangkok","Manila","Kuala Lumpur"], a:1, e:"ASEAN didirikan lewat Deklarasi Bangkok pada 8 Agustus 1967." },
+      { g:"8", s:"IPS", q:"Organisasi pergerakan nasional pertama yang menandai Hari Kebangkitan Nasional (20 Mei 1908) adalah ...", o:["Sarekat Islam","Indische Partij","Budi Utomo","Perhimpunan Indonesia"], a:2, e:"Budi Utomo didirikan 20 Mei 1908 oleh dr. Soetomo dan pelajar STOVIA." },
+      { g:"8", s:"Bahasa Indonesia", q:"Teks yang berisi penjabaran umum hasil pengamatan secara objektif dan faktual disebut teks ...", o:["Fantasi","Laporan Hasil Observasi","Prosedur","Cerpen"], a:1, e:"Teks Laporan Hasil Observasi (LHO) menyajikan fakta hasil pengamatan secara objektif." },
+      { g:"8", s:"Bahasa Inggris", q:"Yesterday, my family ___ to Rangkasbitung together.", o:["go","goes","went","gone"], a:2, e:"Kata keterangan 'Yesterday' memakai Simple Past Tense (V2 dari go adalah went)." },
+      { g:"8", s:"Bahasa Inggris", q:"Mount Everest is the ___ mountain in the world.", o:["high","higher","highest","most high"], a:2, e:"Superlative untuk 1 suku kata 'high' adalah 'the highest'." },
+      { g:"8", s:"PAI", q:"Sifat wajib rasul yang berarti 'dapat dipercaya' adalah ...", o:["Shiddiq","Amanah","Tabligh","Fathanah"], a:1, e:"Amanah artinya dapat dipercaya; Shiddiq = jujur, Tabligh = menyampaikan, Fathanah = cerdas." },
+      { g:"8", s:"Pendidikan Pancasila", q:"Peraturan perundang-undangan tertinggi dalam hierarki hukum di Indonesia adalah ...", o:["Undang-Undang","Peraturan Pemerintah","UUD NRI Tahun 1945","Peraturan Presiden"], a:2, e:"UUD NRI Tahun 1945 menempati puncak tertinggi tata urutan peraturan di Indonesia." },
+      { g:"8", s:"Informatika", q:"Simbol belah ketupat (diamond) pada diagram alir (flowchart) berfungsi untuk menyatakan ...", o:["Mulai / Selesai","Input / Output","Keputusan / Percabangan","Proses hitung"], a:2, e:"Belah ketupat melambangkan keputusan (Ya/Tidak) pada flowchart." },
+
+      // === KELAS 9 ===
+      { g:"9", s:"Matematika", q:"Nilai dari 2³ × 2⁴ adalah ...", o:["2⁷","2¹²","4⁷","4¹²"], a:0, e:"Sifat perkalian pangkat basis sama: a^m × a^n = a^(m+n) → 2^(3+4) = 2⁷ = 128." },
+      { g:"9", s:"Matematika", q:"Akar-akar persamaan kuadrat x² - 5x + 6 = 0 adalah ...", o:["x = 1 atau x = 6","x = 2 atau x = 3","x = -2 atau x = -3","x = -1 atau x = 6"], a:1, e:"(x - 2)(x - 3) = 0 → x = 2 atau x = 3." },
+      { g:"9", s:"Matematika", q:"Volume tabung dengan jari-jari 7 cm dan tinggi 10 cm (π = 22/7) adalah ...", o:["440 cm³","770 cm³","1.540 cm³","3.080 cm³"], a:2, e:"V = π × r² × t = (22/7) × 7 × 7 × 10 = 1.540 cm³." },
+      { g:"9", s:"Matematika", q:"Bayangan titik A(3, -5) jika dicerminkan terhadap sumbu-X adalah ...", o:["(3, 5)","(-3, -5)","(-3, 5)","(-5, 3)"], a:0, e:"Refleksi terhadap sumbu-X: (x, y) → (x, -y), sehingga (3, -5) → (3, 5)." },
+      { g:"9", s:"IPA", q:"Pada rangkaian listrik dengan tegangan 12 Volt dan hambatan 4 Ohm, kuat arus yang mengalir adalah ...", o:["0,33 A","3 A","8 A","48 A"], a:1, e:"Hukum Ohm: I = V / R = 12 / 4 = 3 Ampere." },
+      { g:"9", s:"IPA", q:"Persilangan monohibrid dominan penuh (Mm × Mm) menghasilkan perbandingan fenotipe F2 ...", o:["1 : 1","1 : 2 : 1","3 : 1","9 : 3 : 3 : 1"], a:2, e:"Genotipe MM, Mm, Mm (dominan = 3) dan mm (resesif = 1) → fenotipe 3 : 1." },
+      { g:"9", s:"IPA", q:"Mikroorganisme yang berperan dalam pembuatan tempe adalah ...", o:["Saccharomyces cerevisiae","Rhizopus oryzae","Lactobacillus bulgaricus","Acetobacter xylinum"], a:1, e:"Jamur Rhizopus oryzae digunakan dalam fermentasi kedelai menjadi tempe." },
+      { g:"9", s:"IPA", q:"Lampu 20 Watt dinyalakan selama 5 jam. Energi listrik yang terpakai adalah ...", o:["4 Wh","25 Wh","100 Wh","200 Wh"], a:2, e:"W = P × t = 20 W × 5 jam = 100 Wh (0,1 kWh)." },
+      { g:"9", s:"IPS", q:"Proklamasi Kemerdekaan Indonesia dibacakan pada 17 Agustus 1945 di ...", o:["Lapangan Ikada","Jl. Pegangsaan Timur No. 56","Rengasdengklok","Gedung Merdeka"], a:1, e:"Proklamasi dibacakan Soekarno–Hatta di Jl. Pegangsaan Timur No. 56 Jakarta." },
+      { g:"9", s:"IPS", q:"Masuknya budaya asing yang diikuti tanpa penyaringan hingga menggeser budaya lokal disebut ...", o:["Modernisasi","Westernisasi","Urbanisasi","Industrialisasi"], a:1, e:"Westernisasi adalah peniruan gaya hidup Barat secara berlebihan tanpa seleksi." },
+      { g:"9", s:"Bahasa Indonesia", q:"Teks yang memuat argumen mendukung (pro) dan menentang (kontra) terhadap suatu isu disebut teks ...", o:["Deskripsi","Diskusi","Prosedur","Fantasi"], a:1, e:"Teks diskusi menyajikan sudut pandang pro dan kontra sebelum ditarik simpulan." },
+      { g:"9", s:"Bahasa Inggris", q:"Active: 'Mother cooks fried rice.' — Bentuk Passive Voice yang benar adalah ...", o:["Fried rice is cooked by Mother.","Fried rice was cooked by Mother.","Fried rice are cooked by Mother.","Fried rice is cooking by Mother."], a:0, e:"Simple Present Passive: is/am/are + V3 → 'Fried rice is cooked by Mother.'" },
+      { g:"9", s:"Bahasa Inggris", q:"She has ___ in this city since 2020.", o:["live","lives","lived","living"], a:2, e:"Present Perfect Tense memakai have/has + V3 → 'has lived'." },
+      { g:"9", s:"PAI", q:"Takdir yang masih dapat diusahakan perubahannya melalui ikhtiar dan doa disebut takdir ...", o:["Mubram","Mu'allaq","Qadha","Azali"], a:1, e:"Takdir Mu'allaq bergantung pada ikhtiar dan doa (contoh: kepandaian, kesehatan, rezeki)." },
+      { g:"9", s:"Pendidikan Pancasila", q:"Lembaga yang menjalankan kekuasaan eksekutif di Indonesia adalah ...", o:["DPR dan DPD","MA dan MK","Presiden dan Wakil Presiden","BPK"], a:2, e:"Eksekutif (pelaksana pemerintahan) dipegang oleh Presiden beserta jajaran menteri." },
+      { g:"9", s:"Informatika", q:"Upaya penipuan lewat link/pesan palsu untuk mencuri kata sandi atau data pribadi disebut ...", o:["Firewall","Phishing","Enkripsi","Backup"], a:1, e:"Phishing adalah teknik rekayasa sosial untuk memancing korban memasukkan data rahasia." }
+    ];
+
+    const SMP_FORMULAS = {
+      mtk: [
+        { title: "Teorema Pythagoras", code: "c² = a² + b²   |   a = √(c² - b²)", note: "Tripel cepat: (3,4,5), (5,12,13), (7,24,25), (8,15,17) dan kelipatannya." },
+        { title: "Barisan & Deret Aritmetika", code: "Un = a + (n - 1)b\nSn = (n/2) × (2a + (n - 1)b)", note: "a = suku pertama, b = beda (U2 - U1), n = urutan suku." },
+        { title: "Persamaan Garis Lurus", code: "Gradien: m = (y₂ - y₁) / (x₂ - x₁)\nPersamaan: y - y₁ = m(x - x₁)", note: "Sejajar: m₁ = m₂ | Tegak lurus: m₁ × m₂ = -1." },
+        { title: "Persamaan Kuadrat (Rumus ABC)", code: "ax² + bx + c = 0\nx₁,₂ = (-b ± √(b² - 4ac)) / 2a", note: "x₁ + x₂ = -b/a  |  x₁ · x₂ = c/a  |  Diskriminan D = b² - 4ac." },
+        { title: "Bangun Datar Penting", code: "Segitiga: L = ½ × a × t\nTrapesium: L = ½ × (a + b) × t\nLingkaran: K = 2πr,  L = πr²", note: "Gunakan π = 22/7 jika r kelipatan 7, atau π = 3,14." },
+        { title: "Bangun Ruang Sisi Datar & Lengkung", code: "Kubus: V = s³,  Lp = 6s²\nBalok: V = p×l×t,  Lp = 2(pl + pt + lt)\nTabung: V = πr²t,  Lp = 2πr(r + t)\nKerucut: V = ⅓πr²t,  Lp = πr(r + s)\nBola: V = (4/3)πr³,  Lp = 4πr²", note: "Garis pelukis kerucut: s = √(r² + t²)." },
+        { title: "Statistika & Peluang", code: "Rata-rata (Mean) = Jumlah data / Banyak data\nPeluang: P(A) = n(A) / n(S)", note: "Median = nilai tengah (urutkan dulu); Modus = nilai paling sering muncul." }
+      ],
+      ipa: [
+        { title: "Massa Jenis & Konversi Suhu", code: "ρ = m / V\nC : R : (F - 32) = 5 : 4 : 9\nK = °C + 273", note: "ρ = massa jenis (kg/m³), m = massa (kg), V = volume (m³)." },
+        { title: "Kalor & Asas Black", code: "Q = m · c · ΔT   (ubah suhu)\nQ = m · L        (ubah wujud)\nQ_lepas = Q_terima", note: "c = kalor jenis zat, L = kalor lebur/uap." },
+        { title: "Kecepatan, Percepatan & Gaya", code: "v = s / t   |   a = (v_t - v₀) / t\nF = m · a   |   w = m · g", note: "g = percepatan gravitasi (umumnya 10 m/s² atau 9,8 m/s²)." },
+        { title: "Usaha, Energi & Daya", code: "W = F · s   |   P = W / t\nEp = m · g · h   |   Ek = ½ · m · v²", note: "Energi Mekanik Em = Ep + Ek (kekal jika tanpa gesekan)." },
+        { title: "Tekanan & Pesawat Sederhana", code: "Padat: P = F / A\nHidrostatis: Ph = ρ · g · h\nTuas: w · lb = F · lk   |   KM = lk / lb", note: "Makin dalam zat cair (h besar), makin besar tekanan hidrostatis." },
+        { title: "Gelombang, Bunyi & Optik", code: "f = n / t   |   T = 1 / f   |   v = λ · f\nCermin/Lensa: 1/f = 1/s + 1/s'\nPerbesaran: M = |s' / s| = |h' / h|", note: "f positif (+) untuk cermin cekung & lensa cembung." },
+        { title: "Listrik Dinamis, Daya & Trafo", code: "V = I · R   |   Seri: Rs = R₁ + R₂\nParalel: 1/Rp = 1/R₁ + 1/R₂\nP = V·I = I²R = V²/R   |   W = P · t\nTrafo: Vp / Vs = Np / Ns = Is / Ip", note: "1 kWh = 1.000 Wh = 3.600.000 Joule." }
+      ]
+    };
+
+    function loadSmpState() {
+      try {
+        const raw = localStorage.getItem(SMP_STORE_KEY);
+        if (raw) {
+          const p = JSON.parse(raw);
+          return {
+            grade: ["7", "8", "9"].includes(String(p.grade)) ? String(p.grade) : "7",
+            schedules: Object.assign(JSON.parse(JSON.stringify(DEFAULT_SMP_SCHEDULES)), p.schedules || {}),
+            tasks: Array.isArray(p.tasks) ? p.tasks : [],
+            customMaterials: Array.isArray(p.customMaterials) ? p.customMaterials : [],
+            bestScores: (p.bestScores && typeof p.bestScores === "object") ? p.bestScores : {}
+          };
+        }
+      } catch (e) {}
+      return {
+        grade: "7",
+        schedules: JSON.parse(JSON.stringify(DEFAULT_SMP_SCHEDULES)),
+        tasks: [],
+        customMaterials: [],
+        bestScores: {}
+      };
+    }
+
+    let smpState = loadSmpState();
+    let activeSmpSubtab = "materi";
+    let activeSmpPrFilter = "pending";
+    let activeSmpQuizMode = "quiz"; // "quiz" | "rumus"
+    let activeSmpRumusFilter = "mtk";
+    let editingSmpDayName = "";
+    const expandedSmpSubjects = new Set(["Matematika", "IPA"]);
+    let smpQuizSession = null;
+
+    function saveSmpStateLocal() {
+      try { localStorage.setItem(SMP_STORE_KEY, JSON.stringify(smpState)); } catch (e) {}
+    }
+
+    function applyCloudSmpData(d) {
+      if (!d || typeof d !== "object") return;
+      if (d.schedules && typeof d.schedules === "object") {
+        ["7", "8", "9"].forEach((g) => {
+          if (d.schedules[g] && typeof d.schedules[g] === "object") {
+            smpState.schedules[g] = Object.assign({}, DEFAULT_SMP_SCHEDULES[g], d.schedules[g]);
+          }
+        });
+      }
+      if (Array.isArray(d.tasks)) smpState.tasks = d.tasks;
+      if (Array.isArray(d.customMaterials)) smpState.customMaterials = d.customMaterials;
+      saveSmpStateLocal();
+      renderHomeSmpCard();
+      if (!$("smp-modal").classList.contains("hidden")) renderSmpActiveTab();
+    }
+
+    function syncSmpToCloud() {
+      saveSmpStateLocal();
+      renderHomeSmpCard();
+      if (!cloudReady || !db) return;
+      db.collection("oznet_config").doc("smp").set({
+        schedules: smpState.schedules,
+        tasks: smpState.tasks,
+        customMaterials: smpState.customMaterials,
+        updatedAt: Date.now()
+      }, { merge: true }).then(markServerConnected).catch((err) => {
+        handleCloudError(err);
+        showToast("Gagal sinkron data Belajar SMP ke Cloud.", 2600);
+      });
+    }
+
+    function getTodayDayNameIndo() {
+      const idx = new Date().getDay(); // 0=Minggu, 1=Senin...
+      const map = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      return map[idx] || "Senin";
+    }
+
+    function getTomorrowDayNameIndo() {
+      const idx = (new Date().getDay() + 1) % 7;
+      const map = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      return map[idx] || "Senin";
+    }
+
+    function renderHomeSmpCard() {
+      const card = $("home-smp-card");
+      const badge = $("home-smp-badge");
+      const dot = $("home-smp-dot");
+      const prev = $("home-smp-preview");
+      if (!card || !badge || !dot || !prev) return;
+
+      const pendingTasks = smpState.tasks.filter((t) => !t.done);
+      const count = pendingTasks.length;
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.classList.toggle("hidden", count === 0);
+      dot.classList.toggle("hidden", count === 0);
+      card.classList.toggle("has-unread", count > 0);
+
+      const g = smpState.grade || "7";
+      const todayName = getTodayDayNameIndo();
+      const tomName = getTomorrowDayNameIndo();
+      const sched = (smpState.schedules && smpState.schedules[g]) || DEFAULT_SMP_SCHEDULES[g];
+      const todayList = sched[todayName];
+      if (count > 0) {
+        const first = pendingTasks[0];
+        prev.textContent = `${count} PR/Tes belum selesai • ${first.subject}: ${first.title}`;
+        prev.style.color = "var(--text)";
+        prev.style.fontWeight = "700";
+      } else if (todayList && todayList.length) {
+        prev.textContent = `Kls ${g} • ${todayName}: ${todayList.slice(0, 3).join(", ")}`;
+        prev.style.color = "var(--text-muted)";
+        prev.style.fontWeight = "500";
+      } else {
+        const tomList = sched[tomName] || [];
+        prev.textContent = tomList.length
+          ? `Kls ${g} • Besok (${tomName}): ${tomList.slice(0, 3).join(", ")}`
+          : "Materi 11 Mapel • Jadwal • PR • Kuis & Rumus";
+        prev.style.color = "var(--text-muted)";
+        prev.style.fontWeight = "500";
+      }
+    }
+
+    function openSmpWorkspace() {
+      renderSmpSelects();
+      syncSmpGradeUI();
+      switchSmpSubtab(activeSmpSubtab);
+      openModalById("smp-modal");
+      pullLatestCloudData(true);
+    }
+
+    function renderSmpSelects() {
+      const opts = SMP_SUBJECTS.map((s) => `<option value="${s.id}">${s.ico} ${s.label}</option>`).join("");
+      if ($("smp-pr-subject")) $("smp-pr-subject").innerHTML = opts;
+      if ($("smp-cm-subject")) $("smp-cm-subject").innerHTML = opts;
+      const dueInp = $("smp-pr-due");
+      if (dueInp && !dueInp.value) {
+        const d = new Date(Date.now() + 86400000);
+        dueInp.value = getLocalDateKey(d);
+      }
+    }
+
+    function syncSmpGradeUI() {
+      document.querySelectorAll("#smp-grade-pills .smp-grade-pill").forEach((b) => {
+        b.classList.toggle("active", b.dataset.grade === smpState.grade);
+      });
+    }
+
+    function switchSmpSubtab(tab) {
+      activeSmpSubtab = tab;
+      document.querySelectorAll("#smp-subtabs .smp-subtab").forEach((b) => {
+        b.classList.toggle("active", b.dataset.smptab === tab);
+      });
+      ["materi", "jadwal", "pr", "kuis"].forEach((t) => {
+        const el = $("smp-pane-" + t);
+        if (el) el.classList.toggle("hidden", t !== tab);
+      });
+      renderSmpActiveTab();
+      if ($("smp-body")) $("smp-body").scrollTop = 0;
+    }
+
+    function renderSmpActiveTab() {
+      if (activeSmpSubtab === "materi") renderSmpMateri();
+      else if (activeSmpSubtab === "jadwal") renderSmpJadwal();
+      else if (activeSmpSubtab === "pr") renderSmpTasks();
+      else if (activeSmpSubtab === "kuis") renderSmpQuizOrRumus();
+    }
+
+    function canManageSmpCustom() {
+      return currentUserId === "ayah" || currentUserId === "ibu";
+    }
+
+    function renderSmpMateri() {
+      const addBtn = $("btn-smp-add-materi");
+      if (addBtn) addBtn.classList.toggle("hidden", !canManageSmpCustom());
+
+      const q = ($("smp-materi-search") ? $("smp-materi-search").value : "").trim().toLowerCase();
+      const g = smpState.grade;
+      const builtInMap = SMP_BUILTIN_MATERIALS[g] || {};
+      const box = $("smp-materi-list");
+      let htmlOut = "";
+
+      SMP_SUBJECTS.forEach((sub) => {
+        const builtIns = builtInMap[sub.id] || [];
+        const customs = smpState.customMaterials.filter((c) => String(c.grade) === g && c.subject === sub.id);
+        const allItems = [
+          ...customs.map((c) => ({ isCustom: true, id: c.id, t: c.title, b: c.content, link: c.link || "", by: c.createdBy || "" })),
+          ...builtIns.map((m) => ({ isCustom: false, t: m.t, b: m.b }))
+        ];
+
+        const filtered = q
+          ? allItems.filter((item) =>
+              sub.label.toLowerCase().includes(q) ||
+              (item.t || "").toLowerCase().includes(q) ||
+              (item.b || "").toLowerCase().includes(q)
+            )
+          : allItems;
+
+        if (q && !filtered.length) return;
+        const isOpen = !!q || expandedSmpSubjects.has(sub.id);
+
+        htmlOut += `
+          <div class="smp-mapel-card">
+            <div class="smp-mapel-head" onclick="toggleSmpSubject('${sub.id}')">
+              <div class="smp-mapel-left">
+                <div class="smp-mapel-ico">${sub.ico}</div>
+                <div style="min-width:0;">
+                  <div style="font-weight:800;font-size:0.9rem;">${escapeHtml(sub.label)}</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);">Kelas ${g} • ${filtered.length} bab/catatan${customs.length ? ` (${customs.length} tambahan)` : ""}</div>
+                </div>
+              </div>
+              <span style="font-size:0.85rem;color:var(--accent);font-weight:800;">${isOpen ? "▲" : "▼"}</span>
+            </div>
+            ${isOpen ? filtered.map((item) => {
+              const safeUrl = item.link && /^https?:\/\//i.test(item.link) ? item.link : "";
+              return `
+                <div class="smp-chap-item">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">
+                    <div class="smp-chap-title">${item.isCustom ? "⭐ " : ""}${escapeHtml(item.t)}</div>
+                    ${(item.isCustom && (isAdmin() || item.by === currentUserId))
+                      ? `<button type="button" class="report-comment-del" onclick="deleteSmpCustomMateri('${item.id}')" title="Hapus catatan">🗑️</button>`
+                      : ""}
+                  </div>
+                  <div class="smp-chap-body">${escapeHtml(item.b)}</div>
+                  ${safeUrl ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="smp-link-chip">🔗 Buka PDF / Video Materi</a>` : ""}
+                </div>
+              `;
+            }).join("") : ""}
+          </div>
+        `;
+      });
+
+      box.innerHTML = htmlOut || '<div class="card glass" style="text-align:center;color:var(--text-muted);font-size:0.84rem;">Materi tidak ditemukan untuk kata kunci tersebut.</div>';
+    }
+
+    window.toggleSmpSubject = (subId) => {
+      if (expandedSmpSubjects.has(subId)) expandedSmpSubjects.delete(subId);
+      else expandedSmpSubjects.add(subId);
+      renderSmpMateri();
+    };
+
+    window.deleteSmpCustomMateri = (id) => {
+      if (!confirm("Hapus catatan materi ini?")) return;
+      smpState.customMaterials = smpState.customMaterials.filter((x) => x.id !== id);
+      syncSmpToCloud();
+      renderSmpMateri();
+      showToast("Catatan materi dihapus.");
+    };
+
+    function renderSmpJadwal() {
+      const g = smpState.grade;
+      const sched = (smpState.schedules && smpState.schedules[g]) || DEFAULT_SMP_SCHEDULES[g];
+      const todayName = getTodayDayNameIndo();
+      const tomName = getTomorrowDayNameIndo();
+
+      const todayItems = sched[todayName] || [];
+      const tomItems = sched[tomName] || [];
+
+      $("smp-jadwal-highlight").innerHTML = `
+        <div style="font-size:0.84rem;font-weight:800;color:var(--emerald);margin-bottom:5px;">📌 Jadwal Hari Ini (${todayName}) — Kelas ${g}</div>
+        <div style="font-size:0.82rem;color:var(--text);margin-bottom:9px;">
+          ${todayItems.length ? todayItems.map(escapeHtml).join(" • ") : "Hari libur 🎉 — Semangat istirahat & muraja'ah!"}
+        </div>
+        <div style="font-size:0.78rem;font-weight:800;color:var(--accent);margin-bottom:3px;">🎒 Siapkan Buku Besok (${tomName}):</div>
+        <div style="font-size:0.79rem;color:var(--text-muted);">
+          ${tomItems.length ? tomItems.map(escapeHtml).join(" • ") : "Besok libur 🎉"}
+        </div>
+      `;
+
+      $("smp-jadwal-list").innerHTML = SMP_DAYS.map((day) => {
+        const list = Array.isArray(sched[day]) ? sched[day] : [];
+        const isToday = day === todayName;
+        const isTom = day === tomName;
+        return `
+          <div class="smp-day-card ${isToday ? "is-today" : (isTom ? "is-tomorrow" : "")}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <div>
+                <strong style="font-size:0.9rem;color:${isToday ? "var(--emerald)" : "var(--accent)"};">${day}</strong>
+                ${isToday ? '<span class="role-tag" style="margin-left:6px;background:rgba(16,185,129,0.2);color:var(--emerald);">Hari Ini</span>' : ""}
+                ${isTom ? '<span class="role-tag" style="margin-left:6px;">Besok</span>' : ""}
+              </div>
+              <button type="button" class="btn btn-sm" onclick="openEditSmpDay('${day}')" style="padding:4px 9px;font-size:0.74rem;">✏️ Ubah</button>
+            </div>
+            <div class="smp-chip-wrap">
+              ${list.length
+                ? list.map((m) => `<span class="smp-subject-chip">${escapeHtml(m)}</span>`).join("")
+                : '<span style="font-size:0.78rem;color:var(--text-muted);">Belum ada jadwal.</span>'}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.openEditSmpDay = (dayName) => {
+      editingSmpDayName = dayName;
+      const g = smpState.grade;
+      const sched = (smpState.schedules && smpState.schedules[g]) || DEFAULT_SMP_SCHEDULES[g];
+      const list = Array.isArray(sched[dayName]) ? sched[dayName] : [];
+      $("smp-edit-day-title").textContent = `📅 Edit Jadwal ${dayName} (Kelas ${g})`;
+      $("smp-edit-day-input").value = list.join(", ");
+      openModalById("smp-edit-day-modal");
+    };
+
+    function formatSmpDueLabel(dueDateStr) {
+      if (!dueDateStr) return { text: "Tanpa tenggat", cls: "" };
+      const todayKey = getLocalDateKey();
+      const d1 = new Date(todayKey + "T00:00:00");
+      const d2 = new Date(dueDateStr + "T00:00:00");
+      const diff = Math.round((d2 - d1) / 86400000);
+      if (isNaN(diff)) return { text: dueDateStr, cls: "" };
+      if (diff < 0) return { text: `Terlewat ${Math.abs(diff)}h`, cls: "urgent" };
+      if (diff === 0) return { text: "Hari Ini!", cls: "urgent" };
+      if (diff === 1) return { text: "Besok", cls: "urgent" };
+      return { text: `${diff} hari lagi (${dueDateStr})`, cls: "ok" };
+    }
+
+    function renderSmpTasks() {
+      document.querySelectorAll("#smp-pr-filters .pill-opt").forEach((b) => {
+        b.classList.toggle("active", b.dataset.prfilter === activeSmpPrFilter);
+      });
+
+      const list = smpState.tasks.filter((t) => {
+        if (activeSmpPrFilter === "pending") return !t.done;
+        if (activeSmpPrFilter === "done") return !!t.done;
+        return true;
+      }).sort((a, b) => {
+        if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+        return String(a.dueDate || "9999").localeCompare(String(b.dueDate || "9999"));
+      });
+
+      const box = $("smp-pr-list");
+      if (!list.length) {
+        box.innerHTML = `<div class="card glass" style="text-align:center;color:var(--text-muted);font-size:0.84rem;padding:18px;">
+          ${activeSmpPrFilter === "pending" ? "🎉 Tidak ada PR / Ulangan yang belum selesai!" : "Belum ada catatan PR atau ulangan."}
+        </div>`;
+        return;
+      }
+
+      box.innerHTML = list.map((t) => {
+        const due = formatSmpDueLabel(t.dueDate);
+        const creator = (state.members[t.createdBy] && state.members[t.createdBy].name) || "Keluarga";
+        const canDel = isAdmin() || t.createdBy === currentUserId;
+        return `
+          <div class="smp-task-card ${t.done ? "done" : ""}">
+            <input type="checkbox" class="smp-task-chk" ${t.done ? "checked" : ""} onchange="toggleSmpTaskDone('${t.id}')" />
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+                <span class="role-tag">Kls ${escapeHtml(t.grade)} • ${escapeHtml(t.subject)}</span>
+                <span class="smp-due-pill ${t.done ? "ok" : due.cls}">${t.done ? "✅ Selesai" : due.text}</span>
+              </div>
+              <div style="font-weight:700;font-size:0.88rem;${t.done ? "text-decoration:line-through;" : ""}">${escapeHtml(t.title)}</div>
+              <div style="font-size:0.71rem;color:var(--text-muted);margin-top:3px;">${escapeHtml(t.type)} • Dicatat oleh ${escapeHtml(creator)}</div>
+            </div>
+            ${canDel ? `<button type="button" class="btn btn-sm btn-danger" onclick="deleteSmpTask('${t.id}')" style="padding:5px 8px;">🗑️</button>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.toggleSmpTaskDone = (id) => {
+      const t = smpState.tasks.find((x) => x.id === id);
+      if (!t) return;
+      t.done = !t.done;
+      syncSmpToCloud();
+      renderSmpTasks();
+      showToast(t.done ? "✅ Hebat! Tugas ditandai selesai." : "Tugas dibuka kembali.", 2000);
+    };
+
+    window.deleteSmpTask = (id) => {
+      if (!confirm("Hapus catatan PR / ulangan ini?")) return;
+      smpState.tasks = smpState.tasks.filter((x) => x.id !== id);
+      syncSmpToCloud();
+      renderSmpTasks();
+      showToast("Catatan PR dihapus.");
+    };
+
+    function renderSmpQuizOrRumus() {
+      const isQuiz = activeSmpQuizMode === "quiz";
+      $("btn-smp-mode-quiz").className = "btn btn-sm " + (isQuiz ? "btn-primary" : "");
+      $("btn-smp-mode-rumus").className = "btn btn-sm " + (!isQuiz ? "btn-primary" : "");
+      $("smp-quiz-section").classList.toggle("hidden", !isQuiz);
+      $("smp-rumus-section").classList.toggle("hidden", isQuiz);
+
+      if (isQuiz) {
+        const bestKey = `g${smpState.grade}`;
+        const bestVal = smpState.bestScores[bestKey];
+        $("smp-quiz-best").textContent = bestVal !== undefined
+          ? `🏆 Skor terbaik Kelas ${smpState.grade}: ${bestVal}% • Pilih mapel lalu tekan Mulai.`
+          : `✨ Siap uji kemampuan Kelas ${smpState.grade}? Pilih mapel lalu tekan Mulai.`;
+        renderSmpQuizStage();
+      } else {
+        renderSmpRumusList();
+      }
+    }
+
+    function startSmpQuiz() {
+      const g = smpState.grade;
+      const sub = $("smp-quiz-subject").value;
+      let pool = SMP_QUIZ_BANK.filter((item) => item.g === g && (sub === "ALL" || item.s === sub));
+      if (!pool.length) {
+        showToast("Belum ada soal untuk pilihan tersebut.");
+        return;
+      }
+      // Acak urutan soal
+      pool = pool.slice().sort(() => Math.random() - 0.5).slice(0, 10);
+      smpQuizSession = { grade: g, subject: sub, questions: pool, idx: 0, score: 0, answered: false, picked: -1, finished: false };
+      renderSmpQuizStage();
+    }
+
+    function renderSmpQuizStage() {
+      const stage = $("smp-quiz-stage");
+      if (!stage) return;
+      if (!smpQuizSession) {
+        stage.innerHTML = `<div class="card glass" style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.84rem;">
+          Tekan tombol <strong>▶ Mulai</strong> di atas untuk memulai latihan kuis interaktif lengkap dengan pembahasan!
+        </div>`;
+        return;
+      }
+      if (smpQuizSession.finished) {
+        const total = smpQuizSession.questions.length;
+        const pct = Math.round((smpQuizSession.score / total) * 100);
+        const bestKey = `g${smpQuizSession.grade}`;
+        if (pct > (smpState.bestScores[bestKey] || 0)) {
+          smpState.bestScores[bestKey] = pct;
+          saveSmpStateLocal();
+        }
+        const emoji = pct >= 80 ? "🏆" : (pct >= 60 ? "👏" : "💪");
+        stage.innerHTML = `
+          <div class="card glass" style="text-align:center;padding:22px 16px;">
+            <div style="font-size:2.6rem;margin-bottom:6px;">${emoji}</div>
+            <div style="font-weight:800;font-size:1.25rem;color:var(--accent);">Skor: ${smpQuizSession.score} / ${total} (${pct}%)</div>
+            <p style="font-size:0.84rem;color:var(--text-muted);margin:8px 0 16px;">
+              ${pct >= 80 ? "MasyaAllah keren banget! Pertahankan prestasimu!" : (pct >= 60 ? "Bagus! Tinggal ulangi sedikit lagi biar makin mantap." : "Semangat terus! Baca lagi ringkasan materi lalu coba kuis ulang.")}
+            </p>
+            <button type="button" class="btn btn-primary" onclick="startSmpQuiz()">🔄 Coba Lagi</button>
+          </div>
+        `;
+        return;
+      }
+
+      const qObj = smpQuizSession.questions[smpQuizSession.idx];
+      const letters = ["A", "B", "C", "D"];
+      stage.innerHTML = `
+        <div class="card glass" style="padding:15px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:0.75rem;color:var(--text-muted);font-weight:700;">
+            <span>Soal ${smpQuizSession.idx + 1} / ${smpQuizSession.questions.length} • ${escapeHtml(qObj.s)}</span>
+            <span style="color:var(--emerald);">Benar: ${smpQuizSession.score}</span>
+          </div>
+          <div style="font-weight:700;font-size:0.93rem;line-height:1.5;margin-bottom:13px;">${escapeHtml(qObj.q)}</div>
+          <div>
+            ${qObj.o.map((opt, idx) => {
+              let cls = "smp-quiz-opt";
+              if (smpQuizSession.answered) {
+                if (idx === qObj.a) cls += " correct";
+                else if (idx === smpQuizSession.picked) cls += " wrong";
+              }
+              return `<button type="button" class="${cls}" ${smpQuizSession.answered ? "disabled" : ""} onclick="answerSmpQuiz(${idx})"><strong>${letters[idx]}.</strong> ${escapeHtml(opt)}</button>`;
+            }).join("")}
+          </div>
+          ${smpQuizSession.answered ? `
+            <div class="diag-box" style="margin-top:10px;margin-bottom:10px;">
+              <strong>${smpQuizSession.picked === qObj.a ? "✅ Benar!" : "❌ Kurang Tepat"}</strong><br/>
+              <span>💡 Pembahasan: ${escapeHtml(qObj.e)}</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-full" onclick="nextSmpQuizQuestion()">
+              ${smpQuizSession.idx + 1 < smpQuizSession.questions.length ? "Soal Berikutnya →" : "Lihat Skor Akhir 🏆"}
+            </button>
+          ` : ""}
+        </div>
+      `;
+    }
+
+    window.startSmpQuiz = startSmpQuiz;
+    window.answerSmpQuiz = (optIdx) => {
+      if (!smpQuizSession || smpQuizSession.answered) return;
+      smpQuizSession.answered = true;
+      smpQuizSession.picked = optIdx;
+      const qObj = smpQuizSession.questions[smpQuizSession.idx];
+      if (optIdx === qObj.a) smpQuizSession.score++;
+      renderSmpQuizStage();
+    };
+    window.nextSmpQuizQuestion = () => {
+      if (!smpQuizSession) return;
+      if (smpQuizSession.idx + 1 < smpQuizSession.questions.length) {
+        smpQuizSession.idx++;
+        smpQuizSession.answered = false;
+        smpQuizSession.picked = -1;
+      } else {
+        smpQuizSession.finished = true;
+      }
+      renderSmpQuizStage();
+    };
+
+    function renderSmpRumusList() {
+      document.querySelectorAll("#smp-rumus-tabs .pill-opt").forEach((b) => {
+        b.classList.toggle("active", b.dataset.rf === activeSmpRumusFilter);
+      });
+      const list = SMP_FORMULAS[activeSmpRumusFilter] || [];
+      $("smp-rumus-list").innerHTML = list.map((r) => `
+        <div class="smp-formula-card">
+          <div style="font-weight:800;font-size:0.88rem;color:var(--text);">${escapeHtml(r.title)}</div>
+          <code class="smp-formula-code">${escapeHtml(r.code)}</code>
+          <div style="font-size:0.76rem;color:var(--text-muted);line-height:1.45;">${escapeHtml(r.note)}</div>
+        </div>
+      `).join("");
+    }
+
+    function bindSmpEvents() {
+      $("home-smp-card").onclick = openSmpWorkspace;
+      $("btn-close-smp").onclick = () => closeModalById("smp-modal");
+
+      document.querySelectorAll("#smp-grade-pills .smp-grade-pill").forEach((btn) => {
+        btn.onclick = () => {
+          smpState.grade = btn.dataset.grade;
+          smpQuizSession = null;
+          saveSmpStateLocal();
+          syncSmpGradeUI();
+          renderHomeSmpCard();
+          renderSmpActiveTab();
+        };
+      });
+
+      document.querySelectorAll("#smp-subtabs .smp-subtab").forEach((btn) => {
+        btn.onclick = () => switchSmpSubtab(btn.dataset.smptab);
+      });
+
+      $("smp-materi-search").oninput = () => renderSmpMateri();
+
+      // Add Custom Materi Modal
+      $("btn-smp-add-materi").onclick = () => {
+        if (!canManageSmpCustom()) return showToast("Hanya Ayah/Ibu yang dapat menambah catatan materi.");
+        renderSmpSelects();
+        $("smp-cm-title").value = "";
+        $("smp-cm-body").value = "";
+        $("smp-cm-link").value = "";
+        openModalById("smp-add-materi-modal");
+      };
+      $("btn-close-smp-add-materi").onclick = () => closeModalById("smp-add-materi-modal");
+      $("btn-save-smp-cm").onclick = () => {
+        const subject = $("smp-cm-subject").value;
+        const title = $("smp-cm-title").value.trim();
+        const content = $("smp-cm-body").value.trim();
+        const link = $("smp-cm-link").value.trim();
+        if (!title || !content) return showToast("Judul dan isi catatan wajib diisi.");
+        smpState.customMaterials.unshift({
+          id: "cm-" + Date.now() + "-" + Math.random().toString(36).slice(2, 5),
+          grade: smpState.grade,
+          subject,
+          title,
+          content,
+          link,
+          createdBy: currentUserId || "ayah",
+          createdAt: Date.now()
+        });
+        expandedSmpSubjects.add(subject);
+        syncSmpToCloud();
+        closeModalById("smp-add-materi-modal");
+        renderSmpMateri();
+        showToast("✅ Catatan materi tersimpan & tersinkron!");
+      };
+
+      // Edit Day Schedule Modal
+      $("btn-close-smp-edit-day").onclick = () => closeModalById("smp-edit-day-modal");
+      $("btn-save-smp-day").onclick = () => {
+        if (!editingSmpDayName) return;
+        const items = $("smp-edit-day-input").value
+          .split(/[,\n]+/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const g = smpState.grade;
+        if (!smpState.schedules[g]) smpState.schedules[g] = JSON.parse(JSON.stringify(DEFAULT_SMP_SCHEDULES[g]));
+        smpState.schedules[g][editingSmpDayName] = items;
+        syncSmpToCloud();
+        closeModalById("smp-edit-day-modal");
+        renderSmpJadwal();
+        showToast(`✅ Jadwal ${editingSmpDayName} (Kelas ${g}) diperbarui!`);
+      };
+
+      // PR & Ulangan
+      $("btn-smp-add-pr").onclick = () => {
+        const subject = $("smp-pr-subject").value;
+        const type = $("smp-pr-type").value;
+        const title = $("smp-pr-title").value.trim();
+        const dueDate = $("smp-pr-due").value;
+        if (!title) return showToast("Tulis keterangan PR / ulangannya dulu.");
+        const taskObj = {
+          id: "pr-" + Date.now() + "-" + Math.random().toString(36).slice(2, 5),
+          grade: smpState.grade,
+          subject,
+          type,
+          title,
+          dueDate,
+          done: false,
+          createdBy: currentUserId || "anak",
+          createdAt: Date.now()
+        };
+        smpState.tasks.unshift(taskObj);
+        $("smp-pr-title").value = "";
+        activeSmpPrFilter = "pending";
+        syncSmpToCloud();
+        renderSmpTasks();
+        const myName = (state.members[currentUserId] && state.members[currentUserId].name) || "Keluarga";
+        sendFamilyPush({
+          title: `📝 ${type} (${subject})`,
+          body: `${myName} mencatat Kls ${smpState.grade}: ${title}${dueDate ? " • Tenggat " + dueDate : ""}`,
+          tab: "beranda"
+        });
+        showToast("✅ PR / Ulangan tersimpan & terkirim ke keluarga!");
+      };
+
+      document.querySelectorAll("#smp-pr-filters .pill-opt").forEach((btn) => {
+        btn.onclick = () => {
+          activeSmpPrFilter = btn.dataset.prfilter;
+          renderSmpTasks();
+        };
+      });
+
+      // Kuis & Rumus
+      $("btn-smp-mode-quiz").onclick = () => { activeSmpQuizMode = "quiz"; renderSmpQuizOrRumus(); };
+      $("btn-smp-mode-rumus").onclick = () => { activeSmpQuizMode = "rumus"; renderSmpQuizOrRumus(); };
+      $("btn-smp-start-quiz").onclick = startSmpQuiz;
+      document.querySelectorAll("#smp-rumus-tabs .pill-opt").forEach((btn) => {
+        btn.onclick = () => {
+          activeSmpRumusFilter = btn.dataset.rf;
+          renderSmpRumusList();
+        };
+      });
+    }
+
     /* ================= BOOT ================= */
     applyTheme();
     initEditorPopovers();
     initEmojiBar();
     bindEvents();
+    bindSmpEvents();
+    renderHomeSmpCard();
     renderCoverRoles();
     const restoredRole = getPersistedRole();
     if (restoredRole && state.members[restoredRole]) {
