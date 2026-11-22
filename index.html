@@ -594,6 +594,10 @@
       <!-- TAB 4: CHAT KELUARGA -->
       <section id="tab-chat" class="tab-pane">
         <div class="chat-shell">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px 6px;">
+            <span id="chat-sync-hint" style="font-size:0.74rem;color:var(--text-muted);font-weight:600;">💬 Chat Keluarga Real-Time</span>
+            <button type="button" class="btn btn-sm" id="btn-chat-refresh" style="padding:4px 9px;font-size:0.72rem;">🔄 Segarkan</button>
+          </div>
           <div class="chat-messages" id="chat-messages"></div>
           <div id="emoji-picker" class="emoji-bar hidden"></div>
           <div class="chat-composer">
@@ -844,7 +848,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v7-fcm";
+    const APP_VERSION = "v8-fcm-stable";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1184,6 +1188,68 @@
       }
     }
 
+    let cloudUnsubs = [];
+    let cloudReconnectTimer = null;
+    let chatFallbackPollTimer = null;
+    const pendingLocalMessages = new Map();
+
+    function clearCloudListeners() {
+      cloudUnsubs.forEach((fn) => { try { fn(); } catch (e) {} });
+      cloudUnsubs = [];
+    }
+
+    function scheduleCloudReconnect(delayMs = 3500) {
+      if (!cloudReady || !db) return;
+      clearTimeout(cloudReconnectTimer);
+      cloudReconnectTimer = setTimeout(() => {
+        if (navigator.onLine) {
+          attachCloudListeners();
+          pullLatestCloudData(true);
+        }
+      }, delayMs);
+    }
+
+    function mergeMessagesWithPending(serverList) {
+      const byId = new Map();
+      serverList.forEach((m) => {
+        if (m && m.id) {
+          byId.set(m.id, m);
+          pendingLocalMessages.delete(m.id);
+        }
+      });
+      const now = Date.now();
+      pendingLocalMessages.forEach((m, id) => {
+        if (now - (m.createdAt || 0) < 60000) {
+          if (!byId.has(id)) byId.set(id, m);
+        } else {
+          pendingLocalMessages.delete(id);
+        }
+      });
+      return Array.from(byId.values()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    }
+
+    function applyIncomingMessages(rawList) {
+      const list = mergeMessagesWithPending(rawList);
+      if (initialMessagesLoaded && currentUserId) {
+        list.forEach((m) => {
+          if (!knownMessageIds.has(m.id) && m.senderId !== currentUserId) {
+            const sender = state.members[m.senderId]?.name || "Keluarga";
+            if (activeTab !== "chat") {
+              unreadChatCount++;
+              updateUnreadBadge();
+              showToast(`💬 Pesan baru dari ${sender}`, 2800);
+            }
+            playGentleNotifBeep();
+          }
+        });
+      }
+      list.forEach((m) => knownMessageIds.add(m.id));
+      initialMessagesLoaded = true;
+      state.messages = list;
+      saveState();
+      if (currentUserId && activeTab === "chat" && !activeAudio) renderChat();
+    }
+
     function handleCloudError(err) {
       const code = (err && err.code) ? err.code : "unknown";
       const msg = (err && err.message) ? err.message : String(err || "Gagal terhubung");
@@ -1195,7 +1261,8 @@
         setSyncPill("🔴 No DB");
         showToast("Firestore Database belum dibuat di Firebase Console!", 4000);
       } else {
-        setSyncPill("🟠 Offline");
+        setSyncPill("🟠 Reconnect...");
+        scheduleCloudReconnect(3500);
       }
       updateDiagView();
     }
@@ -1204,26 +1271,63 @@
       lastSyncErrorText = "";
       lastSyncSuccessAt = new Date().toLocaleTimeString("id-ID");
       setSyncPill("🟢 Cloud");
+      const hint = $("chat-sync-hint");
+      if (hint) hint.textContent = `💬 Terhubung Cloud (${lastSyncSuccessAt})`;
       updateDiagView();
     }
 
-    function initCloudSync() {
-      if (typeof firebase === "undefined") {
-        lastSyncErrorText = "SDK Firebase gagal dimuat (cek koneksi internet).";
-        setSyncPill("🔴 SDK");
-        return;
-      }
+    async function pullLatestCloudData(silent = true) {
+      if (!cloudReady || !db) return;
       try {
-        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-        db = firebase.firestore();
-        // Paksa Long Polling agar stabil 100% di jaringan HP / Chrome Android Indonesia
-        db.settings({ experimentalForceLongPolling: true, merge: true });
-        cloudReady = true;
-        setSyncPill("🟡 Sync...");
+        const [cfgSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
+          db.collection("oznet_config").doc("main").get(),
+          db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get(),
+          db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(),
+          db.collection("oznet_doas").get()
+        ]);
+        markServerConnected();
 
-        // 1. Real-time Config (Nama/Foto Anggota, Alarm, Password Admin)
-        db.collection("oznet_config").doc("main").onSnapshot({ includeMetadataChanges: true }, (docSnap) => {
-          if (!docSnap.metadata.fromCache) markServerConnected();
+        if (cfgSnap.exists) {
+          const d = cfgSnap.data();
+          if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
+          if (d.alarm) state.alarm = Object.assign({}, DEFAULT_ALARM, d.alarm);
+          if (d.adminPass) state.adminPass = d.adminPass;
+        }
+        if (!doaSnap.empty) {
+          state.doas = doaSnap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        }
+        const reps = repSnap.docs.map((doc) => doc.data());
+        reps.forEach((r) => knownReportIds.add(r.id));
+        state.reports = reps;
+        initialReportsLoaded = true;
+
+        const msgs = msgSnap.docs.map((doc) => doc.data()).reverse();
+        applyIncomingMessages(msgs);
+
+        saveState();
+        renderCoverRoles();
+        if (currentUserId) {
+          renderHeader();
+          renderReports();
+          renderDoaList();
+          renderAlarmUI();
+          updateClockAndPrayers();
+        }
+        if (!silent) showToast("✅ Data chat & keluarga disegarkan dari Cloud!", 2000);
+      } catch (err) {
+        handleCloudError(err);
+        if (!silent) showToast("Gagal menyegarkan: " + (err.code || err.message), 3000);
+      }
+    }
+
+    function attachCloudListeners() {
+      if (!cloudReady || !db) return;
+      clearCloudListeners();
+
+      // 1. Real-time Config (Nama/Foto Anggota, Alarm, Password Admin)
+      cloudUnsubs.push(
+        db.collection("oznet_config").doc("main").onSnapshot((docSnap) => {
+          markServerConnected();
           if (docSnap.exists) {
             const d = docSnap.data();
             if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
@@ -1238,30 +1342,32 @@
               updateClockAndPrayers();
               if (!$("profile-modal").classList.contains("hidden")) renderProfileModal();
             }
-          } else if (!docSnap.metadata.fromCache) {
+          } else {
             syncFullConfigToCloud();
           }
-        }, handleCloudError);
+        }, handleCloudError)
+      );
 
-        // 2. Real-time Doa Harian
-        db.collection("oznet_doas").onSnapshot({ includeMetadataChanges: true }, (snap) => {
-          if (!snap.metadata.fromCache) markServerConnected();
-          if (snap.empty && !snap.metadata.fromCache) {
+      // 2. Real-time Doa Harian
+      cloudUnsubs.push(
+        db.collection("oznet_doas").onSnapshot((snap) => {
+          markServerConnected();
+          if (snap.empty) {
             const batch = db.batch();
             DEFAULT_DOAS.forEach((d) => batch.set(db.collection("oznet_doas").doc(d.id), d));
             batch.commit().catch(handleCloudError);
             return;
           }
-          if (!snap.empty) {
-            state.doas = snap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            saveState();
-            if (currentUserId) renderDoaList();
-          }
-        }, handleCloudError);
+          state.doas = snap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          saveState();
+          if (currentUserId) renderDoaList();
+        }, handleCloudError)
+      );
 
-        // 3. Real-time Laporan & Absen Anak
-        db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).onSnapshot({ includeMetadataChanges: true }, (snap) => {
-          if (!snap.metadata.fromCache) markServerConnected();
+      // 3. Real-time Laporan & Absen Anak
+      cloudUnsubs.push(
+        db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).onSnapshot((snap) => {
+          markServerConnected();
           const list = snap.docs.map((doc) => doc.data());
           if (initialReportsLoaded && currentUserId) {
             list.forEach((r) => {
@@ -1277,12 +1383,14 @@
           state.reports = list;
           saveState();
           if (currentUserId) renderReports();
-        }, handleCloudError);
+        }, handleCloudError)
+      );
 
-        // 4. Real-time Chat Keluarga
-        db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).onSnapshot({ includeMetadataChanges: true }, (snap) => {
-          if (!snap.metadata.fromCache) markServerConnected();
-          if (snap.empty && !snap.metadata.fromCache) {
+      // 4. Real-time Chat Keluarga
+      cloudUnsubs.push(
+        db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).onSnapshot((snap) => {
+          markServerConnected();
+          if (snap.empty) {
             const welcome = {
               id: "m-welcome",
               senderId: "ayah",
@@ -1294,25 +1402,56 @@
             return;
           }
           const list = snap.docs.map((doc) => doc.data()).reverse();
-          if (initialMessagesLoaded && currentUserId) {
-            list.forEach((m) => {
-              if (!knownMessageIds.has(m.id) && m.senderId !== currentUserId) {
-                const sender = state.members[m.senderId]?.name || "Keluarga";
-                if (activeTab !== "chat") {
-                  unreadChatCount++;
-                  updateUnreadBadge();
-                  showToast(`💬 Pesan baru dari ${sender}`, 2800);
-                }
-                playGentleNotifBeep();
-              }
-            });
+          applyIncomingMessages(list);
+        }, handleCloudError)
+      );
+    }
+
+    function initCloudSync() {
+      if (typeof firebase === "undefined") {
+        lastSyncErrorText = "SDK Firebase gagal dimuat (cek koneksi internet).";
+        setSyncPill("🔴 SDK");
+        return;
+      }
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+        // Auto-detect long polling (lebih stabil di HP Android dibanding memaksa long polling)
+        db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+        cloudReady = true;
+        setSyncPill("🟡 Sync...");
+
+        attachCloudListeners();
+        pullLatestCloudData(true);
+
+        // Otomatis sambung ulang & tarik chat terbaru saat layar HP menyala atau balik dari notif
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible" && navigator.onLine) {
+            pullLatestCloudData(true);
+            if (lastSyncErrorText) attachCloudListeners();
           }
-          list.forEach((m) => knownMessageIds.add(m.id));
-          initialMessagesLoaded = true;
-          state.messages = list;
-          saveState();
-          if (currentUserId && activeTab === "chat" && !activeAudio) renderChat();
-        }, handleCloudError);
+        });
+        window.addEventListener("online", () => {
+          setSyncPill("🟡 Sync...");
+          attachCloudListeners();
+          pullLatestCloudData(true);
+        });
+        window.addEventListener("offline", () => {
+          setSyncPill("🟠 Offline");
+        });
+
+        // Fallback sinkronisasi ringan khusus saat sedang membuka tab Chat agar pesan tidak pernah telat
+        clearInterval(chatFallbackPollTimer);
+        chatFallbackPollTimer = setInterval(() => {
+          if (document.visibilityState === "visible" && navigator.onLine && currentUserId && activeTab === "chat" && !activeAudio) {
+            db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get()
+              .then((snap) => {
+                markServerConnected();
+                if (!snap.empty) applyIncomingMessages(snap.docs.map((d) => d.data()).reverse());
+              })
+              .catch(() => {});
+          }
+        }, 6000);
       } catch (e) {
         handleCloudError(e);
         cloudReady = false;
@@ -1374,9 +1513,22 @@
 
     function syncMessageAdd(msgObj) {
       if (!cloudReady || !db) return;
+      pendingLocalMessages.set(msgObj.id, msgObj);
       db.collection("oznet_messages").doc(msgObj.id).set(msgObj)
-        .then(markServerConnected)
-        .catch((err) => { handleCloudError(err); showToast("Gagal kirim chat ke Cloud: " + (err.code || err.message), 3500); });
+        .then(() => {
+          pendingLocalMessages.delete(msgObj.id);
+          markServerConnected();
+        })
+        .catch((err) => {
+          handleCloudError(err);
+          // Coba kirim ulang 1x setelah 2 detik jika jaringan HP sempat kedip
+          setTimeout(() => {
+            if (!db) return;
+            db.collection("oznet_messages").doc(msgObj.id).set(msgObj)
+              .then(() => { pendingLocalMessages.delete(msgObj.id); markServerConnected(); })
+              .catch((e2) => showToast("Gagal kirim chat ke Cloud: " + (e2.code || e2.message), 3500));
+          }, 2000);
+        });
     }
 
     async function runCloudSyncTest() {
@@ -2286,6 +2438,9 @@
         unreadChatCount = 0;
         updateUnreadBadge();
         renderChat();
+        pullLatestCloudData(true);
+      } else if (tabName === "laporan" || tabName === "doa") {
+        pullLatestCloudData(true);
       }
       $("app-main").scrollTop = 0;
     }
@@ -2636,7 +2791,19 @@
         });
       });
 
+      // Unlock AudioContext pada sentuhan layar pertama agar suara bip chat & alarm tidak dibisukan Chrome HP
+      const unlockAudioOnce = () => {
+        try { getAudioCtx(); } catch (e) {}
+        window.removeEventListener("pointerdown", unlockAudioOnce);
+      };
+      window.addEventListener("pointerdown", unlockAudioOnce, { passive: true });
+
       // Chat
+      $("btn-chat-refresh").onclick = () => {
+        showToast("Menyegarkan chat...", 1200);
+        attachCloudListeners();
+        pullLatestCloudData(false);
+      };
       $("btn-chat-emoji").onclick = () => $("emoji-picker").classList.toggle("hidden");
       $("btn-chat-send").onclick = () => {
         const text = $("chat-input").value.trim();
