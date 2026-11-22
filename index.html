@@ -455,12 +455,62 @@
       flex: 1; overflow-y: auto; padding: 4px 2px 12px;
       display: flex; flex-direction: column; gap: 10px;
     }
-    .msg-row { display: flex; gap: 8px; max-width: 88%; }
+    .msg-row {
+      position: relative; display: flex; gap: 8px; max-width: 88%;
+      touch-action: pan-y; user-select: none; -webkit-user-select: none;
+    }
     .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
     .msg-bubble {
       padding: 10px 13px; border-radius: 18px;
       background: var(--chat-other); border: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px); transition: transform 0.16s ease, box-shadow 0.25s ease;
+      will-change: transform;
+    }
+    .msg-row.swiping .msg-bubble { transition: none; }
+    .msg-row.msg-highlight .msg-bubble {
+      box-shadow: 0 0 0 2px var(--accent), 0 0 18px rgba(234, 179, 8, 0.45);
+    }
+    .msg-swipe-ico {
+      position: absolute; right: -28px; top: 50%; transform: translateY(-50%) scale(0.6);
+      opacity: 0; font-size: 1.05rem; pointer-events: none;
+      transition: opacity 0.14s ease, transform 0.14s ease;
+    }
+    .msg-row.swipe-ready .msg-swipe-ico { opacity: 1; transform: translateY(-50%) scale(1.05); }
+    .msg-reply-quote {
+      padding: 6px 9px; border-radius: 10px; margin-bottom: 6px;
+      background: rgba(0, 0, 0, 0.22); border-left: 3px solid var(--accent);
+      cursor: pointer; font-size: 0.78rem; line-height: 1.3;
+    }
+    [data-theme="light"] .msg-reply-quote { background: rgba(15, 45, 40, 0.08); }
+    .msg-reply-quote-name { font-weight: 800; color: var(--accent); font-size: 0.72rem; margin-bottom: 1px; }
+    .msg-reply-quote-text {
+      color: var(--text-muted); overflow: hidden; text-overflow: ellipsis;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+    .msg-meta-foot {
+      display: flex; align-items: center; justify-content: flex-end; gap: 7px; margin-top: 4px;
+    }
+    .msg-meta-foot .msg-time { margin-top: 0; }
+    .msg-del-btn {
+      background: transparent; border: none; color: #fca5a5; cursor: pointer;
+      font-size: 0.72rem; padding: 1px 4px; border-radius: 6px; opacity: 0.85;
+      line-height: 1;
+    }
+    [data-theme="light"] .msg-del-btn { color: #b91c1c; }
+    .msg-del-btn:active { opacity: 1; background: rgba(239, 68, 68, 0.2); }
+    .chat-reply-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 7px 10px; border-radius: 12px;
+      background: var(--input-bg); border-left: 3.5px solid var(--accent);
+      border-top: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .chat-reply-bar-info { flex: 1; min-width: 0; }
+    .chat-reply-bar-title { font-size: 0.72rem; font-weight: 800; color: var(--accent); }
+    .chat-reply-bar-text {
+      font-size: 0.78rem; color: var(--text-muted); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
     }
     .msg-row.me .msg-bubble { background: var(--chat-me); border-color: rgba(16, 185, 129, 0.35); }
     .msg-sender { font-size: 0.72rem; font-weight: 800; color: var(--accent); margin-bottom: 3px; }
@@ -739,6 +789,7 @@
           <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 2px 6px;">
             <span id="chat-sync-hint" style="font-size:0.74rem;color:var(--text-muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">💬 Chat Keluarga Real-Time</span>
             <div style="display:flex;gap:5px;flex-shrink:0;">
+              <button type="button" class="btn btn-sm btn-danger hidden" id="btn-chat-clear-all" style="padding:4px 8px;font-size:0.72rem;" title="Hapus semua riwayat chat">🗑️ Semua</button>
               <button type="button" class="btn btn-sm" id="btn-chat-sound-picker" style="padding:4px 9px;font-size:0.72rem;">🎵 Nada</button>
               <button type="button" class="btn btn-sm" id="btn-chat-refresh" style="padding:4px 9px;font-size:0.72rem;">🔄 Segarkan</button>
             </div>
@@ -746,6 +797,13 @@
           <div class="chat-messages" id="chat-messages"></div>
           <div id="emoji-picker" class="emoji-bar hidden"></div>
           <div class="chat-composer">
+            <div id="chat-reply-bar" class="chat-reply-bar hidden">
+              <div class="chat-reply-bar-info">
+                <div class="chat-reply-bar-title" id="chat-reply-name">↩️ Membalas</div>
+                <div class="chat-reply-bar-text" id="chat-reply-preview"></div>
+              </div>
+              <button type="button" class="btn btn-sm" id="btn-cancel-reply" style="padding:4px 8px;font-size:0.74rem;">✕</button>
+            </div>
             <div class="chat-tools">
               <button class="btn btn-sm" id="btn-chat-emoji" title="Emoji">😊</button>
               <button class="btn btn-sm" id="btn-chat-cam" title="Kamera Langsung">📷</button>
@@ -1011,6 +1069,19 @@
     </div>
   </div>
 
+  <!-- MODAL: AKSI PESAN CHAT (LONG PRESS) -->
+  <div id="chat-action-modal" class="modal-backdrop hidden">
+    <div class="modal-box" style="max-width:340px;padding:18px;">
+      <div class="modal-head" style="margin-bottom:10px;">
+        <h3 class="modal-title" id="chat-act-title">💬 Aksi Pesan</h3>
+        <button class="btn btn-sm" id="btn-close-chat-act">✕</button>
+      </div>
+      <div id="chat-act-preview" class="diag-box" style="margin-bottom:12px;font-size:0.82rem;"></div>
+      <button type="button" class="btn btn-primary btn-full" id="btn-chat-act-reply">↩️ Balas Pesan (Reply)</button>
+      <button type="button" class="btn btn-danger btn-full hidden" id="btn-chat-act-delete" style="margin-top:8px;">🗑️ Hapus Pesan Ini</button>
+    </div>
+  </div>
+
   <!-- MODAL: LIGHTBOX -->
   <div id="lightbox-modal" class="modal-backdrop hidden" onclick="closeModalById('lightbox-modal')">
     <img id="lightbox-img" src="" alt="Preview" style="max-width:95vw;max-height:86vh;border-radius:18px;border:2px solid var(--accent);" />
@@ -1040,7 +1111,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v11-single-device-login";
+    const APP_VERSION = "v12-chat-reply-admin";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -2033,18 +2104,7 @@
       cloudUnsubs.push(
         db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).onSnapshot((snap) => {
           markServerConnected();
-          if (snap.empty) {
-            const welcome = {
-              id: "m-welcome",
-              senderId: "ayah",
-              text: "Assalamu'alaikum keluarga OZNET! Chat keluarga sudah tersinkron otomatis 🟢",
-              time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
-              createdAt: Date.now()
-            };
-            db.collection("oznet_messages").doc(welcome.id).set(welcome).catch(handleCloudError);
-            return;
-          }
-          const list = snap.docs.map((doc) => doc.data()).reverse();
+          const list = snap.empty ? [] : snap.docs.map((doc) => doc.data()).reverse();
           applyIncomingMessages(list);
         }, handleCloudError)
       );
@@ -2090,7 +2150,7 @@
             db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get()
               .then((snap) => {
                 markServerConnected();
-                if (!snap.empty) applyIncomingMessages(snap.docs.map((d) => d.data()).reverse());
+                applyIncomingMessages(snap.empty ? [] : snap.docs.map((d) => d.data()).reverse());
               })
               .catch(() => {});
           }
@@ -2193,6 +2253,35 @@
               .catch((e2) => showToast("Gagal kirim chat ke Cloud: " + (e2.code || e2.message), 3500));
           }, 2000);
         });
+    }
+
+    function syncMessageDelete(id) {
+      if (!cloudReady || !db || !id) return;
+      db.collection("oznet_messages").doc(id).delete()
+        .then(markServerConnected)
+        .catch((err) => {
+          handleCloudError(err);
+          showToast("Gagal menghapus pesan di Cloud: " + (err.code || err.message), 3200);
+        });
+    }
+
+    async function syncMessagesClearAll() {
+      if (!cloudReady || !db) return;
+      try {
+        let safetyRounds = 0;
+        while (safetyRounds < 15) {
+          safetyRounds++;
+          const snap = await db.collection("oznet_messages").limit(400).get();
+          if (snap.empty) break;
+          const batch = db.batch();
+          snap.docs.forEach((doc) => batch.delete(doc.ref));
+          await batch.commit();
+        }
+        markServerConnected();
+      } catch (err) {
+        handleCloudError(err);
+        showToast("Gagal menghapus semua riwayat di Cloud: " + (err.code || err.message), 3500);
+      }
     }
 
     async function runCloudSyncTest() {
@@ -3384,7 +3473,218 @@
       });
     }
 
+    let replyingToMsg = null;
+    let activeChatActionMsgId = null;
+
+    function getMessageShortPreview(msg) {
+      if (!msg) return "";
+      if (msg.text) return msg.text.replace(/\s+/g, " ").trim().slice(0, 100);
+      if (msg.img) return "📷 Foto";
+      if (msg.voiceUrl) return `🎙️ Voice Note (${msg.voiceDur || "VN"})`;
+      if (msg.fileUrl) return `📎 ${msg.fileName || "File"}`;
+      return "Pesan";
+    }
+
+    function updateChatReplyBarUI() {
+      const bar = $("chat-reply-bar");
+      if (!bar) return;
+      if (!replyingToMsg) {
+        bar.classList.add("hidden");
+        return;
+      }
+      $("chat-reply-name").textContent = `↩️ Membalas ${replyingToMsg.senderName}`;
+      $("chat-reply-preview").textContent = replyingToMsg.preview;
+      bar.classList.remove("hidden");
+    }
+
+    window.startReplyToMessage = (msgId) => {
+      const msg = state.messages.find((m) => m.id === msgId);
+      if (!msg) return;
+      const sender = state.members[msg.senderId] || { name: "Anggota" };
+      replyingToMsg = {
+        id: msg.id,
+        senderId: msg.senderId,
+        senderName: sender.name,
+        preview: getMessageShortPreview(msg)
+      };
+      updateChatReplyBarUI();
+      if (navigator.vibrate) { try { navigator.vibrate(25); } catch (e) {} }
+      const inp = $("chat-input");
+      if (inp) setTimeout(() => inp.focus(), 60);
+    };
+
+    window.cancelChatReply = () => {
+      replyingToMsg = null;
+      updateChatReplyBarUI();
+    };
+
+    window.scrollToChatMessage = (msgId) => {
+      if (!msgId) return;
+      const target = document.querySelector(`.msg-row[data-msg-id="${CSS.escape(msgId)}"]`);
+      if (!target) {
+        showToast("Pesan asli sudah tidak tersedia atau telah dihapus.", 2200);
+        return;
+      }
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.remove("msg-highlight");
+      void target.offsetWidth;
+      target.classList.add("msg-highlight");
+      setTimeout(() => target.classList.remove("msg-highlight"), 1600);
+    };
+
+    window.deleteChatMessage = (msgId) => {
+      if (!isAdmin()) {
+        showToast("🔒 Hanya Admin yang dapat menghapus chat.", 2500);
+        return;
+      }
+      const msg = state.messages.find((m) => m.id === msgId);
+      if (!msg) return;
+      if (!confirm("Hapus pesan chat ini untuk semua anggota keluarga?")) return;
+      pendingLocalMessages.delete(msgId);
+      state.messages = state.messages.filter((m) => m.id !== msgId);
+      if (replyingToMsg && replyingToMsg.id === msgId) cancelChatReply();
+      saveState();
+      renderChat();
+      updateUnreadBadge();
+      syncMessageDelete(msgId);
+      showToast("🗑️ Pesan berhasil dihapus.", 2200);
+    };
+
+    async function clearAllChatHistory() {
+      if (!isAdmin()) {
+        showToast("🔒 Hanya Admin yang dapat menghapus semua riwayat chat.", 2500);
+        return;
+      }
+      if (!state.messages.length) {
+        showToast("Riwayat chat sudah kosong.", 2000);
+        return;
+      }
+      if (!confirm("Hapus SEMUA riwayat chat keluarga di semua perangkat?\nTindakan ini tidak dapat dibatalkan.")) return;
+      pendingLocalMessages.clear();
+      knownMessageIds.clear();
+      state.messages = [];
+      cancelChatReply();
+      saveState();
+      renderChat();
+      updateUnreadBadge();
+      showToast("🧹 Menghapus semua riwayat chat...", 1800);
+      await syncMessagesClearAll();
+      showToast("✅ Semua riwayat chat berhasil dihapus!", 2600);
+    }
+
+    function openChatActionModal(msgId) {
+      const msg = state.messages.find((m) => m.id === msgId);
+      if (!msg) return;
+      activeChatActionMsgId = msgId;
+      const sender = state.members[msg.senderId] || { name: "Anggota" };
+      $("chat-act-title").textContent = `💬 Pesan dari ${sender.name}`;
+      $("chat-act-preview").textContent = getMessageShortPreview(msg);
+      $("btn-chat-act-delete").classList.toggle("hidden", !isAdmin());
+      if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+      openModalById("chat-action-modal");
+    }
+
+    function bindChatRowGestures(box) {
+      box.querySelectorAll(".msg-row[data-msg-id]").forEach((row) => {
+        const msgId = row.dataset.msgId;
+        const bubble = row.querySelector(".msg-bubble");
+        if (!bubble) return;
+
+        let startX = 0;
+        let startY = 0;
+        let lastDx = 0;
+        let isSwiping = false;
+        let longPressTimer = null;
+        let longPressFired = false;
+
+        const clearPressTimer = () => {
+          if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+        };
+
+        const resetSwipe = () => {
+          row.classList.remove("swiping", "swipe-ready");
+          bubble.style.transform = "";
+          isSwiping = false;
+          lastDx = 0;
+        };
+
+        row.addEventListener("touchstart", (e) => {
+          if (e.touches.length !== 1) return;
+          const t = e.touches[0];
+          startX = t.clientX;
+          startY = t.clientY;
+          lastDx = 0;
+          isSwiping = false;
+          longPressFired = false;
+
+          // Jangan ganggu klik langsung pada tombol play VN, tombol hapus, atau link unduh
+          if (e.target.closest("button, a")) return;
+
+          clearPressTimer();
+          longPressTimer = setTimeout(() => {
+            longPressFired = true;
+            resetSwipe();
+            if (isAdmin()) {
+              openChatActionModal(msgId);
+            } else {
+              startReplyToMessage(msgId);
+            }
+          }, 480);
+        }, { passive: true });
+
+        row.addEventListener("touchmove", (e) => {
+          if (e.touches.length !== 1 || longPressFired) return;
+          const t = e.touches[0];
+          const dx = t.clientX - startX;
+          const dy = t.clientY - startY;
+
+          if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+            clearPressTimer();
+          }
+
+          if (!isSwiping && dx < -12 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+            isSwiping = true;
+            row.classList.add("swiping");
+          }
+
+          if (isSwiping) {
+            lastDx = Math.max(-72, Math.min(0, dx));
+            bubble.style.transform = `translateX(${lastDx}px)`;
+            row.classList.toggle("swipe-ready", lastDx <= -44);
+          }
+        }, { passive: true });
+
+        row.addEventListener("touchend", () => {
+          clearPressTimer();
+          if (isSwiping) {
+            const shouldReply = lastDx <= -44;
+            resetSwipe();
+            if (shouldReply) startReplyToMessage(msgId);
+          }
+        }, { passive: true });
+
+        row.addEventListener("touchcancel", () => {
+          clearPressTimer();
+          resetSwipe();
+        }, { passive: true });
+
+        // Fallback untuk pengguna desktop / klik kanan atau tahan klik mouse
+        row.addEventListener("contextmenu", (e) => {
+          if (e.target.closest("a, button")) return;
+          e.preventDefault();
+          if (isAdmin()) openChatActionModal(msgId);
+          else startReplyToMessage(msgId);
+        });
+      });
+    }
+
     function renderChat() {
+      const clearBtn = $("btn-chat-clear-all");
+      if (clearBtn) clearBtn.classList.toggle("hidden", !isAdmin());
+
       const box = $("chat-messages");
       if (!state.messages.length) {
         box.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.86rem;padding:24px;">Belum ada pesan. Mulai obrolan keluarga sekarang!</div>';
@@ -3393,6 +3693,16 @@
       box.innerHTML = state.messages.map((msg) => {
         const isMe = msg.senderId === currentUserId;
         const sender = state.members[msg.senderId] || { name: "Anggota", emoji: "👤", photo: "" };
+        let replyHtml = "";
+        if (msg.replyTo && (msg.replyTo.preview || msg.replyTo.senderName)) {
+          const rName = (msg.replyTo.senderId && state.members[msg.replyTo.senderId] && state.members[msg.replyTo.senderId].name) || msg.replyTo.senderName || "Anggota";
+          replyHtml = `
+            <div class="msg-reply-quote" onclick="scrollToChatMessage('${escapeHtml(msg.replyTo.id || "")}')">
+              <div class="msg-reply-quote-name">↩️ ${escapeHtml(rName)}</div>
+              <div class="msg-reply-quote-text">${escapeHtml(msg.replyTo.preview || "")}</div>
+            </div>
+          `;
+        }
         let bodyHtml = "";
         if (msg.text) bodyHtml += `<div class="msg-text">${escapeHtml(msg.text)}</div>`;
         if (msg.img) bodyHtml += `<img src="${msg.img}" class="msg-img" onclick="openLightbox('${msg.img}')" alt="Gambar" />`;
@@ -3411,16 +3721,22 @@
           `;
         }
         return `
-          <div class="msg-row ${isMe ? "me" : ""}">
+          <div class="msg-row ${isMe ? "me" : ""}" data-msg-id="${escapeHtml(msg.id)}">
             <div class="report-avatar" style="flex-shrink:0;margin-top:4px;">${renderAvatarHtml(sender)}</div>
             <div class="msg-bubble">
               ${!isMe ? `<div class="msg-sender">${escapeHtml(sender.name)}</div>` : ""}
+              ${replyHtml}
               ${bodyHtml}
-              <div class="msg-time">${escapeHtml(msg.time)}</div>
+              <div class="msg-meta-foot">
+                <div class="msg-time">${escapeHtml(msg.time)}</div>
+                ${isAdmin() ? `<button type="button" class="msg-del-btn" onclick="deleteChatMessage('${escapeHtml(msg.id)}')" title="Hapus pesan">🗑️</button>` : ""}
+              </div>
             </div>
+            <span class="msg-swipe-ico">↩️</span>
           </div>
         `;
       }).join("");
+      bindChatRowGestures(box);
       box.scrollTop = box.scrollHeight;
     }
 
@@ -3469,6 +3785,15 @@
         time: nowStr,
         createdAt: Date.now()
       }, payload);
+      if (replyingToMsg) {
+        msgObj.replyTo = {
+          id: replyingToMsg.id,
+          senderId: replyingToMsg.senderId,
+          senderName: replyingToMsg.senderName,
+          preview: replyingToMsg.preview
+        };
+        cancelChatReply();
+      }
       knownMessageIds.add(msgObj.id);
       state.messages.push(msgObj);
       saveState();
@@ -3481,6 +3806,7 @@
       else if (msgObj.img) pushBody = "📷 Mengirim foto baru";
       else if (msgObj.voiceUrl) pushBody = `🎙️ Mengirim pesan suara (${msgObj.voiceDur || "VN"})`;
       else if (msgObj.fileUrl) pushBody = `📎 Mengirim file: ${msgObj.fileName || "Lampiran"}`;
+      if (msgObj.replyTo) pushBody = `↩️ Membalas ${msgObj.replyTo.senderName}: ${pushBody}`;
       sendFamilyPush({ title: `💬 ${senderName}`, body: pushBody, tab: "chat" });
     }
 
@@ -3647,9 +3973,10 @@
       $(id).classList.add("hidden");
       if (id === "camera-modal") stopCameraStream();
       if (id === "report-photo-modal") activeReportModalId = null;
+      if (id === "chat-action-modal") activeChatActionMsgId = null;
     }
     function closeAllModals() {
-      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
+      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
     }
     window.openLightbox = (src) => { $("lightbox-img").src = src; openModalById("lightbox-modal"); };
     window.closeModalById = closeModalById;
@@ -3675,7 +4002,7 @@
     }
 
     function handleBackAction() {
-      const openModal = ["lightbox-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
+      const openModal = ["lightbox-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
         .find((id) => !$(id).classList.contains("hidden"));
       if (openModal) { closeModalById(openModal); return; }
       if (currentUserId && tabHistory.length > 0) {
@@ -4055,6 +4382,21 @@
         if (document.visibilityState === "visible") updateClockAndPrayers();
       });
       window.addEventListener("focus", () => updateClockAndPrayers());
+
+      // Chat Reply, Clear All (Admin) & Action Modal
+      $("btn-cancel-reply").onclick = cancelChatReply;
+      $("btn-chat-clear-all").onclick = clearAllChatHistory;
+      $("btn-close-chat-act").onclick = () => closeModalById("chat-action-modal");
+      $("btn-chat-act-reply").onclick = () => {
+        const id = activeChatActionMsgId;
+        closeModalById("chat-action-modal");
+        if (id) startReplyToMessage(id);
+      };
+      $("btn-chat-act-delete").onclick = () => {
+        const id = activeChatActionMsgId;
+        closeModalById("chat-action-modal");
+        if (id) deleteChatMessage(id);
+      };
 
       // Chat
       $("btn-chat-refresh").onclick = () => {
