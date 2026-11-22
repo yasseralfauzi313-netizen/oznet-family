@@ -106,11 +106,54 @@
     }
     .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .role-btn {
+      position: relative;
       display: flex; flex-direction: column; align-items: center; gap: 7px;
-      padding: 13px 10px; border-radius: 16px; border: 1px solid var(--glass-border);
+      padding: 14px 10px; border-radius: 16px; border: 1px solid var(--glass-border);
       background: var(--glass); color: var(--text); cursor: pointer;
       transition: transform 0.16s ease, border-color 0.2s; font-family: inherit;
     }
+    .role-btn.has-unread { border-color: rgba(239, 68, 68, 0.72); box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.28), var(--shadow); }
+    .unread-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px;
+      background: linear-gradient(135deg, #ff3b3b, #dc2626); color: #fff;
+      font-size: 0.72rem; font-weight: 800; line-height: 1;
+      border: 2px solid rgba(7, 22, 30, 0.92);
+      box-shadow: 0 3px 12px rgba(239, 68, 68, 0.6);
+      animation: badgePulse 1.8s infinite;
+    }
+    [data-theme="light"] .unread-pill { border-color: #fff; }
+    .cover-unread-badge { position: absolute; top: 8px; right: 8px; z-index: 2; }
+    .cover-unread-sub {
+      font-size: 0.66rem; font-weight: 800; color: #fca5a5;
+      background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.45);
+      padding: 2px 7px; border-radius: 99px;
+    }
+    [data-theme="light"] .cover-unread-sub { color: #b91c1c; background: rgba(239, 68, 68, 0.14); }
+    .home-chat-shortcut {
+      display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+      border-radius: 20px; padding: 14px 15px; margin-bottom: 14px; cursor: pointer;
+      color: var(--text); font-family: inherit; transition: transform 0.15s ease, border-color 0.2s;
+    }
+    .home-chat-shortcut:active { transform: scale(0.985); }
+    .home-chat-shortcut.has-unread { border-color: rgba(239, 68, 68, 0.65); }
+    .home-chat-ico {
+      position: relative; width: 46px; height: 46px; border-radius: 15px; flex-shrink: 0;
+      background: var(--accent-soft); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center; font-size: 1.45rem;
+    }
+    .home-chat-dot {
+      position: absolute; top: -4px; right: -4px; width: 13px; height: 13px;
+      border-radius: 50%; background: #ef4444; border: 2px solid #071722;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+    }
+    [data-theme="light"] .home-chat-dot { border-color: #fff; }
+    .sound-opt-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 10px 12px; border-radius: 14px; margin-bottom: 8px;
+      background: var(--input-bg); border: 1px solid var(--glass-border); cursor: pointer;
+    }
+    .sound-opt-row.active { border-color: var(--accent); background: var(--accent-soft); }
     .role-btn:active { transform: scale(0.96); }
     .role-btn:hover { border-color: var(--accent); }
     .role-avatar {
@@ -192,10 +235,15 @@
     .nav-item .nav-ico { font-size: 1.25rem; line-height: 1; }
     .nav-item.active { color: var(--accent); background: var(--accent-soft); }
     .nav-badge {
-      position: absolute; top: 2px; right: 16%; background: var(--danger);
-      color: #fff; font-size: 0.62rem; font-weight: 800; padding: 1px 5px;
-      border-radius: 99px; min-width: 16px; text-align: center;
+      position: absolute; top: 1px; right: 10%;
+      background: linear-gradient(135deg, #ff3b3b, #dc2626);
+      color: #fff; font-size: 0.66rem; font-weight: 800; padding: 2px 6px;
+      border-radius: 99px; min-width: 19px; text-align: center;
+      border: 1.5px solid rgba(7, 22, 30, 0.9);
+      box-shadow: 0 2px 10px rgba(239, 68, 68, 0.7);
+      animation: badgePulse 1.8s infinite;
     }
+    [data-theme="light"] .nav-badge { border-color: #fff; }
 
     /* CARDS & COMMON UI */
     .card { border-radius: 20px; padding: 16px; margin-bottom: 14px; }
@@ -476,6 +524,7 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
     @keyframes vnWave { from { height: 5px; } to { height: 20px; } }
+    @keyframes badgePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
   </style>
 </head>
 <body>
@@ -527,6 +576,19 @@
           <div class="next-prayer-pill" id="next-prayer-pill">🕌 Memuat jadwal sholat...</div>
           <div class="prayer-grid" id="prayer-grid"></div>
         </div>
+
+        <button type="button" class="home-chat-shortcut glass" id="home-chat-card">
+          <div class="home-chat-ico">
+            💬
+            <span class="home-chat-dot hidden" id="home-chat-dot"></span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:0.94rem;color:var(--accent);">Chat Keluarga</div>
+            <div id="home-chat-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Buka obrolan keluarga real-time</div>
+          </div>
+          <span class="unread-pill hidden" id="home-chat-unread-badge">0</span>
+          <span style="font-size:1rem;color:var(--text-muted);font-weight:800;">›</span>
+        </button>
 
         <div class="card glass">
           <div class="card-title">
@@ -594,9 +656,12 @@
       <!-- TAB 4: CHAT KELUARGA -->
       <section id="tab-chat" class="tab-pane">
         <div class="chat-shell">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px 6px;">
-            <span id="chat-sync-hint" style="font-size:0.74rem;color:var(--text-muted);font-weight:600;">💬 Chat Keluarga Real-Time</span>
-            <button type="button" class="btn btn-sm" id="btn-chat-refresh" style="padding:4px 9px;font-size:0.72rem;">🔄 Segarkan</button>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 2px 6px;">
+            <span id="chat-sync-hint" style="font-size:0.74rem;color:var(--text-muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">💬 Chat Keluarga Real-Time</span>
+            <div style="display:flex;gap:5px;flex-shrink:0;">
+              <button type="button" class="btn btn-sm" id="btn-chat-sound-picker" style="padding:4px 9px;font-size:0.72rem;">🎵 Nada</button>
+              <button type="button" class="btn btn-sm" id="btn-chat-refresh" style="padding:4px 9px;font-size:0.72rem;">🔄 Segarkan</button>
+            </div>
           </div>
           <div class="chat-messages" id="chat-messages"></div>
           <div id="emoji-picker" class="emoji-bar hidden"></div>
@@ -739,6 +804,15 @@
         </div>
       </div>
 
+      <div class="field" style="margin-top:12px;">
+        <label>🔔 Nada Notifikasi Pesan & Laporan Saya</label>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <select id="prof-notif-sound" class="input" style="flex:1;"></select>
+          <button type="button" class="btn btn-emerald btn-sm" id="btn-prof-test-notif">🔊 Tes</button>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">Tiap anggota keluarga bebas memilih suara notifikasi favoritnya.</div>
+      </div>
+
       <div id="admin-profile-tools" class="hidden" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--glass-border);">
         <div style="font-weight:800;font-size:0.88rem;color:var(--accent);margin-bottom:10px;">👑 Pengaturan Keamanan Admin</div>
         <div class="field">
@@ -759,6 +833,20 @@
       </div>
 
       <button class="btn btn-danger btn-full" id="btn-logout-cover" style="margin-top:14px;">🚪 Kembali ke Cover</button>
+    </div>
+  </div>
+
+  <!-- MODAL: PILIH NADA NOTIFIKASI KELUARGA -->
+  <div id="notif-sound-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="modal-title">🎵 Pilih Nada Notifikasi</h3>
+        <button class="btn btn-sm" id="btn-close-notif-sound">✕</button>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;">
+        Ketuk salah satu nada di bawah untuk langsung mendengarkan & menyimpannya ke profil kamu (pastikan Volume Media HP aktif).
+      </div>
+      <div id="notif-sound-options-list"></div>
     </div>
   </div>
 
@@ -848,7 +936,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v8-fcm-stable";
+    const APP_VERSION = "v9-notif-badge";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -863,12 +951,24 @@
     /* ================= STORAGE & INITIAL STATE ================= */
     const STORE_KEY = "oznet_family_state_v6";
 
+    const NOTIF_SOUND_LIST = [
+      { id: "melodi", label: "🎵 Melodi Keluarga (Ceria & Jelas)" },
+      { id: "dingdong", label: "🔔 Ding-Dong Rumah (Kencang)" },
+      { id: "siulan", label: "🐦 Siulan Pesan (Cerah & Tajam)" },
+      { id: "islami", label: "🕌 Rebana & Gema Bel (Hangat)" },
+      { id: "kristal", label: "✨ Lonceng Kristal Panjang" },
+      { id: "tegas", label: "📣 Nada Peringatan Keras" },
+      { id: "klasik", label: "📱 Dering Pesan Klasik" }
+    ];
+
     const DEFAULT_MEMBERS = {
-      ayah: { id: "ayah", name: "Ayah", isAdmin: true, emoji: "👨", photo: "" },
-      ibu: { id: "ibu", name: "Ibu", isAdmin: false, emoji: "👩", photo: "" },
-      kakak: { id: "kakak", name: "Kakak", isAdmin: false, emoji: "👦", photo: "" },
-      adik: { id: "adik", name: "Adik", isAdmin: false, emoji: "👧", photo: "" }
+      ayah: { id: "ayah", name: "Ayah", isAdmin: true, emoji: "👨", photo: "", notifSound: "melodi" },
+      ibu: { id: "ibu", name: "Ibu", isAdmin: false, emoji: "👩", photo: "", notifSound: "dingdong" },
+      kakak: { id: "kakak", name: "Kakak", isAdmin: false, emoji: "👦", photo: "", notifSound: "siulan" },
+      adik: { id: "adik", name: "Adik", isAdmin: false, emoji: "👧", photo: "", notifSound: "kristal" }
     };
+
+    const DEFAULT_LAST_READ = { ayah: 0, ibu: 0, kakak: 0, adik: 0 };
 
     const DEFAULT_DOAS = [
       {
@@ -926,6 +1026,8 @@
             webauthnCredId: parsed.webauthnCredId || "",
             members: mergeMembers(DEFAULT_MEMBERS, parsed.members),
             alarm: Object.assign({}, DEFAULT_ALARM, parsed.alarm || {}),
+            lastReadChatAt: Object.assign({}, DEFAULT_LAST_READ, parsed.lastReadChatAt || {}),
+            localNotifSound: parsed.localNotifSound || "melodi",
             doas: Array.isArray(parsed.doas) && parsed.doas.length ? parsed.doas : JSON.parse(JSON.stringify(DEFAULT_DOAS)),
             reports: Array.isArray(parsed.reports) ? parsed.reports : [],
             messages: Array.isArray(parsed.messages) ? parsed.messages : []
@@ -938,6 +1040,8 @@
         webauthnCredId: "",
         members: JSON.parse(JSON.stringify(DEFAULT_MEMBERS)),
         alarm: JSON.parse(JSON.stringify(DEFAULT_ALARM)),
+        lastReadChatAt: Object.assign({}, DEFAULT_LAST_READ),
+        localNotifSound: "melodi",
         doas: JSON.parse(JSON.stringify(DEFAULT_DOAS)),
         reports: [],
         messages: []
@@ -1163,29 +1267,202 @@
       }
     }
 
-    function playGentleNotifBeep() {
+    function getActiveNotifSoundId() {
+      if (currentUserId && state.members[currentUserId] && state.members[currentUserId].notifSound) {
+        return state.members[currentUserId].notifSound;
+      }
+      return state.localNotifSound || "melodi";
+    }
+
+    function playNotifSound(soundId = null, vibrate = true) {
+      const type = soundId || getActiveNotifSoundId();
+      if (vibrate && navigator.vibrate) {
+        try { navigator.vibrate([180, 70, 180]); } catch (e) {}
+      }
       try {
         const ctx = getAudioCtx();
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.14);
-        g.gain.setValueAtTime(0.18, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-        osc.connect(g); g.connect(ctx.destination);
-        osc.start(); osc.stop(ctx.currentTime + 0.22);
+        const master = ctx.createGain();
+        master.gain.value = 1.0;
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.setValueAtTime(-16, ctx.currentTime);
+        comp.ratio.setValueAtTime(6, ctx.currentTime);
+        master.connect(comp);
+        comp.connect(ctx.destination);
+        const now = ctx.currentTime;
+
+        const playNote = (freq, start, dur, wave = "triangle", vol = 0.85, endFreq = null) => {
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          osc.type = wave;
+          osc.frequency.setValueAtTime(freq, now + start);
+          if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, now + start + dur);
+          g.gain.setValueAtTime(0.001, now + start);
+          g.gain.linearRampToValueAtTime(vol, now + start + 0.018);
+          g.gain.exponentialRampToValueAtTime(0.005, now + start + dur);
+          osc.connect(g); g.connect(master);
+          osc.start(now + start); osc.stop(now + start + dur + 0.02);
+        };
+
+        if (type === "dingdong") {
+          // Ding-Dong kencang & beresonansi (2 kali)
+          [0, 0.72].forEach((off) => {
+            playNote(783.99, off, 0.36, "triangle", 0.95);
+            playNote(1567.98, off, 0.28, "sine", 0.45);
+            playNote(587.33, off + 0.26, 0.48, "triangle", 0.95);
+            playNote(1174.66, off + 0.26, 0.36, "sine", 0.4);
+          });
+        } else if (type === "siulan") {
+          // Siulan pesan cerah & tajam (1.3 detik)
+          playNote(900, 0, 0.22, "sine", 0.9, 1750);
+          playNote(1750, 0.22, 0.18, "sine", 0.85, 1180);
+          playNote(1180, 0.44, 0.26, "triangle", 0.92, 1980);
+          playNote(1568, 0.78, 0.45, "sine", 0.85, 1318);
+        } else if (type === "islami") {
+          // Rebana hangat + gema bel lembut (1.6 detik)
+          [0, 0.22, 0.55].forEach((t, idx) => {
+            playNote(idx === 1 ? 190 : 145, t, 0.2, "triangle", 1.0, 62);
+          });
+          playNote(523.25, 0.32, 0.65, "triangle", 0.75);
+          playNote(659.25, 0.48, 0.65, "triangle", 0.75);
+          playNote(783.99, 0.64, 0.85, "sine", 0.85);
+          playNote(1046.5, 0.82, 0.8, "sine", 0.65);
+        } else if (type === "kristal") {
+          // Lonceng kristal panjang berkilau (1.6 detik)
+          const notes = [1046.5, 1318.5, 1567.98, 2093.0, 1567.98, 2093.0];
+          notes.forEach((f, i) => {
+            playNote(f, i * 0.16, 0.52, "sine", 0.78);
+            playNote(f * 1.5, i * 0.16, 0.35, "triangle", 0.32);
+          });
+        } else if (type === "tegas") {
+          // Nada peringatan keras & tegas (1.5 detik)
+          [0, 0.28, 0.56].forEach((t) => {
+            playNote(1180, t, 0.2, "sawtooth", 0.75);
+            playNote(1560, t, 0.2, "square", 0.55);
+          });
+          playNote(1320, 0.9, 0.55, "sawtooth", 0.8, 1760);
+        } else if (type === "klasik") {
+          // Dering pesan klasik 2x (1.4 detik)
+          [0, 0.68].forEach((off) => {
+            playNote(880, off, 0.18, "square", 0.68);
+            playNote(1108.73, off + 0.16, 0.18, "square", 0.68);
+            playNote(1318.51, off + 0.32, 0.3, "triangle", 0.88);
+          });
+        } else {
+          // Default: "melodi" — Melodi keluarga ceria, keras & jelas (1.5 detik)
+          const seq = [
+            { f: 587.33, t: 0.00, d: 0.24 },
+            { f: 739.99, t: 0.18, d: 0.24 },
+            { f: 880.00, t: 0.36, d: 0.28 },
+            { f: 1174.66, t: 0.56, d: 0.55 },
+            { f: 880.00, t: 0.95, d: 0.24 },
+            { f: 1174.66, t: 1.12, d: 0.48 }
+          ];
+          seq.forEach((n) => {
+            playNote(n.f, n.t, n.d, "triangle", 0.92);
+            playNote(n.f * 2, n.t, n.d * 0.75, "sine", 0.38);
+          });
+        }
       } catch (e) {}
     }
 
-    function updateUnreadBadge() {
-      const b = $("chat-unread-badge");
-      if (unreadChatCount > 0) {
-        b.textContent = unreadChatCount > 99 ? "99+" : String(unreadChatCount);
-        b.classList.remove("hidden");
-      } else {
-        b.classList.add("hidden");
+    function playGentleNotifBeep() {
+      playNotifSound(null, true);
+    }
+
+    function mergeLastReadMap(base, incoming) {
+      const out = Object.assign({}, DEFAULT_LAST_READ, base || {});
+      if (incoming && typeof incoming === "object") {
+        ["ayah", "ibu", "kakak", "adik"].forEach((k) => {
+          const v = Number(incoming[k]) || 0;
+          if (v > (out[k] || 0)) out[k] = v;
+        });
       }
+      return out;
+    }
+
+    function getUnreadChatCountForRole(roleId) {
+      if (!roleId) return 0;
+      const lastRead = (state.lastReadChatAt && Number(state.lastReadChatAt[roleId])) || 0;
+      return state.messages.filter((m) => m && m.senderId !== roleId && (Number(m.createdAt) || 0) > lastRead).length;
+    }
+
+    function markChatAsRead(roleId = currentUserId) {
+      if (!roleId) return;
+      let latestTs = Date.now();
+      state.messages.forEach((m) => {
+        const ts = Number(m && m.createdAt) || 0;
+        if (ts > latestTs) latestTs = ts;
+      });
+      if (!state.lastReadChatAt) state.lastReadChatAt = Object.assign({}, DEFAULT_LAST_READ);
+      const prev = Number(state.lastReadChatAt[roleId]) || 0;
+      if (latestTs > prev) {
+        state.lastReadChatAt[roleId] = latestTs;
+        saveState();
+        syncPartialConfigToCloud({ lastReadChatAt: { [roleId]: latestTs } });
+      }
+      updateUnreadBadge();
+    }
+
+    function updateUnreadBadge() {
+      unreadChatCount = currentUserId ? getUnreadChatCountForRole(currentUserId) : 0;
+      const badgeText = unreadChatCount > 99 ? "99+" : String(unreadChatCount);
+
+      // 1. Badge di menu navigasi bawah (Chat)
+      const navBadge = $("chat-unread-badge");
+      if (navBadge) {
+        if (unreadChatCount > 0) {
+          navBadge.textContent = badgeText;
+          navBadge.classList.remove("hidden");
+        } else {
+          navBadge.classList.add("hidden");
+        }
+      }
+
+      // 2. Badge & preview di Beranda Menu Chat Keluarga
+      const homeCard = $("home-chat-card");
+      const homeBadge = $("home-chat-unread-badge");
+      const homeDot = $("home-chat-dot");
+      const homePrev = $("home-chat-preview");
+      if (homeCard && homeBadge && homeDot && homePrev) {
+        homeCard.classList.toggle("has-unread", unreadChatCount > 0);
+        homeDot.classList.toggle("hidden", unreadChatCount === 0);
+        if (unreadChatCount > 0) {
+          homeBadge.textContent = badgeText;
+          homeBadge.classList.remove("hidden");
+        } else {
+          homeBadge.classList.add("hidden");
+        }
+
+        const latestMsg = state.messages.length ? state.messages[state.messages.length - 1] : null;
+        if (latestMsg) {
+          const senderName = (state.members[latestMsg.senderId] && state.members[latestMsg.senderId].name) || "Keluarga";
+          let snippet = "";
+          if (latestMsg.text) snippet = latestMsg.text.replace(/\s+/g, " ").trim();
+          else if (latestMsg.img) snippet = "📷 Mengirim foto";
+          else if (latestMsg.voiceUrl) snippet = `🎙️ Voice note (${latestMsg.voiceDur || "VN"})`;
+          else if (latestMsg.fileUrl) snippet = `📎 ${latestMsg.fileName || "File"}`;
+          homePrev.textContent = unreadChatCount > 0
+            ? `${unreadChatCount} belum dibaca • ${senderName}: ${snippet}`
+            : `${senderName}: ${snippet}`;
+          homePrev.style.color = unreadChatCount > 0 ? "var(--text)" : "var(--text-muted)";
+          homePrev.style.fontWeight = unreadChatCount > 0 ? "700" : "500";
+        } else {
+          homePrev.textContent = "Buka obrolan keluarga real-time";
+          homePrev.style.color = "var(--text-muted)";
+          homePrev.style.fontWeight = "500";
+        }
+      }
+
+      // 3. Badge di Cover masing-masing profil (jika sedang di Cover)
+      if (!currentUserId) renderCoverRoles();
+
+      // 4. App Icon Badge PWA (jika didukung OS)
+      try {
+        if ("setAppBadge" in navigator) {
+          if (unreadChatCount > 0) navigator.setAppBadge(unreadChatCount).catch(() => {});
+          else if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
+        }
+      } catch (e) {}
     }
 
     let cloudUnsubs = [];
@@ -1230,24 +1507,36 @@
 
     function applyIncomingMessages(rawList) {
       const list = mergeMessagesWithPending(rawList);
-      if (initialMessagesLoaded && currentUserId) {
+      let hasNewFromOther = false;
+      let latestNewSender = "";
+
+      if (initialMessagesLoaded) {
         list.forEach((m) => {
-          if (!knownMessageIds.has(m.id) && m.senderId !== currentUserId) {
-            const sender = state.members[m.senderId]?.name || "Keluarga";
-            if (activeTab !== "chat") {
-              unreadChatCount++;
-              updateUnreadBadge();
-              showToast(`💬 Pesan baru dari ${sender}`, 2800);
-            }
-            playGentleNotifBeep();
+          if (!knownMessageIds.has(m.id) && (!currentUserId || m.senderId !== currentUserId)) {
+            hasNewFromOther = true;
+            latestNewSender = (state.members[m.senderId] && state.members[m.senderId].name) || "Keluarga";
           }
         });
       }
+
       list.forEach((m) => knownMessageIds.add(m.id));
       initialMessagesLoaded = true;
       state.messages = list;
       saveState();
-      if (currentUserId && activeTab === "chat" && !activeAudio) renderChat();
+
+      if (currentUserId && activeTab === "chat" && document.visibilityState === "visible") {
+        markChatAsRead(currentUserId);
+        if (!activeAudio) renderChat();
+      } else {
+        updateUnreadBadge();
+      }
+
+      if (hasNewFromOther) {
+        playNotifSound(null, true);
+        if (currentUserId && activeTab !== "chat") {
+          showToast(`💬 Pesan baru dari ${latestNewSender}`, 3200);
+        }
+      }
     }
 
     function handleCloudError(err) {
@@ -1292,6 +1581,7 @@
           if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
           if (d.alarm) state.alarm = Object.assign({}, DEFAULT_ALARM, d.alarm);
           if (d.adminPass) state.adminPass = d.adminPass;
+          if (d.lastReadChatAt) state.lastReadChatAt = mergeLastReadMap(state.lastReadChatAt, d.lastReadChatAt);
         }
         if (!doaSnap.empty) {
           state.doas = doaSnap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -1333,8 +1623,10 @@
             if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
             if (d.alarm) state.alarm = Object.assign({}, DEFAULT_ALARM, d.alarm);
             if (d.adminPass) state.adminPass = d.adminPass;
+            if (d.lastReadChatAt) state.lastReadChatAt = mergeLastReadMap(state.lastReadChatAt, d.lastReadChatAt);
             saveState();
             renderCoverRoles();
+            updateUnreadBadge();
             if (currentUserId) {
               renderHeader();
               renderAlarmUI();
@@ -1464,6 +1756,7 @@
         members: state.members,
         alarm: state.alarm,
         adminPass: state.adminPass,
+        lastReadChatAt: state.lastReadChatAt,
         updatedAt: Date.now()
       }, { merge: true }).then(markServerConnected).catch((err) => {
         handleCloudError(err);
@@ -1562,12 +1855,16 @@
       grid.innerHTML = "";
       ["ayah", "ibu", "kakak", "adik"].forEach((key) => {
         const m = state.members[key];
+        const unread = getUnreadChatCountForRole(key);
+        const badgeText = unread > 99 ? "99+" : String(unread);
         const btn = document.createElement("button");
-        btn.className = "role-btn";
+        btn.className = "role-btn" + (unread > 0 ? " has-unread" : "");
         btn.innerHTML = `
+          ${unread > 0 ? `<span class="unread-pill cover-unread-badge">${badgeText}</span>` : ""}
           <div class="role-avatar">${renderAvatarHtml(m)}</div>
           <div class="role-name">${escapeHtml(m.name)}</div>
           ${m.isAdmin ? '<span class="role-tag">👑 Admin</span>' : ""}
+          ${unread > 0 ? `<span class="cover-unread-sub">🔴 ${unread} pesan baru</span>` : ""}
         `;
         btn.onclick = () => handleRoleLogin(key);
         grid.appendChild(btn);
@@ -1589,7 +1886,9 @@
       currentUserId = roleId;
       tabHistory = [];
       activeTab = "beranda";
-      unreadChatCount = 0;
+      if (state.members[roleId] && state.members[roleId].notifSound) {
+        state.localNotifSound = state.members[roleId].notifSound;
+      }
       updateUnreadBadge();
       $("cover-screen").classList.add("hidden");
       $("app-shell").classList.remove("hidden");
@@ -2292,6 +2591,7 @@
       knownMessageIds.add(msgObj.id);
       state.messages.push(msgObj);
       saveState();
+      markChatAsRead(currentUserId);
       renderChat();
       syncMessageAdd(msgObj);
       const senderName = (state.members[currentUserId] && state.members[currentUserId].name) || "Keluarga";
@@ -2310,6 +2610,12 @@
       $("profile-modal-title").textContent = isAdmin() ? "👑 Profil & Kontrol Admin" : `👤 Profil ${me.name}`;
       $("prof-big-avatar").innerHTML = renderAvatarHtml(me);
       $("prof-name-input").value = me.name;
+
+      const soundSel = $("prof-notif-sound");
+      if (soundSel) {
+        soundSel.innerHTML = NOTIF_SOUND_LIST.map((s) => `<option value="${s.id}">${s.label}</option>`).join("");
+        soundSel.value = getActiveNotifSoundId();
+      }
 
       const adminBox = $("admin-profile-tools");
       adminBox.classList.toggle("hidden", !isAdmin());
@@ -2362,6 +2668,36 @@
           };
         });
       }
+    }
+
+    function setMyNotifSound(soundId, preview = true) {
+      if (!NOTIF_SOUND_LIST.some((s) => s.id === soundId)) return;
+      state.localNotifSound = soundId;
+      if (currentUserId && state.members[currentUserId]) {
+        state.members[currentUserId].notifSound = soundId;
+        syncPartialConfigToCloud({ members: { [currentUserId]: state.members[currentUserId] } });
+      }
+      saveState();
+      if ($("prof-notif-sound")) $("prof-notif-sound").value = soundId;
+      if (!$("notif-sound-modal").classList.contains("hidden")) renderNotifSoundModal();
+      if (preview) playNotifSound(soundId, false);
+      const item = NOTIF_SOUND_LIST.find((s) => s.id === soundId);
+      showToast(`🔔 Nada dipilih: ${item ? item.label : soundId}`, 2200);
+    }
+
+    function renderNotifSoundModal() {
+      const current = getActiveNotifSoundId();
+      const box = $("notif-sound-options-list");
+      if (!box) return;
+      box.innerHTML = NOTIF_SOUND_LIST.map((s) => `
+        <div class="sound-opt-row ${s.id === current ? "active" : ""}" data-sound-id="${s.id}">
+          <span style="font-size:0.86rem;font-weight:700;">${s.label}</span>
+          <span style="font-size:0.78rem;font-weight:800;color:var(--accent);">${s.id === current ? "✅ Aktif" : "🔊 Coba"}</span>
+        </div>
+      `).join("");
+      box.querySelectorAll(".sound-opt-row").forEach((row) => {
+        row.onclick = () => setMyNotifSound(row.dataset.soundId, true);
+      });
     }
 
     /* ================= CAMERA & COMPRESSION ================= */
@@ -2419,7 +2755,7 @@
       if (id === "camera-modal") stopCameraStream();
     }
     function closeAllModals() {
-      ["sync-diag-modal", "admin-login-modal", "profile-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
+      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
     }
     window.openLightbox = (src) => { $("lightbox-img").src = src; openModalById("lightbox-modal"); };
     window.closeModalById = closeModalById;
@@ -2435,8 +2771,7 @@
       $("tab-" + tabName).classList.add("active");
       document.querySelectorAll(".nav-item").forEach((b) => b.classList.toggle("active", b.dataset.tab === tabName));
       if (tabName === "chat") {
-        unreadChatCount = 0;
-        updateUnreadBadge();
+        markChatAsRead(currentUserId);
         renderChat();
         pullLatestCloudData(true);
       } else if (tabName === "laporan" || tabName === "doa") {
@@ -2446,7 +2781,7 @@
     }
 
     function handleBackAction() {
-      const openModal = ["lightbox-modal", "camera-modal", "doa-editor-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
+      const openModal = ["lightbox-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
         .find((id) => !$(id).classList.contains("hidden"));
       if (openModal) { closeModalById(openModal); return; }
       if (currentUserId && tabHistory.length > 0) {
@@ -2485,6 +2820,7 @@
       renderDoaList();
       renderAlarmUI();
       renderChat();
+      updateUnreadBadge();
       updateClockAndPrayers();
     }
 
@@ -2663,6 +2999,15 @@
         state.webauthnCredId = "";
         saveState(); renderProfileModal(); showToast("Sidik jari dihapus.");
       };
+
+      // Home Chat Menu Shortcut
+      $("home-chat-card").onclick = () => switchTab("chat", true);
+
+      // Profile & Chat Notification Sound Controls
+      $("prof-notif-sound").onchange = (e) => setMyNotifSound(e.target.value, true);
+      $("btn-prof-test-notif").onclick = () => playNotifSound($("prof-notif-sound").value, true);
+      $("btn-chat-sound-picker").onclick = () => { renderNotifSoundModal(); openModalById("notif-sound-modal"); };
+      $("btn-close-notif-sound").onclick = () => closeModalById("notif-sound-modal");
 
       // Reports
       $("btn-quick-report").onclick = () => switchTab("laporan", true);
