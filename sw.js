@@ -1,4 +1,4 @@
-const CACHE_NAME = "oznet-family-v10";
+const CACHE_NAME = "oznet-family-v11";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -25,8 +25,8 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Jangan pernah mencegat request non-GET atau server eksternal (termasuk Firebase Firestore)
-  if (request.method !== "GET" || url.origin !== self.location.origin) {
+  // Jangan cegat request non-GET, endpoint API Vercel (/api/*), atau server eksternal (Firebase)
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) {
     return;
   }
 
@@ -41,5 +41,63 @@ self.addEventListener("fetch", (event) => {
         return res;
       })
       .catch(() => caches.match(request))
+  );
+});
+
+/* ================= FIREBASE CLOUD MESSAGING (BACKGROUND PUSH) ================= */
+try {
+  importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
+  importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
+
+  firebase.initializeApp({
+    apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
+    authDomain: "oznet-f368b.firebaseapp.com",
+    projectId: "oznet-f368b",
+    storageBucket: "oznet-f368b.firebasestorage.app",
+    messagingSenderId: "677062960891",
+    appId: "1:677062960891:web:e1862ca23fc5333725725e",
+    measurementId: "G-XZEYQ5W4HD"
+  });
+
+  const messaging = firebase.messaging();
+  messaging.onBackgroundMessage((payload) => {
+    // Jika server sudah mengirim payload notification, FCM menampilkannya otomatis.
+    // Fallback ini hanya berjalan untuk pesan data-only agar tidak muncul notifikasi ganda.
+    if (!payload.notification && payload.data) {
+      const title = payload.data.title || "OZNET FAMILY";
+      const body = payload.data.body || "Ada pembaruan baru di keluarga OZNET";
+      const tab = payload.data.tab || "chat";
+      self.registration.showNotification(title, {
+        body,
+        icon: "/logo.png",
+        badge: "/logo.png",
+        vibrate: [200, 100, 200],
+        tag: "oznet-" + tab,
+        renotify: true,
+        data: { url: "/?tab=" + encodeURIComponent(tab), tab }
+      });
+    }
+  });
+} catch (e) {
+  // Tetap berjalan normal meski sedang offline
+}
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const data = event.notification.data || {};
+  const fcmData = (data.FCM_MSG && data.FCM_MSG.data) ? data.FCM_MSG.data : {};
+  const tab = data.tab || fcmData.tab || "chat";
+  const targetUrl = new URL("/?tab=" + encodeURIComponent(tab), self.location.origin).href;
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.startsWith(self.location.origin) && "focus" in client) {
+          client.postMessage({ type: "OPEN_TAB", tab });
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) return clients.openWindow(targetUrl);
+    })
   );
 });
