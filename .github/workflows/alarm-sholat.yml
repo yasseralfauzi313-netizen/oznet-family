@@ -1,0 +1,12 @@
+name: Cek Alarm Sholat OZNET
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Server Alarm Sholat
+        run: curl -sS https://oznet-family.vercel.app/api/check-prayer-alarm
