@@ -168,6 +168,27 @@
       font-size: 0.68rem; padding: 2px 8px; border-radius: 99px;
       background: var(--accent-soft); color: var(--accent); font-weight: 700;
     }
+    .role-btn.role-locked {
+      opacity: 0.62;
+      border-color: rgba(239, 68, 68, 0.45);
+      background: rgba(0, 0, 0, 0.22);
+    }
+    [data-theme="light"] .role-btn.role-locked {
+      background: rgba(220, 38, 38, 0.06);
+    }
+    .role-status-pill {
+      font-size: 0.66rem; padding: 2px 8px; border-radius: 99px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .role-status-pill.avail {
+      background: rgba(16, 185, 129, 0.16); color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .role-status-pill.locked {
+      background: rgba(239, 68, 68, 0.18); color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.42);
+    }
+    [data-theme="light"] .role-status-pill.locked { color: #b91c1c; }
 
     /* MAIN APP SHELL */
     #app-shell { position: fixed; inset: 0; display: flex; flex-direction: column; }
@@ -892,7 +913,7 @@
         <div id="admin-members-editor"></div>
       </div>
 
-      <button class="btn btn-danger btn-full" id="btn-logout-cover" style="margin-top:14px;">🚪 Kembali ke Cover</button>
+      <button class="btn btn-danger btn-full" id="btn-logout-cover" style="margin-top:14px;">🚪 Logout / Keluar Akun</button>
     </div>
   </div>
 
@@ -1019,7 +1040,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v10-alarm-comment";
+    const APP_VERSION = "v11-single-device-login";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1033,6 +1054,78 @@
 
     /* ================= STORAGE & INITIAL STATE ================= */
     const STORE_KEY = "oznet_family_state_v6";
+    const DEVICE_ID_KEY = "oznet_device_id_v1";
+    const ACTIVE_ROLE_KEY = "oznet_active_role_v1";
+    const ACTIVE_LOGIN_AT_KEY = "oznet_active_login_at_v1";
+    const SESSIONS_CACHE_KEY = "oznet_sessions_cache_v1";
+
+    function getOrCreateDeviceId() {
+      try {
+        let id = localStorage.getItem(DEVICE_ID_KEY);
+        if (!id) {
+          id = "dev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+          localStorage.setItem(DEVICE_ID_KEY, id);
+        }
+        return id;
+      } catch (e) {
+        return "dev-mem-" + Math.random().toString(36).slice(2, 10);
+      }
+    }
+
+    function getDeviceLabel() {
+      const ua = navigator.userAgent || "";
+      if (/android/i.test(ua)) return "HP Android";
+      if (/iphone/i.test(ua)) return "iPhone";
+      if (/ipad/i.test(ua)) return "iPad";
+      return "Perangkat Web";
+    }
+
+    const DEVICE_ID = getOrCreateDeviceId();
+
+    function getPersistedRole() {
+      try {
+        const r = localStorage.getItem(ACTIVE_ROLE_KEY);
+        return ["ayah", "ibu", "kakak", "adik"].includes(r) ? r : "";
+      } catch (e) { return ""; }
+    }
+
+    function setPersistedRole(roleId, loginAt = Date.now()) {
+      try {
+        localStorage.setItem(ACTIVE_ROLE_KEY, roleId);
+        localStorage.setItem(ACTIVE_LOGIN_AT_KEY, String(loginAt));
+      } catch (e) {}
+    }
+
+    function getPersistedLoginAt() {
+      try { return Number(localStorage.getItem(ACTIVE_LOGIN_AT_KEY)) || 0; } catch (e) { return 0; }
+    }
+
+    function clearPersistedRole() {
+      try {
+        localStorage.removeItem(ACTIVE_ROLE_KEY);
+        localStorage.removeItem(ACTIVE_LOGIN_AT_KEY);
+      } catch (e) {}
+    }
+
+    function loadCachedSessions() {
+      try {
+        const raw = localStorage.getItem(SESSIONS_CACHE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) { return {}; }
+    }
+
+    let activeSessions = loadCachedSessions();
+    let sessionsLoadedFromCloud = false;
+    let isLoggingInNow = false;
+
+    function saveCachedSessions() {
+      try { localStorage.setItem(SESSIONS_CACHE_KEY, JSON.stringify(activeSessions)); } catch (e) {}
+    }
+
+    function isRoleLockedByOtherDevice(roleId) {
+      const s = activeSessions && activeSessions[roleId];
+      return !!(s && s.active === true && s.deviceId && s.deviceId !== DEVICE_ID);
+    }
 
     const NOTIF_SOUND_LIST = [
       { id: "melodi", label: "🎵 Melodi Keluarga (Ceria & Jelas)" },
@@ -1676,8 +1769,9 @@
     async function pullLatestCloudData(silent = true) {
       if (!cloudReady || !db) return;
       try {
-        const [cfgSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
+        const [cfgSnap, sessSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
           db.collection("oznet_config").doc("main").get(),
+          db.collection("oznet_config").doc("sessions").get(),
           db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get(),
           db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(),
           db.collection("oznet_doas").get()
@@ -1691,6 +1785,7 @@
           if (d.adminPass) state.adminPass = d.adminPass;
           if (d.lastReadChatAt) state.lastReadChatAt = mergeLastReadMap(state.lastReadChatAt, d.lastReadChatAt);
         }
+        applyCloudSessions(sessSnap.exists ? (sessSnap.data() || {}) : {});
         if (!doaSnap.empty) {
           state.doas = doaSnap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         }
@@ -1726,6 +1821,121 @@
       }
     }
 
+    function applyCloudSessions(dataObj) {
+      sessionsLoadedFromCloud = true;
+      activeSessions = (dataObj && typeof dataObj === "object") ? dataObj : {};
+      saveCachedSessions();
+      renderCoverRoles();
+      if (currentUserId && !$("profile-modal").classList.contains("hidden")) {
+        renderProfileModal();
+      }
+      // Validasi sesi permanen perangkat ini terhadap status di Cloud
+      if (currentUserId) {
+        const curSess = activeSessions[currentUserId];
+        if (curSess && curSess.active === true && curSess.deviceId && curSess.deviceId !== DEVICE_ID) {
+          forceLocalLogout("🔒 Akun ini sedang aktif di perangkat lain.");
+        } else if (curSess && curSess.active === false && curSess.releasedByAdmin && (Number(curSess.releasedAt) || 0) > getPersistedLoginAt()) {
+          forceLocalLogout("🔓 Sesi akun ini telah dilepas oleh Admin. Silakan login kembali.");
+        } else if (!curSess || (!curSess.active && !curSess.releasedByAdmin)) {
+          // Migrasi otomatis pengguna yang sudah login permanen sebelum fitur single-device aktif
+          claimRoleSession(currentUserId, true).catch(() => {});
+        }
+      }
+    }
+
+    async function claimRoleSession(roleId, silent = false) {
+      if (!cloudReady || !db) {
+        if (isRoleLockedByOtherDevice(roleId)) {
+          return { ok: false, reason: "locked", holder: activeSessions[roleId] };
+        }
+        return { ok: false, reason: "offline" };
+      }
+      const ref = db.collection("oznet_config").doc("sessions");
+      const now = Date.now();
+      const label = getDeviceLabel();
+      try {
+        const res = await db.runTransaction(async (tx) => {
+          const snap = await tx.get(ref);
+          const all = snap.exists ? (snap.data() || {}) : {};
+          const existing = all[roleId];
+          if (existing && existing.active === true && existing.deviceId && existing.deviceId !== DEVICE_ID) {
+            return { ok: false, reason: "locked", holder: existing, all };
+          }
+          const newEntry = {
+            active: true,
+            deviceId: DEVICE_ID,
+            deviceLabel: label,
+            loginAt: now,
+            releasedByAdmin: false
+          };
+          tx.set(ref, { [roleId]: newEntry }, { merge: true });
+          return { ok: true, entry: newEntry, all: Object.assign({}, all, { [roleId]: newEntry }) };
+        });
+        if (res.all) {
+          activeSessions = res.all;
+          saveCachedSessions();
+          renderCoverRoles();
+        }
+        return res;
+      } catch (err) {
+        if (!silent) handleCloudError(err);
+        return { ok: false, reason: "error", error: err };
+      }
+    }
+
+    async function releaseRoleSession(roleId) {
+      if (!roleId) return;
+      const releasedObj = {
+        active: false,
+        deviceId: "",
+        logoutAt: Date.now(),
+        releasedByAdmin: false
+      };
+      activeSessions[roleId] = releasedObj;
+      saveCachedSessions();
+      if (!cloudReady || !db) return;
+      const ref = db.collection("oznet_config").doc("sessions");
+      try {
+        await db.runTransaction(async (tx) => {
+          const snap = await tx.get(ref);
+          const all = snap.exists ? (snap.data() || {}) : {};
+          const existing = all[roleId];
+          if (!existing || existing.deviceId === DEVICE_ID || !existing.active) {
+            tx.set(ref, { [roleId]: releasedObj }, { merge: true });
+          }
+        });
+        markServerConnected();
+      } catch (err) {
+        ref.set({ [roleId]: releasedObj }, { merge: true }).catch(() => {});
+      }
+    }
+
+    async function adminForceReleaseSession(roleId) {
+      if (!isAdmin() || !roleId) return;
+      const memberName = (state.members[roleId] && state.members[roleId].name) || roleId;
+      if (!confirm(`Lepas paksa sesi login ${memberName} di perangkat lain?\nSetelah dilepas, akun ${memberName} bisa dipakai login kembali.`)) return;
+      const releasedObj = {
+        active: false,
+        deviceId: "",
+        releasedByAdmin: true,
+        releasedAt: Date.now()
+      };
+      activeSessions[roleId] = releasedObj;
+      saveCachedSessions();
+      renderProfileModal();
+      renderCoverRoles();
+      if (cloudReady && db) {
+        try {
+          await db.collection("oznet_config").doc("sessions").set({ [roleId]: releasedObj }, { merge: true });
+          markServerConnected();
+          showToast(`🔓 Sesi ${memberName} berhasil dilepas!`, 2800);
+        } catch (err) {
+          handleCloudError(err);
+          showToast("Gagal melepas sesi ke Cloud.", 3000);
+        }
+      }
+    }
+
     function attachCloudListeners() {
       if (!cloudReady || !db) return;
       clearCloudListeners();
@@ -1753,6 +1963,14 @@
           } else {
             syncFullConfigToCloud();
           }
+        }, handleCloudError)
+      );
+
+      // 1b. Real-time Sesi Login 1 Perangkat (Single-Device Lock)
+      cloudUnsubs.push(
+        db.collection("oznet_config").doc("sessions").onSnapshot((docSnap) => {
+          markServerConnected();
+          applyCloudSessions(docSnap.exists ? (docSnap.data() || {}) : {});
         }, handleCloudError)
       );
 
@@ -2002,21 +2220,27 @@
       $("btn-theme-toggle").textContent = state.theme === "dark" ? "☀️" : "🌙";
     }
 
-    /* ================= COVER & LOGIN ================= */
+    /* ================= COVER & LOGIN (PERMANEN + 1 PERANGKAT) ================= */
     function renderCoverRoles() {
       const grid = $("cover-role-grid");
+      if (!grid) return;
       grid.innerHTML = "";
       ["ayah", "ibu", "kakak", "adik"].forEach((key) => {
         const m = state.members[key];
         const unread = getUnreadChatCountForRole(key);
         const badgeText = unread > 99 ? "99+" : String(unread);
+        const lockedOther = isRoleLockedByOtherDevice(key);
         const btn = document.createElement("button");
-        btn.className = "role-btn" + (unread > 0 ? " has-unread" : "");
+        btn.className = "role-btn" + (unread > 0 ? " has-unread" : "") + (lockedOther ? " role-locked" : "");
         btn.innerHTML = `
           ${unread > 0 ? `<span class="unread-pill cover-unread-badge">${badgeText}</span>` : ""}
           <div class="role-avatar">${renderAvatarHtml(m)}</div>
           <div class="role-name">${escapeHtml(m.name)}</div>
           ${m.isAdmin ? '<span class="role-tag">👑 Admin</span>' : ""}
+          ${lockedOther
+            ? '<span class="role-status-pill locked">🔒 Dipakai HP lain</span>'
+            : '<span class="role-status-pill avail">🔓 Login</span>'
+          }
           ${unread > 0 ? `<span class="cover-unread-sub">🔴 ${unread} pesan baru</span>` : ""}
         `;
         btn.onclick = () => handleRoleLogin(key);
@@ -2024,21 +2248,55 @@
       });
     }
 
-    function handleRoleLogin(roleId) {
+    async function handleRoleLogin(roleId) {
+      if (isLoggingInNow) return;
+      const m = state.members[roleId];
+      if (isRoleLockedByOtherDevice(roleId)) {
+        const holder = activeSessions[roleId];
+        showToast(`🔒 Akun ${m.name} sudah login di perangkat lain (${(holder && holder.deviceLabel) || "HP lain"}). Silakan Logout dari perangkat tersebut dulu.`, 3800);
+        return;
+      }
       if (roleId === "ayah") {
         $("admin-pass-input").value = "";
         $("btn-admin-fp-login").classList.toggle("hidden", !state.webauthnCredId || !window.PublicKeyCredential);
         openModalById("admin-login-modal");
         setTimeout(() => $("admin-pass-input").focus(), 100);
       } else {
-        enterApp(roleId);
+        await attemptSingleDeviceLogin(roleId);
       }
     }
 
-    function enterApp(roleId) {
+    async function attemptSingleDeviceLogin(roleId) {
+      if (isLoggingInNow) return;
+      const m = state.members[roleId] || { name: roleId };
+      if (!navigator.onLine) {
+        showToast("⚠️ Aktifkan internet dulu untuk verifikasi login 1 perangkat.", 3400);
+        return;
+      }
+      isLoggingInNow = true;
+      showToast(`Memeriksa & masuk sebagai ${m.name}...`, 1600);
+      try {
+        const res = await claimRoleSession(roleId, false);
+        if (res.ok) {
+          const loginTs = (res.entry && res.entry.loginAt) || Date.now();
+          setPersistedRole(roleId, loginTs);
+          enterApp(roleId, { silent: false });
+        } else if (res.reason === "locked") {
+          const devName = (res.holder && res.holder.deviceLabel) || "HP lain";
+          showToast(`🔒 Gagal login! Akun ${m.name} sudah dipakai di ${devName}. Logout dulu dari perangkat tersebut.`, 4200);
+        } else {
+          showToast("⚠️ Tidak dapat menghubungi server Firebase. Cek koneksi internet lalu coba lagi.", 3600);
+        }
+      } finally {
+        isLoggingInNow = false;
+      }
+    }
+
+    function enterApp(roleId, opts = {}) {
       currentUserId = roleId;
       tabHistory = [];
       activeTab = "beranda";
+      if (!getPersistedRole()) setPersistedRole(roleId, Date.now());
       if (state.members[roleId] && state.members[roleId].notifSound) {
         state.localNotifSound = state.members[roleId].notifSound;
       }
@@ -2057,16 +2315,41 @@
         pendingOpenTab = "";
         switchTab(target, false);
       }
-      showToast(`Selamat datang, ${state.members[roleId].name}!`);
+      if (!opts.silent) {
+        showToast(`Selamat datang, ${state.members[roleId].name}! (Login permanen aktif)`);
+      }
     }
 
-    function logoutToCover() {
+    function forceLocalLogout(reasonMsg = "") {
       closeAllModals();
+      clearPersistedRole();
       currentUserId = null;
       tabHistory = [];
       $("app-shell").classList.add("hidden");
       $("cover-screen").classList.remove("hidden");
       renderCoverRoles();
+      pushNavState("cover");
+      if (reasonMsg) showToast(reasonMsg, 3800);
+    }
+
+    async function logoutToCover() {
+      const roleId = currentUserId;
+      if (!roleId) return;
+      const myName = (state.members[roleId] && state.members[roleId].name) || roleId;
+      if (!confirm(`Yakin ingin Logout dari akun ${myName}?\nSetelah logout, akun ini bisa dipakai login di perangkat lain.`)) {
+        return;
+      }
+      closeAllModals();
+      showToast("Sedang logout...", 1400);
+      await releaseRoleSession(roleId);
+      clearPersistedRole();
+      currentUserId = null;
+      tabHistory = [];
+      $("app-shell").classList.add("hidden");
+      $("cover-screen").classList.remove("hidden");
+      renderCoverRoles();
+      pushNavState("cover");
+      showToast(`👋 Berhasil Logout dari akun ${myName}.`, 2800);
     }
 
     /* ================= REAL WEBAUTHN FINGERPRINT ================= */
@@ -2125,7 +2408,7 @@
           }
         });
         closeModalById("admin-login-modal");
-        enterApp("ayah");
+        await attemptSingleDeviceLogin("ayah");
       } catch (err) {
         showToast("Verifikasi sidik jari gagal atau dibatalkan.");
       }
@@ -3227,15 +3510,27 @@
 
         $("admin-members-editor").innerHTML = ["ibu", "kakak", "adik"].map((key) => {
           const mem = state.members[key];
+          const sess = activeSessions && activeSessions[key];
+          const isOnline = !!(sess && sess.active === true);
           return `
-            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
-              <div class="report-avatar">${renderAvatarHtml(mem)}</div>
-              <input type="text" class="input admin-mem-name" data-key="${key}" value="${escapeHtml(mem.name)}" style="padding:7px 10px;font-size:0.82rem;" />
-              <label class="btn btn-sm" style="margin:0;" title="Ganti Foto">📷<input type="file" accept="image/*" class="hidden admin-mem-photo" data-key="${key}" /></label>
-              <button class="btn btn-sm btn-primary admin-mem-save" data-key="${key}">OK</button>
+            <div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--glass-border);">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="report-avatar">${renderAvatarHtml(mem)}</div>
+                <input type="text" class="input admin-mem-name" data-key="${key}" value="${escapeHtml(mem.name)}" style="padding:7px 10px;font-size:0.82rem;" />
+                <label class="btn btn-sm" style="margin:0;" title="Ganti Foto">📷<input type="file" accept="image/*" class="hidden admin-mem-photo" data-key="${key}" /></label>
+                <button class="btn btn-sm btn-primary admin-mem-save" data-key="${key}">OK</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:5px;padding-left:41px;">
+                <span style="font-size:0.7rem;color:var(--text-muted);">${isOnline ? `🟢 Login di ${escapeHtml(sess.deviceLabel || "HP")}` : "⚪ Belum login"}</span>
+                ${isOnline ? `<button type="button" class="btn btn-sm btn-danger admin-mem-kick" data-key="${key}" style="padding:3px 8px;font-size:0.7rem;">🔓 Lepas Sesi</button>` : ""}
+              </div>
             </div>
           `;
         }).join("");
+
+        document.querySelectorAll(".admin-mem-kick").forEach((btn) => {
+          btn.onclick = () => adminForceReleaseSession(btn.dataset.key);
+        });
 
         document.querySelectorAll(".admin-mem-save").forEach((btn) => {
           btn.onclick = () => {
@@ -3387,9 +3682,9 @@
         switchTab(tabHistory.pop(), false);
         return;
       }
-      if (currentUserId) {
-        logoutToCover();
-        pushNavState("cover");
+      if (currentUserId && activeTab !== "beranda") {
+        switchTab("beranda", false);
+        pushNavState("tab:beranda");
         return;
       }
       const now = Date.now();
@@ -3397,7 +3692,7 @@
         history.go(-2);
       } else {
         backExitArmedUntil = now + 2500;
-        pushNavState("cover-guard");
+        pushNavState(currentUserId ? "app-exit-guard" : "cover-guard");
         showToast("Tekan / geser kembali sekali lagi untuk keluar aplikasi", 2400);
       }
     }
@@ -3538,10 +3833,10 @@
 
       // Admin login
       $("btn-close-admin-login").onclick = () => closeModalById("admin-login-modal");
-      $("btn-admin-pass-submit").onclick = () => {
+      $("btn-admin-pass-submit").onclick = async () => {
         if ($("admin-pass-input").value === state.adminPass) {
           closeModalById("admin-login-modal");
-          enterApp("ayah");
+          await attemptSingleDeviceLogin("ayah");
         } else {
           showToast("Password salah, silakan coba lagi.");
         }
@@ -3927,9 +4222,14 @@
     initEmojiBar();
     bindEvents();
     renderCoverRoles();
+    const restoredRole = getPersistedRole();
+    if (restoredRole && state.members[restoredRole]) {
+      enterApp(restoredRole, { silent: true, fromRestore: true });
+    } else {
+      pushNavState("cover");
+    }
     updateClockAndPrayers();
     setInterval(updateClockAndPrayers, 1000);
-    pushNavState("cover");
     setupIosInstallHint();
     updateNotifBellUI();
     initServiceWorkerAutoUpdate();
