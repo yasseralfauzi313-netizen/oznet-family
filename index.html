@@ -1111,7 +1111,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v12-chat-reply-admin";
+    const APP_VERSION = "v13-bg-alarm";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1371,7 +1371,19 @@
     let fcmToken = localStorage.getItem("oznet_fcm_token") || "";
     let fcmStatusNote = "";
     let swRegistrationRef = null;
-    let pendingOpenTab = new URLSearchParams(window.location.search).get("tab") || "";
+    const __initParams = new URLSearchParams(window.location.search);
+    let pendingOpenTab = __initParams.get("tab") || "";
+    let pendingAlarmRing = __initParams.get("ring") === "1" ? {
+      prayerName: __initParams.get("prayer") || "Sholat",
+      prayerTime: __initParams.get("time") || "",
+      offsetMin: Number(__initParams.get("offset")) || 0
+    } : null;
+    if (pendingAlarmRing) {
+      try {
+        const cleanUrl = window.location.pathname + (pendingOpenTab ? ("?tab=" + encodeURIComponent(pendingOpenTab)) : "");
+        history.replaceState(null, "", cleanUrl);
+      } catch (e) {}
+    }
 
     function updateNotifBellUI() {
       const btn = $("btn-notif-toggle");
@@ -1485,8 +1497,11 @@
 
           if (!window.__oznetFcmOnMsgBound) {
             window.__oznetFcmOnMsgBound = true;
-            messaging.onMessage(() => {
-              // Saat aplikasi sedang terbuka di depan layar, notifikasi sudah ditangani real-time Firestore.
+            messaging.onMessage((payload) => {
+              const d = (payload && payload.data) || {};
+              if (d.type === "prayer_alarm") {
+                handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, d.isTest === "1");
+              }
             });
           }
           return true;
@@ -2404,6 +2419,13 @@
         pendingOpenTab = "";
         switchTab(target, false);
       }
+      if (pendingAlarmRing) {
+        const ringData = pendingAlarmRing;
+        pendingAlarmRing = null;
+        setTimeout(() => {
+          triggerAlarmOverlay(ringData.prayerName, ringData.prayerTime, ringData.offsetMin, false);
+        }, 250);
+      }
       if (!opts.silent) {
         showToast(`Selamat datang, ${state.members[roleId].name}! (Login permanen aktif)`);
       }
@@ -2807,16 +2829,54 @@
     }
 
     async function maybeBroadcastAlarmPush(prayerName, prayerTime, offsetMin, alarmDateKey) {
-      if (!cloudReady || !db) return;
-      const lockDocId = `alarm_push_${alarmDateKey}_${prayerName}_${offsetMin}`;
+      // Panggil endpoint server /api/check-prayer-alarm agar server mengirim push alarm berprioritas tinggi
+      // ke seluruh perangkat keluarga (termasuk yang aplikasinya ditutup / berjalan di layar belakang)
+      // dengan pengunci transaksi Firestore sehingga tidak pernah dobel.
       try {
-        const ref = db.collection("oznet_config").doc(lockDocId);
-        const snap = await ref.get();
-        if (snap.exists) return;
-        await ref.set({ sentAt: Date.now(), by: currentUserId || "device" });
-        const title = offsetMin > 0 ? `⏰ ${offsetMin} Menit Lagi Sholat ${prayerName}` : `🕌 Waktu Sholat ${prayerName}`;
-        const body = `Jadwal ${prayerName} pukul ${prayerTime} (${state.alarm.location.name}). Ayo segera bersiap sholat!`;
-        sendFamilyPush({ title, body, tab: "alarm" });
+        fetch("/api/check-prayer-alarm", { method: "GET", cache: "no-store" }).catch(() => {});
+      } catch (e) {}
+    }
+
+    function handleIncomingPushAlarm(prayerName, prayerTime, offsetMin, isTest = false) {
+      const now = new Date();
+      const dateKey = getLocalDateKey(now);
+      const targetMin = prayerTime ? ((timeToMinutes(prayerTime) - offsetMin + 1440) % 1440) : (now.getHours() * 60 + now.getMinutes());
+      const key = `${dateKey}|${prayerName}|${offsetMin}|${targetMin}`;
+      if (!isTest && hasAlarmFired(key)) {
+        // Jika alarm sudah berbunyi di HP ini, tidak perlu ulangi
+        return;
+      }
+      if (!isTest) markAlarmFired(key);
+      triggerAlarmOverlay(prayerName || "Sholat", prayerTime || "", Number(offsetMin) || 0, isTest);
+    }
+
+    function updateAlarmMediaSession(title, desc) {
+      try {
+        if ("mediaSession" in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: title || "Alarm Waktu Sholat",
+            artist: "OZNET FAMILY",
+            album: desc || "Pengingat Sholat Keluarga",
+            artwork: [{ src: "./logo.png", sizes: "192x192", type: "image/png" }]
+          });
+          navigator.mediaSession.setActionHandler("pause", () => stopAlarmOverlay());
+          navigator.mediaSession.setActionHandler("stop", () => stopAlarmOverlay());
+        }
+      } catch (e) {}
+    }
+
+    let bgAlarmWorker = null;
+    function startBackgroundClockWorker() {
+      // Web Worker timer jauh lebih tahan terhadap throttling Chrome Android saat tab berada di latar belakang
+      if (typeof Worker === "undefined" || typeof Blob === "undefined") return;
+      try {
+        const workerSrc = "setInterval(function(){ postMessage('tick'); }, 1000);";
+        const blob = new Blob([workerSrc], { type: "application/javascript" });
+        const url = URL.createObjectURL(blob);
+        bgAlarmWorker = new Worker(url);
+        bgAlarmWorker.onmessage = () => {
+          updateClockAndPrayers();
+        };
       } catch (e) {}
     }
 
@@ -2829,6 +2889,7 @@
 
       clearInterval(alarmLoopTimer);
       acquireAlarmWakeLock();
+      updateAlarmMediaSession(title, desc);
       playLoudAlarmBurst(state.alarm.sound);
       startAlarmFallbackAudio(state.alarm.sound);
       if (navigator.vibrate) {
@@ -4087,9 +4148,14 @@
       });
 
       navigator.serviceWorker.addEventListener("message", (event) => {
-        if (event.data && event.data.type === "OPEN_TAB" && event.data.tab) {
-          if (currentUserId) switchTab(event.data.tab, true);
-          else pendingOpenTab = event.data.tab;
+        const d = event.data || {};
+        if (d.type === "OPEN_TAB" && d.tab) {
+          if (currentUserId) switchTab(d.tab, true);
+          else pendingOpenTab = d.tab;
+        } else if (d.type === "TRIGGER_PRAYER_ALARM") {
+          handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, Boolean(d.isTest));
+        } else if (d.type === "STOP_PRAYER_ALARM") {
+          stopAlarmOverlay();
         }
       });
 
@@ -4572,6 +4638,14 @@
     }
     updateClockAndPrayers();
     setInterval(updateClockAndPrayers, 1000);
+    startBackgroundClockWorker();
+    if (pendingAlarmRing && !currentUserId) {
+      const ringData = pendingAlarmRing;
+      pendingAlarmRing = null;
+      setTimeout(() => {
+        triggerAlarmOverlay(ringData.prayerName, ringData.prayerTime, ringData.offsetMin, false);
+      }, 300);
+    }
     setupIosInstallHint();
     updateNotifBellUI();
     initServiceWorkerAutoUpdate();
