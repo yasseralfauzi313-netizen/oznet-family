@@ -1,4 +1,4 @@
-const CACHE_NAME = "oznet-family-v11";
+const CACHE_NAME = "oznet-family-v12";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -44,7 +44,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-/* ================= FIREBASE CLOUD MESSAGING (BACKGROUND PUSH) ================= */
+/* ================= FIREBASE CLOUD MESSAGING (BACKGROUND PUSH & ALARM SHOLAT) ================= */
 try {
   importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
   importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
@@ -61,13 +61,68 @@ try {
 
   const messaging = firebase.messaging();
   messaging.onBackgroundMessage((payload) => {
-    // Jika server sudah mengirim payload notification, FCM menampilkannya otomatis.
-    // Fallback ini hanya berjalan untuk pesan data-only agar tidak muncul notifikasi ganda.
+    const data = (payload && payload.data) || {};
+
+    // 1. PRIORITAS TINGGI: ALARM WAKTU SHOLAT (Aplikasi ditutup atau di layar belakang)
+    if (data.type === "prayer_alarm") {
+      const prayerName = data.prayerName || "Sholat";
+      const prayerTime = data.prayerTime || "";
+      const offsetMin = Number(data.offsetMin) || 0;
+      const isTest = data.isTest === "1";
+      const title = data.title || (offsetMin > 0 ? `⏰ ${offsetMin} Menit Lagi Sholat ${prayerName}` : `🕌 Waktu Sholat ${prayerName}`);
+      const body = data.body || `Jadwal ${prayerName} pukul ${prayerTime}. Ayo segera bersiap sholat!`;
+      const ringUrl = data.url || `/?tab=alarm&ring=1&prayer=${encodeURIComponent(prayerName)}&time=${encodeURIComponent(prayerTime)}&offset=${offsetMin}`;
+
+      const notifPromise = self.registration.showNotification(title, {
+        body,
+        icon: "/logo.png",
+        badge: "/logo.png",
+        vibrate: [800, 250, 800, 250, 800, 250, 1000],
+        tag: isTest ? ("oznet-prayer-alarm-test-" + Date.now()) : "oznet-prayer-alarm",
+        renotify: true,
+        requireInteraction: true,
+        silent: false,
+        actions: [
+          { action: "open_alarm", title: "🔔 Buka & Bunyikan" },
+          { action: "dismiss", title: "🔕 Tutup" }
+        ],
+        data: {
+          type: "prayer_alarm",
+          url: ringUrl,
+          tab: "alarm",
+          prayerName,
+          prayerTime,
+          offsetMin,
+          isTest
+        }
+      });
+
+      // Bangunkan tab/PWA yang sedang berjalan di belakang layar agar langsung membunyikan sirine/bedug
+      const wakeClientsPromise = self.clients.matchAll({ type: "window", includeUncontrolled: true })
+        .then((windowClients) => {
+          windowClients.forEach((client) => {
+            if (client.url.startsWith(self.location.origin)) {
+              client.postMessage({
+                type: "TRIGGER_PRAYER_ALARM",
+                prayerName,
+                prayerTime,
+                offsetMin,
+                isTest
+              });
+            }
+          });
+        })
+        .catch(() => {});
+
+      return Promise.all([notifPromise, wakeClientsPromise]);
+    }
+
+    // 2. Fallback untuk pesan chat/laporan data-only (hindari notifikasi ganda jika payload.notification sudah ada)
     if (!payload.notification && payload.data) {
-      const title = payload.data.title || "OZNET FAMILY";
-      const body = payload.data.body || "Ada pembaruan baru di keluarga OZNET";
-      const tab = payload.data.tab || "chat";
-      self.registration.showNotification(title, {
+      const title = data.title || "OZNET FAMILY";
+      const body = data.body || "Ada pembaruan baru di keluarga OZNET";
+      const tab = data.tab || "chat";
+      return self.registration.showNotification(title, {
         body,
         icon: "/logo.png",
         badge: "/logo.png",
@@ -86,18 +141,52 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const data = event.notification.data || {};
   const fcmData = (data.FCM_MSG && data.FCM_MSG.data) ? data.FCM_MSG.data : {};
+  const notifType = data.type || fcmData.type || "";
+
+  // Jika pengguna menekan tombol "🔕 Tutup" pada notifikasi alarm
+  if (event.action === "dismiss") {
+    event.waitUntil(
+      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+        windowClients.forEach((client) => {
+          if (client.url.startsWith(self.location.origin)) {
+            client.postMessage({ type: "STOP_PRAYER_ALARM" });
+          }
+        });
+      }).catch(() => {})
+    );
+    return;
+  }
+
   const tab = data.tab || fcmData.tab || "chat";
-  const targetUrl = new URL("/?tab=" + encodeURIComponent(tab), self.location.origin).href;
+  const prayerName = data.prayerName || fcmData.prayerName || "";
+  const prayerTime = data.prayerTime || fcmData.prayerTime || "";
+  const offsetMin = Number(data.offsetMin !== undefined ? data.offsetMin : (fcmData.offsetMin || 0)) || 0;
+  const isTest = Boolean(data.isTest || fcmData.isTest === "1");
+
+  let targetPath = "/?tab=" + encodeURIComponent(tab);
+  if (notifType === "prayer_alarm" && prayerName) {
+    targetPath = `/?tab=alarm&ring=1&prayer=${encodeURIComponent(prayerName)}&time=${encodeURIComponent(prayerTime)}&offset=${offsetMin}`;
+  }
+  const targetUrl = new URL(targetPath, self.location.origin).href;
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
       for (const client of windowClients) {
         if (client.url.startsWith(self.location.origin) && "focus" in client) {
           client.postMessage({ type: "OPEN_TAB", tab });
+          if (notifType === "prayer_alarm" && prayerName) {
+            client.postMessage({
+              type: "TRIGGER_PRAYER_ALARM",
+              prayerName,
+              prayerTime,
+              offsetMin,
+              isTest
+            });
+          }
           return client.focus();
         }
       }
-      if (clients.openWindow) return clients.openWindow(targetUrl);
+      if (self.clients.openWindow) return self.clients.openWindow(targetUrl);
     })
   );
 });
