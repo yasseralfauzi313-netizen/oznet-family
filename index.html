@@ -492,6 +492,10 @@
       display: flex; align-items: center; justify-content: flex-end; gap: 7px; margin-top: 4px;
     }
     .msg-meta-foot .msg-time { margin-top: 0; }
+    .msg-sync-st { font-size: 0.68rem; font-weight: 800; opacity: 0.9; }
+    .msg-sync-st.pending { color: var(--accent); }
+    .msg-sync-st.sent { color: var(--emerald); }
+    .msg-sync-st.failed { color: #fca5a5; cursor: pointer; text-decoration: underline; }
     .msg-del-btn {
       background: transparent; border: none; color: #fca5a5; cursor: pointer;
       font-size: 0.72rem; padding: 1px 4px; border-radius: 6px; opacity: 0.85;
@@ -1668,7 +1672,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v18-stable-sync-fcm";
+    const APP_VERSION = "v19-direct-chat-sync";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1983,6 +1987,7 @@
         <div><strong>Project Firebase:</strong> ${escapeHtml(FIREBASE_CONFIG.projectId)}</div>
         <div><strong>Jaringan HP:</strong> ${onlineStr}</div>
         <div><strong>Status Cloud:</strong> ${statusStr}</div>
+        <div><strong>Sinkron Chat Langsung:</strong> ${restChatError ? `<span style="color:var(--danger);font-weight:700;">Gagal: ${escapeHtml(restChatError)}</span>` : (lastRestChatSyncAt ? `<span style="color:var(--emerald);font-weight:700;">Aktif ✅ (${lastRestChatSyncAt} • ${state.messages.length} pesan)</span>` : `<span style="color:var(--accent);font-weight:700;">Menunggu...</span>`)}</div>
         <div><strong>Notifikasi Push (FCM):</strong> ${fcmHtml}</div>
         ${fcmStatusNote ? `<div style="margin-top:4px;font-size:0.74rem;color:var(--accent);">${escapeHtml(fcmStatusNote)}</div>` : ""}
         <div style="margin-top:8px;color:var(--text-muted);font-size:0.74rem;">
@@ -2423,23 +2428,202 @@
     let cloudReconnectTimer = null;
     let chatFallbackPollTimer = null;
     let lastServerActivityMs = 0;
+    let lastRestChatSyncAt = "";
+    let restChatError = "";
     let isPullingCloudNow = false;
+    let isFetchingRestChat = false;
+    let lastRenderedChatSig = "";
     const pendingLocalMessages = new Map();
+    const failedLocalMessageIds = new Set();
+
+    /* ===== DIRECT FIRESTORE HTTPS REST API (ANTI-BEKU / BYPASS WEBCHANNEL HANG) ===== */
+    const FS_REST_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
+    const FS_REST_KEY = FIREBASE_CONFIG.apiKey;
+
+    function toFsVal(val) {
+      if (val === null || val === undefined) return { nullValue: null };
+      if (typeof val === "boolean") return { booleanValue: val };
+      if (typeof val === "number") {
+        if (Number.isFinite(val) && Number.isInteger(val)) return { integerValue: String(val) };
+        return { doubleValue: Number.isFinite(val) ? val : 0 };
+      }
+      if (typeof val === "string") return { stringValue: val };
+      if (Array.isArray(val)) {
+        return { arrayValue: { values: val.map((x) => toFsVal(x)) } };
+      }
+      if (typeof val === "object") {
+        return { mapValue: { fields: toFsFields(val) } };
+      }
+      return { stringValue: String(val) };
+    }
+
+    function toFsFields(obj) {
+      const fields = {};
+      if (!obj || typeof obj !== "object") return fields;
+      Object.keys(obj).forEach((k) => {
+        if (k.startsWith("_")) return;
+        const v = obj[k];
+        if (v !== undefined) fields[k] = toFsVal(v);
+      });
+      return fields;
+    }
+
+    function fromFsVal(v) {
+      if (!v || typeof v !== "object") return null;
+      if ("stringValue" in v) return v.stringValue;
+      if ("integerValue" in v) return Number(v.integerValue);
+      if ("doubleValue" in v) return Number(v.doubleValue);
+      if ("booleanValue" in v) return Boolean(v.booleanValue);
+      if ("nullValue" in v) return null;
+      if ("timestampValue" in v) return Date.parse(v.timestampValue) || 0;
+      if ("arrayValue" in v) return Array.isArray(v.arrayValue.values) ? v.arrayValue.values.map(fromFsVal) : [];
+      if ("mapValue" in v) return fromFsFields(v.mapValue.fields || {});
+      return null;
+    }
+
+    function fromFsFields(fields) {
+      const out = {};
+      if (!fields || typeof fields !== "object") return out;
+      Object.keys(fields).forEach((k) => {
+        out[k] = fromFsVal(fields[k]);
+      });
+      return out;
+    }
+
+    function formatRestError(status, bodyText) {
+      let detail = "";
+      try {
+        const j = JSON.parse(bodyText);
+        const err = Array.isArray(j) ? (j[0] && j[0].error) : j.error;
+        if (err && err.message) detail = err.message;
+      } catch (e) {}
+      if (status === 403) return `HTTP 403 (Rules Firebase ditolak/kedaluwarsa)${detail ? " — " + detail : ""}`;
+      if (status === 429) return `HTTP 429 (Kuota harian Firebase penuh)${detail ? " — " + detail : ""}`;
+      return `HTTP ${status}${detail ? " — " + detail.slice(0, 120) : ""}`;
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+      const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+      try {
+        const opts = Object.assign({}, options, ctrl ? { signal: ctrl.signal } : {});
+        return await fetch(url, opts);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
+
+    async function fetchMessagesViaRest(silent = true) {
+      if (!navigator.onLine) return false;
+      if (isFetchingRestChat && silent) return false;
+      isFetchingRestChat = true;
+      try {
+        const url = `${FS_REST_BASE}:runQuery?key=${encodeURIComponent(FS_REST_KEY)}`;
+        const res = await fetchWithTimeout(url, {
+          method: "POST",
+          cache: "no-store",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            structuredQuery: {
+              from: [{ collectionId: "oznet_messages" }],
+              orderBy: [{ field: { fieldPath: "createdAt" }, direction: "DESCENDING" }],
+              limit: 150
+            }
+          })
+        }, 9000);
+
+        const rawText = await res.text();
+        if (!res.ok) {
+          const errStr = formatRestError(res.status, rawText);
+          restChatError = errStr;
+          lastSyncErrorText = errStr;
+          setSyncPill(res.status === 403 ? "🔴 Rules" : "🔴 Error");
+          updateDiagView();
+          if (!silent) showToast("❌ Gagal sinkron chat: " + errStr, 4000);
+          return false;
+        }
+
+        const rows = JSON.parse(rawText || "[]");
+        const msgs = [];
+        if (Array.isArray(rows)) {
+          rows.forEach((row) => {
+            if (row && row.document && row.document.fields) {
+              const obj = fromFsFields(row.document.fields);
+              if (!obj.id && row.document.name) obj.id = row.document.name.split("/").pop();
+              if (obj.id) msgs.push(obj);
+            }
+          });
+        }
+        msgs.reverse();
+        restChatError = "";
+        lastRestChatSyncAt = new Date().toLocaleTimeString("id-ID");
+        markServerConnected();
+        applyIncomingMessages(msgs);
+        if (!silent) showToast(`✅ Chat tersinkron langsung dari server (${msgs.length} pesan)`, 2200);
+        return true;
+      } catch (err) {
+        const msg = (err && err.name === "AbortError") ? "Timeout jaringan (>9 dtk)" : ((err && err.message) || String(err));
+        restChatError = msg;
+        if (!silent) showToast("⚠️ Gagal tarik chat: " + msg, 3200);
+        updateDiagView();
+        return false;
+      } finally {
+        isFetchingRestChat = false;
+      }
+    }
+
+    async function writeMessageViaRest(msgObj) {
+      const docUrl = `${FS_REST_BASE}/oznet_messages/${encodeURIComponent(msgObj.id)}?key=${encodeURIComponent(FS_REST_KEY)}`;
+      const res = await fetchWithTimeout(docUrl, {
+        method: "PATCH",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: toFsFields(msgObj) })
+      }, 10000);
+      const rawText = await res.text();
+      if (!res.ok) {
+        const errStr = formatRestError(res.status, rawText);
+        const e = new Error(errStr);
+        e.httpStatus = res.status;
+        throw e;
+      }
+      return true;
+    }
+
+    async function deleteMessageViaRest(id) {
+      const docUrl = `${FS_REST_BASE}/oznet_messages/${encodeURIComponent(id)}?key=${encodeURIComponent(FS_REST_KEY)}`;
+      const res = await fetchWithTimeout(docUrl, {
+        method: "DELETE",
+        cache: "no-store"
+      }, 9000);
+      if (!res.ok && res.status !== 404) {
+        const rawText = await res.text().catch(() => "");
+        throw new Error(formatRestError(res.status, rawText));
+      }
+      return true;
+    }
 
     function clearCloudListeners() {
       cloudUnsubs.forEach((fn) => { try { fn(); } catch (e) {} });
       cloudUnsubs = [];
     }
 
-    function scheduleCloudReconnect(delayMs = 3500) {
+    function scheduleCloudReconnect(delayMs = 5000) {
       if (!cloudReady || !db) return;
       clearTimeout(cloudReconnectTimer);
       cloudReconnectTimer = setTimeout(() => {
         if (navigator.onLine) {
           attachCloudListeners();
-          pullLatestCloudData(true);
+          fetchMessagesViaRest(true);
         }
       }, delayMs);
+    }
+
+    function computeMessagesSignature(list) {
+      return list.map((m) => {
+        const st = failedLocalMessageIds.has(m.id) ? "F" : (pendingLocalMessages.has(m.id) ? "P" : "S");
+        return `${m.id}:${st}`;
+      }).join("|");
     }
 
     function mergeMessagesWithPending(serverList) {
@@ -2448,17 +2632,18 @@
         if (m && m.id) {
           byId.set(m.id, m);
           pendingLocalMessages.delete(m.id);
+          failedLocalMessageIds.delete(m.id);
         }
       });
       const now = Date.now();
       pendingLocalMessages.forEach((m, id) => {
-        if (now - (m.createdAt || 0) < 60000) {
+        if (now - (m.createdAt || 0) < 180000) {
           if (!byId.has(id)) byId.set(id, m);
         } else {
           pendingLocalMessages.delete(id);
         }
       });
-      return Array.from(byId.values()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      return Array.from(byId.values()).sort((a, b) => (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0));
     }
 
     function applyIncomingMessages(rawList) {
@@ -2477,12 +2662,15 @@
 
       list.forEach((m) => knownMessageIds.add(m.id));
       initialMessagesLoaded = true;
+      const newSig = computeMessagesSignature(list);
+      const changed = newSig !== lastRenderedChatSig || state.messages.length !== list.length;
+
       state.messages = list;
       saveState();
 
       if (currentUserId && activeTab === "chat" && document.visibilityState === "visible") {
         markChatAsRead(currentUserId);
-        if (!activeAudio) renderChat();
+        if (changed && !activeAudio) renderChat();
       } else {
         updateUnreadBadge();
       }
@@ -2507,7 +2695,7 @@
         showToast("Firestore Database belum dibuat di Firebase Console!", 4000);
       } else {
         setSyncPill("🟠 Reconnect...");
-        scheduleCloudReconnect(3500);
+        scheduleCloudReconnect(5000);
       }
       updateDiagView();
     }
@@ -2522,63 +2710,63 @@
       updateDiagView();
     }
 
+    function isSnapFromServer(snap) {
+      return !(snap && snap.metadata && snap.metadata.fromCache === true);
+    }
+
     async function pullLatestCloudData(silent = true) {
-      if (!cloudReady || !db || !navigator.onLine) return;
+      if (!navigator.onLine) return;
       if (isPullingCloudNow && silent) return;
       isPullingCloudNow = true;
-      const getOpts = { source: "server" };
       try {
-        if (typeof db.enableNetwork === "function") {
-          await db.enableNetwork().catch(() => {});
-        }
-        const [cfgSnap, sessSnap, smpSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
-          db.collection("oznet_config").doc("main").get(getOpts),
-          db.collection("oznet_config").doc("sessions").get(getOpts),
-          db.collection("oznet_config").doc("smp").get(getOpts),
-          db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get(getOpts),
-          db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(getOpts),
-          db.collection("oznet_doas").get(getOpts)
-        ]);
-        markServerConnected();
+        // 1. Selalu tarik Chat langsung via HTTPS REST (anti-beku)
+        const chatPromise = fetchMessagesViaRest(silent);
 
-        if (cfgSnap.exists) {
-          const d = cfgSnap.data();
-          if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
-          if (d.alarm) state.alarm = mergeAlarm(DEFAULT_ALARM, d.alarm);
-          if (d.adminPass) state.adminPass = d.adminPass;
-          if (d.lastReadChatAt) state.lastReadChatAt = mergeLastReadMap(state.lastReadChatAt, d.lastReadChatAt);
-        }
-        applyCloudSessions(sessSnap.exists ? (sessSnap.data() || {}) : {});
-        if (smpSnap.exists && typeof applyCloudSmpData === "function") applyCloudSmpData(smpSnap.data());
-        if (!doaSnap.empty) {
-          state.doas = doaSnap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        }
-        const reps = repSnap.docs.map((doc) => {
-          const d = doc.data();
-          if (!Array.isArray(d.comments)) d.comments = [];
-          return d;
-        });
-        reps.forEach((r) => {
-          knownReportIds.add(r.id);
-          r.comments.forEach((c) => { if (c && c.id) knownCommentIds.add(c.id); });
-        });
-        state.reports = reps;
-        initialReportsLoaded = true;
-        if (activeReportModalId) renderReportPhotoModal(activeReportModalId);
+        // 2. Tarik data keluarga lain via SDK Firestore
+        if (cloudReady && db) {
+          const [cfgSnap, sessSnap, smpSnap, repSnap, doaSnap] = await Promise.all([
+            db.collection("oznet_config").doc("main").get(),
+            db.collection("oznet_config").doc("sessions").get(),
+            db.collection("oznet_config").doc("smp").get(),
+            db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(),
+            db.collection("oznet_doas").get()
+          ]);
 
-        const msgs = msgSnap.docs.map((doc) => doc.data()).reverse();
-        applyIncomingMessages(msgs);
-
-        saveState();
-        renderCoverRoles();
-        if (currentUserId) {
-          renderHeader();
-          renderReports();
-          renderDoaList();
-          renderAlarmUI();
-          updateClockAndPrayers();
+          if (cfgSnap.exists) {
+            const d = cfgSnap.data();
+            if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
+            if (d.alarm) state.alarm = mergeAlarm(DEFAULT_ALARM, d.alarm);
+            if (d.adminPass) state.adminPass = d.adminPass;
+            if (d.lastReadChatAt) state.lastReadChatAt = mergeLastReadMap(state.lastReadChatAt, d.lastReadChatAt);
+          }
+          applyCloudSessions(sessSnap.exists ? (sessSnap.data() || {}) : {});
+          if (smpSnap.exists && typeof applyCloudSmpData === "function") applyCloudSmpData(smpSnap.data());
+          if (!doaSnap.empty) {
+            state.doas = doaSnap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          }
+          const reps = repSnap.docs.map((doc) => {
+            const d = doc.data();
+            if (!Array.isArray(d.comments)) d.comments = [];
+            return d;
+          });
+          reps.forEach((r) => {
+            knownReportIds.add(r.id);
+            r.comments.forEach((c) => { if (c && c.id) knownCommentIds.add(c.id); });
+          });
+          state.reports = reps;
+          initialReportsLoaded = true;
+          if (activeReportModalId) renderReportPhotoModal(activeReportModalId);
+          saveState();
+          renderCoverRoles();
+          if (currentUserId) {
+            renderHeader();
+            renderReports();
+            renderDoaList();
+            renderAlarmUI();
+            updateClockAndPrayers();
+          }
         }
-        if (!silent) showToast("✅ Data chat & keluarga disegarkan dari Cloud!", 2000);
+        await chatPromise;
       } catch (err) {
         handleCloudError(err);
         if (!silent) showToast("Gagal menyegarkan: " + (err.code || err.message), 3000);
@@ -2595,7 +2783,6 @@
       if (currentUserId && !$("profile-modal").classList.contains("hidden")) {
         renderProfileModal();
       }
-      // Validasi sesi permanen perangkat ini terhadap status di Cloud
       if (currentUserId) {
         const curSess = activeSessions[currentUserId];
         if (curSess && curSess.active === true && curSess.deviceId && curSess.deviceId !== DEVICE_ID) {
@@ -2603,7 +2790,6 @@
         } else if (curSess && curSess.active === false && curSess.releasedByAdmin && (Number(curSess.releasedAt) || 0) > getPersistedLoginAt()) {
           forceLocalLogout("🔓 Sesi akun ini telah dilepas oleh Admin. Silakan login kembali.");
         } else if (!curSess || (!curSess.active && !curSess.releasedByAdmin)) {
-          // Migrasi otomatis pengguna yang sudah login permanen sebelum fitur single-device aktif
           claimRoleSession(currentUserId, true).catch(() => {});
         }
       }
@@ -2709,7 +2895,7 @@
       // 1. Real-time Config (Nama/Foto Anggota, Alarm, Password Admin)
       cloudUnsubs.push(
         db.collection("oznet_config").doc("main").onSnapshot((docSnap) => {
-          markServerConnected();
+          if (isSnapFromServer(docSnap)) markServerConnected();
           if (docSnap.exists) {
             const d = docSnap.data();
             if (d.members) state.members = mergeMembers(DEFAULT_MEMBERS, d.members);
@@ -2726,24 +2912,24 @@
               updateClockAndPrayers();
               if (!$("profile-modal").classList.contains("hidden")) renderProfileModal();
             }
-          } else {
+          } else if (isSnapFromServer(docSnap)) {
             syncFullConfigToCloud();
           }
         }, handleCloudError)
       );
 
-      // 1b. Real-time Sesi Login 1 Perangkat (Single-Device Lock)
+      // 1b. Real-time Sesi Login 1 Perangkat
       cloudUnsubs.push(
         db.collection("oznet_config").doc("sessions").onSnapshot((docSnap) => {
-          markServerConnected();
+          if (isSnapFromServer(docSnap)) markServerConnected();
           applyCloudSessions(docSnap.exists ? (docSnap.data() || {}) : {});
         }, handleCloudError)
       );
 
-      // 1c. Real-time Data Belajar SMP (Jadwal, PR/Ulangan, Catatan Materi)
+      // 1c. Real-time Data Belajar SMP
       cloudUnsubs.push(
         db.collection("oznet_config").doc("smp").onSnapshot((docSnap) => {
-          markServerConnected();
+          if (isSnapFromServer(docSnap)) markServerConnected();
           if (docSnap.exists && typeof applyCloudSmpData === "function") {
             applyCloudSmpData(docSnap.data());
           }
@@ -2753,11 +2939,13 @@
       // 2. Real-time Doa Harian
       cloudUnsubs.push(
         db.collection("oznet_doas").onSnapshot((snap) => {
-          markServerConnected();
+          if (isSnapFromServer(snap)) markServerConnected();
           if (snap.empty) {
-            const batch = db.batch();
-            DEFAULT_DOAS.forEach((d) => batch.set(db.collection("oznet_doas").doc(d.id), d));
-            batch.commit().catch(handleCloudError);
+            if (isSnapFromServer(snap)) {
+              const batch = db.batch();
+              DEFAULT_DOAS.forEach((d) => batch.set(db.collection("oznet_doas").doc(d.id), d));
+              batch.commit().catch(handleCloudError);
+            }
             return;
           }
           state.doas = snap.docs.map((doc) => doc.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -2769,7 +2957,7 @@
       // 3. Real-time Laporan & Absen Anak (+ Komentar Foto Real-Time)
       cloudUnsubs.push(
         db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).onSnapshot((snap) => {
-          markServerConnected();
+          if (isSnapFromServer(snap)) markServerConnected();
           const list = snap.docs.map((doc) => {
             const d = doc.data();
             if (!Array.isArray(d.comments)) d.comments = [];
@@ -2805,9 +2993,10 @@
         }, handleCloudError)
       );
 
-      // 4. Real-time Chat Keluarga
+      // 4. Real-time Chat Keluarga (hanya terima update sungguhan dari server agar cache lama tidak menimpa)
       cloudUnsubs.push(
         db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).onSnapshot((snap) => {
+          if (!isSnapFromServer(snap)) return;
           markServerConnected();
           const list = snap.empty ? [] : snap.docs.map((doc) => doc.data()).reverse();
           applyIncomingMessages(list);
@@ -2816,90 +3005,76 @@
     }
 
     function reviveCloudConnection(reason = "") {
-      if (!cloudReady || !db || !navigator.onLine) return;
-      const idleMs = Date.now() - (lastServerActivityMs || 0);
-      if (typeof db.enableNetwork === "function") {
-        db.enableNetwork().catch(() => {});
-      }
-      // Jika sudah >20 detik tanpa respons atau sempat error, sambung ulang semua listener agar tidak zombie
-      if (lastSyncErrorText || idleMs > 20000) {
+      if (!navigator.onLine) return;
+      fetchMessagesViaRest(true);
+      if (cloudReady && db && lastSyncErrorText) {
         attachCloudListeners();
       }
-      pullLatestCloudData(true);
-      // Cek ulang kesehatan token push diam-diam saat HP kembali aktif
       if (("Notification" in window) && Notification.permission === "granted" && (!fcmToken || fcmLastError)) {
         registerFcmPush(false);
       }
     }
 
+    let bgTickCounter = 0;
     function initCloudSync() {
+      // Mulai Direct HTTPS Chat Sync segera (tidak menunggu SDK WebChannel!)
+      fetchMessagesViaRest(true);
+
       if (typeof firebase === "undefined") {
-        lastSyncErrorText = "SDK Firebase gagal dimuat (cek koneksi internet).";
-        setSyncPill("🔴 SDK");
-        return;
-      }
-      try {
-        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-        db = firebase.firestore();
-        // Force Long Polling + matikan Fetch Streams agar koneksi HP Android (Indosat/Telkomsel/WiFi) TIDAK membeku diam-diam
-        db.settings({
-          experimentalForceLongPolling: true,
-          useFetchStreams: false,
-          merge: true
-        });
-        cloudReady = true;
-        setSyncPill("🟡 Sync...");
-
-        attachCloudListeners();
-        pullLatestCloudData(true);
-
-        // Otomatis sambung ulang & tarik chat terbaru setiap layar HP menyala / balik dari aplikasi lain
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "visible" && navigator.onLine) {
-            reviveCloudConnection("visibility");
-          }
-        });
-        window.addEventListener("focus", () => {
-          if (navigator.onLine) reviveCloudConnection("focus");
-        });
-        window.addEventListener("pageshow", () => {
-          if (navigator.onLine) reviveCloudConnection("pageshow");
-        });
-        window.addEventListener("online", () => {
+        lastSyncErrorText = "SDK Firebase gagal dimuat (Chat tetap berjalan via Direct HTTPS).";
+        setSyncPill("🟡 Direct");
+      } else {
+        try {
+          if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+          db = firebase.firestore();
+          db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+          cloudReady = true;
           setSyncPill("🟡 Sync...");
+
           attachCloudListeners();
           pullLatestCloudData(true);
-          if (("Notification" in window) && Notification.permission === "granted" && (!fcmToken || fcmLastError)) {
-            registerFcmPush(false);
-          }
-        });
-        window.addEventListener("offline", () => {
-          setSyncPill("🟠 Offline");
-        });
-
-        // Watchdog Universal: setiap 5 detik saat aplikasi terlihat (di tab MANAPUN), tarik pesan terbaru langsung dari server
-        // agar chat & badge tidak pernah telat meski koneksi WebChannel HP sempat tidur
-        clearInterval(chatFallbackPollTimer);
-        chatFallbackPollTimer = setInterval(() => {
-          if (document.visibilityState !== "visible" || !navigator.onLine || !cloudReady || !db) return;
-          if (activeAudio) return;
-          const staleMs = Date.now() - (lastServerActivityMs || 0);
-          if (activeTab === "chat" || staleMs >= 8000) {
-            db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get({ source: "server" })
-              .then((snap) => {
-                markServerConnected();
-                applyIncomingMessages(snap.empty ? [] : snap.docs.map((d) => d.data()).reverse());
-              })
-              .catch(() => {
-                // Jika fetch server gagal karena koneksi tidur, paksa sambung ulang listener
-                if (navigator.onLine) attachCloudListeners();
-              });
-          }
-        }, 5000);
-      } catch (e) {
-        handleCloudError(e);
-        cloudReady = false;
+        } catch (e) {
+          handleCloudError(e);
+          cloudReady = false;
+        }
       }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && navigator.onLine) {
+          reviveCloudConnection("visibility");
+        }
+      });
+      window.addEventListener("focus", () => {
+        if (navigator.onLine) reviveCloudConnection("focus");
+      });
+      window.addEventListener("pageshow", () => {
+        if (navigator.onLine) reviveCloudConnection("pageshow");
+      });
+      window.addEventListener("online", () => {
+        setSyncPill("🟡 Sync...");
+        fetchMessagesViaRest(true);
+        if (cloudReady && db) attachCloudListeners();
+        pullLatestCloudData(true);
+        if (("Notification" in window) && Notification.permission === "granted" && (!fcmToken || fcmLastError)) {
+          registerFcmPush(false);
+        }
+      });
+      window.addEventListener("offline", () => {
+        setSyncPill("🟠 Offline");
+      });
+
+      // Mesin Anti-Macet Direct HTTPS:
+      // - Saat di tab Chat: sinkron langsung dari server Google tiap 3 detik
+      // - Saat di tab lain (Beranda/Laporan/Doa/Alarm): sinkron tiap 9 detik agar badge & notifikasi real-time
+      clearInterval(chatFallbackPollTimer);
+      chatFallbackPollTimer = setInterval(() => {
+        if (document.visibilityState !== "visible" || !navigator.onLine) return;
+        if (activeAudio) return;
+        bgTickCounter++;
+        if (activeTab === "chat" || bgTickCounter % 3 === 0) {
+          fetchMessagesViaRest(true);
+        }
+      }, 3000);
     }
 
     function syncFullConfigToCloud() {
@@ -2976,71 +3151,135 @@
         .catch(handleCloudError);
     }
 
-    function syncMessageAdd(msgObj) {
-      if (!cloudReady || !db) return;
+    async function syncMessageAdd(msgObj, onConfirmedPush = null) {
       pendingLocalMessages.set(msgObj.id, msgObj);
-      db.collection("oznet_messages").doc(msgObj.id).set(msgObj)
-        .then(() => {
-          pendingLocalMessages.delete(msgObj.id);
-          markServerConnected();
-        })
-        .catch((err) => {
-          handleCloudError(err);
-          // Coba kirim ulang 1x setelah 2 detik jika jaringan HP sempat kedip
-          setTimeout(() => {
-            if (!db) return;
-            db.collection("oznet_messages").doc(msgObj.id).set(msgObj)
-              .then(() => { pendingLocalMessages.delete(msgObj.id); markServerConnected(); })
-              .catch((e2) => showToast("Gagal kirim chat ke Cloud: " + (e2.code || e2.message), 3500));
-          }, 2000);
-        });
+      failedLocalMessageIds.delete(msgObj.id);
+      if (activeTab === "chat") renderChat();
+
+      const markSent = () => {
+        pendingLocalMessages.delete(msgObj.id);
+        failedLocalMessageIds.delete(msgObj.id);
+        restChatError = "";
+        lastRestChatSyncAt = new Date().toLocaleTimeString("id-ID");
+        markServerConnected();
+        if (activeTab === "chat" && !activeAudio) renderChat();
+        if (typeof onConfirmedPush === "function") onConfirmedPush();
+      };
+
+      try {
+        // Primary: kirim langsung ke server Google via HTTPS REST (terverifikasi HTTP 200!)
+        await writeMessageViaRest(msgObj);
+        markSent();
+        return true;
+      } catch (restErr) {
+        // Fallback 1x lewat SDK Firestore jika REST gagal karena jaringan kedip
+        if (cloudReady && db) {
+          try {
+            await db.collection("oznet_messages").doc(msgObj.id).set(msgObj);
+            markSent();
+            return true;
+          } catch (sdkErr) {
+            restChatError = restErr.message || sdkErr.message;
+          }
+        } else {
+          restChatError = restErr.message || "Gagal kirim";
+        }
+        failedLocalMessageIds.add(msgObj.id);
+        lastSyncErrorText = restChatError;
+        setSyncPill(restErr.httpStatus === 403 ? "🔴 Rules" : "🔴 Gagal");
+        updateDiagView();
+        if (activeTab === "chat") renderChat();
+        showToast("❌ Pesan gagal terkirim ke server: " + restChatError, 4200);
+        return false;
+      }
     }
 
-    function syncMessageDelete(id) {
-      if (!cloudReady || !db || !id) return;
-      db.collection("oznet_messages").doc(id).delete()
-        .then(markServerConnected)
-        .catch((err) => {
-          handleCloudError(err);
-          showToast("Gagal menghapus pesan di Cloud: " + (err.code || err.message), 3200);
-        });
+    window.retrySendChatMessage = (msgId) => {
+      const msg = pendingLocalMessages.get(msgId) || state.messages.find((m) => m.id === msgId);
+      if (!msg) return;
+      showToast("🔄 Mengirim ulang pesan...", 1500);
+      syncMessageAdd(msg);
+    };
+
+    async function syncMessageDelete(id) {
+      if (!id) return;
+      try {
+        await deleteMessageViaRest(id);
+        markServerConnected();
+      } catch (err) {
+        if (cloudReady && db) {
+          db.collection("oznet_messages").doc(id).delete()
+            .then(markServerConnected)
+            .catch((e2) => {
+              handleCloudError(e2);
+              showToast("Gagal menghapus pesan di Cloud: " + (e2.code || e2.message), 3200);
+            });
+        } else {
+          showToast("Gagal menghapus pesan di Cloud: " + (err.message || err), 3200);
+        }
+      }
     }
 
     async function syncMessagesClearAll() {
-      if (!cloudReady || !db) return;
       try {
-        let safetyRounds = 0;
-        while (safetyRounds < 15) {
-          safetyRounds++;
-          const snap = await db.collection("oznet_messages").limit(400).get();
-          if (snap.empty) break;
-          const batch = db.batch();
-          snap.docs.forEach((doc) => batch.delete(doc.ref));
-          await batch.commit();
+        // Ambil semua ID pesan langsung lewat REST lalu hapus paralel
+        const url = `${FS_REST_BASE}:runQuery?key=${encodeURIComponent(FS_REST_KEY)}`;
+        let rounds = 0;
+        while (rounds < 10) {
+          rounds++;
+          const res = await fetchWithTimeout(url, {
+            method: "POST",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              structuredQuery: {
+                from: [{ collectionId: "oznet_messages" }],
+                select: { fields: [{ fieldPath: "id" }] },
+                limit: 150
+              }
+            })
+          }, 10000);
+          if (!res.ok) break;
+          const rows = await res.json();
+          const ids = rows
+            .filter((r) => r && r.document && r.document.name)
+            .map((r) => r.document.name.split("/").pop());
+          if (!ids.length) break;
+          for (let i = 0; i < ids.length; i += 15) {
+            await Promise.all(ids.slice(i, i + 15).map((docId) => deleteMessageViaRest(docId).catch(() => {})));
+          }
+          if (ids.length < 150) break;
         }
         markServerConnected();
       } catch (err) {
-        handleCloudError(err);
-        showToast("Gagal menghapus semua riwayat di Cloud: " + (err.code || err.message), 3500);
+        if (cloudReady && db) {
+          try {
+            const snap = await db.collection("oznet_messages").limit(400).get();
+            if (!snap.empty) {
+              const batch = db.batch();
+              snap.docs.forEach((doc) => batch.delete(doc.ref));
+              await batch.commit();
+            }
+            markServerConnected();
+          } catch (e2) {
+            handleCloudError(e2);
+            showToast("Gagal menghapus semua riwayat di Cloud: " + (e2.code || e2.message), 3500);
+          }
+        }
       }
     }
 
     async function runCloudSyncTest() {
-      if (!db) {
-        showToast("Firebase belum terhubung.");
-        return;
-      }
       setSyncPill("🟡 Tes...");
-      try {
-        await db.collection("oznet_config").doc("ping").set({ lastPing: Date.now(), from: currentUserId || "cover" });
-        const snap = await db.collection("oznet_config").doc("ping").get();
-        if (snap.exists) {
+      const ok = await fetchMessagesViaRest(false);
+      if (ok && db) {
+        try {
+          await db.collection("oznet_config").doc("ping").set({ lastPing: Date.now(), from: currentUserId || "cover" });
           markServerConnected();
-          showToast("✅ Koneksi Cloud Firestore 100% AKTIF & TERSINKRON!", 3000);
+          showToast("✅ Cloud Firestore & Direct Chat Sync 100% AKTIF!", 3000);
+        } catch (err) {
+          handleCloudError(err);
         }
-      } catch (err) {
-        handleCloudError(err);
-        showToast("❌ Gagal: " + (err.code || err.message), 4000);
       }
     }
 
@@ -4516,6 +4755,13 @@
               ${bodyHtml}
               <div class="msg-meta-foot">
                 <div class="msg-time">${escapeHtml(msg.time)}</div>
+                ${isMe ? (
+                  failedLocalMessageIds.has(msg.id)
+                    ? `<span class="msg-sync-st failed" onclick="retrySendChatMessage('${escapeHtml(msg.id)}')" title="Ketuk untuk kirim ulang">⚠️ Ulang</span>`
+                    : (pendingLocalMessages.has(msg.id)
+                        ? `<span class="msg-sync-st pending" title="Mengirim ke Cloud...">⏳</span>`
+                        : `<span class="msg-sync-st sent" title="Tersimpan di Cloud">✓✓</span>`)
+                ) : ""}
                 ${isAdmin() ? `<button type="button" class="msg-del-btn" onclick="deleteChatMessage('${escapeHtml(msg.id)}')" title="Hapus pesan">🗑️</button>` : ""}
               </div>
             </div>
@@ -4523,6 +4769,7 @@
           </div>
         `;
       }).join("");
+      lastRenderedChatSig = computeMessagesSignature(state.messages);
       bindChatRowGestures(box);
       box.scrollTop = box.scrollHeight;
     }
@@ -4586,7 +4833,6 @@
       saveState();
       markChatAsRead(currentUserId);
       renderChat();
-      syncMessageAdd(msgObj);
       const senderName = (state.members[currentUserId] && state.members[currentUserId].name) || "Keluarga";
       let pushBody = "Pesan baru di obrolan keluarga";
       if (msgObj.text) pushBody = msgObj.text.slice(0, 140);
@@ -4594,7 +4840,9 @@
       else if (msgObj.voiceUrl) pushBody = `🎙️ Mengirim pesan suara (${msgObj.voiceDur || "VN"})`;
       else if (msgObj.fileUrl) pushBody = `📎 Mengirim file: ${msgObj.fileName || "Lampiran"}`;
       if (msgObj.replyTo) pushBody = `↩️ Membalas ${msgObj.replyTo.senderName}: ${pushBody}`;
-      sendFamilyPush({ title: `💬 ${senderName}`, body: pushBody, tab: "chat" });
+      syncMessageAdd(msgObj, () => {
+        sendFamilyPush({ title: `💬 ${senderName}`, body: pushBody, tab: "chat" });
+      });
     }
 
     /* ================= PROFILE MODAL ================= */
@@ -5213,9 +5461,9 @@
 
       // Chat
       $("btn-chat-refresh").onclick = () => {
-        showToast("Menyegarkan chat...", 1200);
-        attachCloudListeners();
-        pullLatestCloudData(false);
+        showToast("🔄 Menyegarkan chat dari server...", 1200);
+        fetchMessagesViaRest(false);
+        pullLatestCloudData(true);
       };
       $("btn-chat-emoji").onclick = () => $("emoji-picker").classList.toggle("hidden");
       $("btn-chat-send").onclick = () => {
