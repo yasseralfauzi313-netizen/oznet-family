@@ -655,6 +655,118 @@
     }
     #toast-box.show { opacity: 1; }
 
+    /* FLOATING HEADS-UP NOTIFICATION BANNER (TEKS MENGAMBANG DI ATAS LAYAR) */
+    #floating-notif-banner {
+      position: fixed;
+      top: calc(10px + env(safe-area-inset-top));
+      left: 10px;
+      right: 10px;
+      z-index: 340;
+      max-width: 460px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 13px;
+      border-radius: 20px;
+      background: rgba(9, 28, 36, 0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(234, 179, 8, 0.2);
+      color: #f3f7f6;
+      cursor: pointer;
+      transform: translateY(-135%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    }
+    [data-theme="light"] #floating-notif-banner {
+      background: rgba(246, 250, 248, 0.98);
+      color: #142a28;
+      box-shadow: 0 12px 30px rgba(15, 45, 40, 0.24);
+    }
+    #floating-notif-banner.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .fnb-avatar {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--accent-soft);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      overflow: hidden;
+    }
+    .fnb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .fnb-body { flex: 1; min-width: 0; text-align: left; }
+    .fnb-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .fnb-title {
+      font-weight: 800;
+      font-size: 0.86rem;
+      color: var(--accent);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .fnb-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: linear-gradient(135deg, #ff3b3b, #dc2626);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .fnb-text {
+      font-size: 0.84rem;
+      line-height: 1.32;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+    .fnb-hint {
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-weight: 600;
+    }
+    .fnb-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-item.has-unread .nav-ico {
+      animation: badgePulse 1.8s infinite;
+    }
+
 
     /* BELAJAR SMP MODULE (FULLSCREEN GLASSMORPHISM) */
     #smp-modal {
@@ -1670,9 +1782,23 @@
 
   <div id="toast-box"></div>
 
+  <!-- FLOATING HEADS-UP NOTIFICATION BANNER -->
+  <div id="floating-notif-banner" role="alert" aria-live="polite">
+    <div class="fnb-avatar" id="fnb-avatar">💬</div>
+    <div class="fnb-body">
+      <div class="fnb-top">
+        <span class="fnb-title" id="fnb-title">Pesan Baru</span>
+        <span class="fnb-tag" id="fnb-tag">BARU</span>
+      </div>
+      <div class="fnb-text" id="fnb-text"></div>
+      <div class="fnb-hint" id="fnb-hint">Ketuk untuk membuka chat • OZNET FAMILY</div>
+    </div>
+    <button type="button" class="fnb-close" id="btn-fnb-close" title="Tutup">✕</button>
+  </div>
+
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v19-direct-chat-sync";
+    const APP_VERSION = "v20-floating-notif-badge";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1856,6 +1982,8 @@
             members: mergeMembers(DEFAULT_MEMBERS, parsed.members),
             alarm: mergeAlarm(DEFAULT_ALARM, parsed.alarm),
             lastReadChatAt: Object.assign({}, DEFAULT_LAST_READ, parsed.lastReadChatAt || {}),
+            readChatIds: (parsed.readChatIds && typeof parsed.readChatIds === "object") ? parsed.readChatIds : {},
+            readChatIdsInit: (parsed.readChatIdsInit && typeof parsed.readChatIdsInit === "object") ? parsed.readChatIdsInit : {},
             localNotifSound: parsed.localNotifSound || "melodi",
             doas: Array.isArray(parsed.doas) && parsed.doas.length ? parsed.doas : JSON.parse(JSON.stringify(DEFAULT_DOAS)),
             reports: Array.isArray(parsed.reports) ? parsed.reports : [],
@@ -1870,6 +1998,8 @@
         members: JSON.parse(JSON.stringify(DEFAULT_MEMBERS)),
         alarm: JSON.parse(JSON.stringify(DEFAULT_ALARM)),
         lastReadChatAt: Object.assign({}, DEFAULT_LAST_READ),
+        readChatIds: {},
+        readChatIdsInit: {},
         localNotifSound: "melodi",
         doas: JSON.parse(JSON.stringify(DEFAULT_DOAS)),
         reports: [],
@@ -1903,6 +2033,56 @@
       box.classList.add("show");
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => box.classList.remove("show"), ms);
+    }
+
+    let floatingBannerTimer = null;
+    let floatingBannerTargetTab = "chat";
+
+    function hideFloatingNotifBanner() {
+      const el = $("floating-notif-banner");
+      if (el) el.classList.remove("show");
+      clearTimeout(floatingBannerTimer);
+    }
+
+    function showFloatingNotifBanner({ title, body, avatarHtml = "💬", tag = "CHAT BARU", tab = "chat", hint = "Ketuk untuk membuka • OZNET FAMILY", ms = 5500 }) {
+      const el = $("floating-notif-banner");
+      if (!el) return;
+      floatingBannerTargetTab = tab || "chat";
+      $("fnb-avatar").innerHTML = avatarHtml || "💬";
+      $("fnb-title").textContent = title || "OZNET FAMILY";
+      $("fnb-tag").textContent = tag || "BARU";
+      $("fnb-text").textContent = body || "Ada pesan baru masuk";
+      $("fnb-hint").textContent = hint || "Ketuk untuk membuka • OZNET FAMILY";
+      el.classList.add("show");
+      clearTimeout(floatingBannerTimer);
+      floatingBannerTimer = setTimeout(() => el.classList.remove("show"), ms);
+    }
+
+    function showLocalChatSystemNotif(title, body, tab = "chat", uniqueTag = "") {
+      try {
+        if (!("Notification" in window) || Notification.permission !== "granted") return;
+        const opts = {
+          body: String(body || "Pesan baru masuk").slice(0, 180),
+          icon: "./logo.png",
+          badge: "./logo.png",
+          vibrate: [250, 100, 250],
+          tag: uniqueTag || ("oznet-" + tab),
+          renotify: true,
+          silent: false,
+          timestamp: Date.now(),
+          data: { tab, url: "/?tab=" + encodeURIComponent(tab) }
+        };
+        if (swRegistrationRef && typeof swRegistrationRef.showNotification === "function") {
+          swRegistrationRef.showNotification(title, opts).catch(() => {});
+        } else {
+          new Notification(title, opts);
+        }
+      } catch (e) {}
+    }
+
+    function isAnyBlockingModalOpen() {
+      return ["smp-modal", "smp-book-reader-modal", "smp-pdf-viewer-modal", "doa-editor-modal", "profile-modal", "sync-diag-modal", "report-photo-modal", "camera-modal"]
+        .some((id) => $(id) && !$(id).classList.contains("hidden"));
     }
 
     function renderAvatarHtml(member) {
@@ -2158,9 +2338,29 @@
               window.__oznetFcmOnMsgBound = true;
               messaging.onMessage((payload) => {
                 const d = (payload && payload.data) || {};
+                const n = (payload && payload.notification) || {};
                 if (d.type === "prayer_alarm") {
                   handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, d.isTest === "1");
                 } else {
+                  const title = d.title || n.title || "💬 Pesan Baru";
+                  const body = d.body || n.body || "";
+                  const tab = d.tab || "chat";
+                  const senderId = d.senderId || "";
+                  // Jika dari anggota lain & bukan sedang menatap tab Chat langsung, tampilkan banner mengambang segera
+                  if (body && (!currentUserId || senderId !== currentUserId)) {
+                    const viewingChatNow = currentUserId && tab === "chat" && activeTab === "chat" && document.visibilityState === "visible" && !isAnyBlockingModalOpen();
+                    if (!viewingChatNow) {
+                      const mem = senderId && state.members[senderId] ? state.members[senderId] : null;
+                      showFloatingNotifBanner({
+                        title,
+                        body,
+                        avatarHtml: mem ? renderAvatarHtml(mem) : (tab === "laporan" ? "📸" : "💬"),
+                        tag: tab === "laporan" ? "LAPORAN" : "CHAT BARU",
+                        tab
+                      });
+                    }
+                  }
+                  fetchMessagesViaRest(true);
                   pullLatestCloudData(true);
                 }
               });
@@ -2339,25 +2539,91 @@
       return out;
     }
 
+    function ensureReadChatIdsSeeded(roleId) {
+      if (!roleId) return;
+      if (!state.readChatIds || typeof state.readChatIds !== "object") state.readChatIds = {};
+      if (!state.readChatIdsInit || typeof state.readChatIdsInit !== "object") state.readChatIdsInit = {};
+      if (!Array.isArray(state.readChatIds[roleId])) state.readChatIds[roleId] = [];
+      if (!state.readChatIdsInit[roleId] && state.messages.length > 0) {
+        const lastRead = (state.lastReadChatAt && Number(state.lastReadChatAt[roleId])) || 0;
+        const seeded = [];
+        state.messages.forEach((m) => {
+          if (m && m.id && (m.senderId === roleId || (Number(m.createdAt) || 0) <= lastRead)) {
+            seeded.push(m.id);
+          }
+        });
+        state.readChatIds[roleId] = seeded.slice(-300);
+        state.readChatIdsInit[roleId] = true;
+        saveState();
+      }
+    }
+
     function getUnreadChatCountForRole(roleId) {
       if (!roleId) return 0;
+      ensureReadChatIdsSeeded(roleId);
+      const hasInit = !!(state.readChatIdsInit && state.readChatIdsInit[roleId]);
+      if (hasInit) {
+        const readSet = new Set(Array.isArray(state.readChatIds[roleId]) ? state.readChatIds[roleId] : []);
+        return state.messages.filter((m) => m && m.id && m.senderId !== roleId && !readSet.has(m.id)).length;
+      }
       const lastRead = (state.lastReadChatAt && Number(state.lastReadChatAt[roleId])) || 0;
       return state.messages.filter((m) => m && m.senderId !== roleId && (Number(m.createdAt) || 0) > lastRead).length;
     }
 
+    function syncBadgeToServiceWorker(count) {
+      try {
+        if ("setAppBadge" in navigator) {
+          if (count > 0) navigator.setAppBadge(count).catch(() => {});
+          else if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
+        }
+      } catch (e) {}
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: count > 0 ? "SET_APP_BADGE" : "CLEAR_APP_BADGE",
+            count: Number(count) || 0
+          });
+        }
+      } catch (e) {}
+    }
+
     function markChatAsRead(roleId = currentUserId) {
       if (!roleId) return;
-      let latestTs = Date.now();
+      if (!state.readChatIds || typeof state.readChatIds !== "object") state.readChatIds = {};
+      if (!state.readChatIdsInit || typeof state.readChatIdsInit !== "object") state.readChatIdsInit = {};
+
+      const readSet = new Set(Array.isArray(state.readChatIds[roleId]) ? state.readChatIds[roleId] : []);
+      let changedIds = false;
+      let latestOtherTs = 0;
+
       state.messages.forEach((m) => {
-        const ts = Number(m && m.createdAt) || 0;
-        if (ts > latestTs) latestTs = ts;
+        if (m && m.id) {
+          if (!readSet.has(m.id)) {
+            readSet.add(m.id);
+            changedIds = true;
+          }
+          if (m.senderId !== roleId) {
+            const ts = Number(m.createdAt) || 0;
+            if (ts > latestOtherTs) latestOtherTs = ts;
+          }
+        }
       });
+
+      state.readChatIds[roleId] = Array.from(readSet).slice(-300);
+      state.readChatIdsInit[roleId] = true;
+
       if (!state.lastReadChatAt) state.lastReadChatAt = Object.assign({}, DEFAULT_LAST_READ);
       const prev = Number(state.lastReadChatAt[roleId]) || 0;
-      if (latestTs > prev) {
-        state.lastReadChatAt[roleId] = latestTs;
+      let changedTs = false;
+      // Jangan pakai Date.now() mentah agar tidak kalah jam dengan HP anggota keluarga lain!
+      if (latestOtherTs > prev) {
+        state.lastReadChatAt[roleId] = latestOtherTs;
+        changedTs = true;
+      }
+
+      if (changedIds || changedTs) {
         saveState();
-        syncPartialConfigToCloud({ lastReadChatAt: { [roleId]: latestTs } });
+        if (changedTs) syncPartialConfigToCloud({ lastReadChatAt: { [roleId]: latestOtherTs } });
       }
       updateUnreadBadge();
     }
@@ -2368,6 +2634,7 @@
 
       // 1. Badge di menu navigasi bawah (Chat)
       const navBadge = $("chat-unread-badge");
+      const navChatBtn = document.querySelector('.nav-item[data-tab="chat"]');
       if (navBadge) {
         if (unreadChatCount > 0) {
           navBadge.textContent = badgeText;
@@ -2376,6 +2643,7 @@
           navBadge.classList.add("hidden");
         }
       }
+      if (navChatBtn) navChatBtn.classList.toggle("has-unread", unreadChatCount > 0);
 
       // 2. Badge & preview di Beranda Menu Chat Keluarga
       const homeCard = $("home-chat-card");
@@ -2415,13 +2683,11 @@
       // 3. Badge di Cover masing-masing profil (jika sedang di Cover)
       if (!currentUserId) renderCoverRoles();
 
-      // 4. App Icon Badge PWA (jika didukung OS)
+      // 4. Judul tab browser + App Icon Badge PWA (tanda merah ikon layar utama)
       try {
-        if ("setAppBadge" in navigator) {
-          if (unreadChatCount > 0) navigator.setAppBadge(unreadChatCount).catch(() => {});
-          else if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
-        }
+        document.title = unreadChatCount > 0 ? `(${unreadChatCount}) OZNET FAMILY` : "OZNET FAMILY";
       } catch (e) {}
+      syncBadgeToServiceWorker(unreadChatCount);
     }
 
     let cloudUnsubs = [];
@@ -2648,14 +2914,12 @@
 
     function applyIncomingMessages(rawList) {
       const list = mergeMessagesWithPending(rawList);
-      let hasNewFromOther = false;
-      let latestNewSender = "";
+      let newFromOthers = [];
 
       if (initialMessagesLoaded) {
         list.forEach((m) => {
           if (!knownMessageIds.has(m.id) && (!currentUserId || m.senderId !== currentUserId)) {
-            hasNewFromOther = true;
-            latestNewSender = (state.members[m.senderId] && state.members[m.senderId].name) || "Keluarga";
+            newFromOthers.push(m);
           }
         });
       }
@@ -2668,17 +2932,42 @@
       state.messages = list;
       saveState();
 
-      if (currentUserId && activeTab === "chat" && document.visibilityState === "visible") {
+      const viewingChatRightNow = Boolean(
+        currentUserId &&
+        activeTab === "chat" &&
+        document.visibilityState === "visible" &&
+        !isAnyBlockingModalOpen()
+      );
+
+      if (viewingChatRightNow) {
         markChatAsRead(currentUserId);
         if (changed && !activeAudio) renderChat();
       } else {
         updateUnreadBadge();
       }
 
-      if (hasNewFromOther) {
+      if (newFromOthers.length > 0) {
+        const latestNew = newFromOthers[newFromOthers.length - 1];
+        const senderMem = state.members[latestNew.senderId] || { name: "Keluarga", emoji: "💬", photo: "" };
+        const snippet = getMessageShortPreview(latestNew) || "Mengirim pesan baru";
+
         playNotifSound(null, true);
-        if (currentUserId && activeTab !== "chat") {
-          showToast(`💬 Pesan baru dari ${latestNewSender}`, 3200);
+
+        if (!viewingChatRightNow) {
+          // 1. Tampilkan notifikasi teks mengambang di atas layar aplikasi
+          showFloatingNotifBanner({
+            title: senderMem.name,
+            body: snippet,
+            avatarHtml: renderAvatarHtml(senderMem),
+            tag: unreadChatCount > 1 ? `${unreadChatCount} PESAN` : "CHAT BARU",
+            tab: "chat",
+            hint: "Ketuk untuk baca & balas chat"
+          });
+
+          // 2. Jika layar/aplikasi sedang tidak aktif di depan, picu notifikasi sistem HP juga
+          if (document.visibilityState !== "visible") {
+            showLocalChatSystemNotif(`💬 ${senderMem.name}`, snippet, "chat", "oznet-chat-" + latestNew.id);
+          }
         }
       }
     }
@@ -2966,14 +3255,29 @@
           if (initialReportsLoaded && currentUserId) {
             list.forEach((r) => {
               if (!knownReportIds.has(r.id) && r.userId !== currentUserId) {
-                const sender = state.members[r.userId]?.name || r.userName || "Keluarga";
-                showToast(`📸 ${sender} mengirim laporan: ${r.activity}`, 3200);
+                const mem = state.members[r.userId] || { name: r.userName || "Keluarga", emoji: "📸", photo: "" };
+                const body = r.activity + (r.note ? " — " + r.note : "");
+                showFloatingNotifBanner({
+                  title: `📸 ${mem.name}`,
+                  body,
+                  avatarHtml: renderAvatarHtml(mem),
+                  tag: "LAPORAN",
+                  tab: "laporan",
+                  hint: "Ketuk untuk melihat laporan"
+                });
                 playNotifSound(null, true);
               }
               r.comments.forEach((c) => {
                 if (c && c.id && !knownCommentIds.has(c.id) && c.userId !== currentUserId) {
-                  const commenter = (state.members[c.userId] && state.members[c.userId].name) || c.userName || "Keluarga";
-                  showToast(`💬 ${commenter} mengomentari laporan ${r.activity}`, 3200);
+                  const mem = state.members[c.userId] || { name: c.userName || "Keluarga", emoji: "💬", photo: "" };
+                  showFloatingNotifBanner({
+                    title: `💬 ${mem.name}`,
+                    body: `Komentar di ${r.activity}: ${c.text || ""}`,
+                    avatarHtml: renderAvatarHtml(mem),
+                    tag: "KOMENTAR",
+                    tab: "laporan",
+                    hint: "Ketuk untuk melihat komentar"
+                  });
                   playNotifSound(null, true);
                 }
               });
@@ -3040,8 +3344,11 @@
       }
 
       document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible" && navigator.onLine) {
-          reviveCloudConnection("visibility");
+        if (document.visibilityState === "visible") {
+          if (currentUserId && activeTab === "chat" && !isAnyBlockingModalOpen()) {
+            markChatAsRead(currentUserId);
+          }
+          if (navigator.onLine) reviveCloudConnection("visibility");
         }
       });
       window.addEventListener("focus", () => {
@@ -5155,6 +5462,23 @@
 
     /* ================= EVENT BINDINGS ================= */
     function bindEvents() {
+      // Floating Heads-Up Notification Banner click & close
+      $("btn-fnb-close").onclick = (e) => {
+        e.stopPropagation();
+        hideFloatingNotifBanner();
+      };
+      $("floating-notif-banner").onclick = () => {
+        const target = floatingBannerTargetTab || "chat";
+        hideFloatingNotifBanner();
+        if (currentUserId) {
+          closeAllModals();
+          switchTab(target, true);
+        } else {
+          pendingOpenTab = target;
+          showToast("Silakan pilih akun untuk membuka pesan.", 2200);
+        }
+      };
+
       $("btn-theme-toggle").onclick = () => {
         state.theme = state.theme === "dark" ? "light" : "dark";
         saveState(); applyTheme();
