@@ -767,6 +767,214 @@
       animation: badgePulse 1.8s infinite;
     }
 
+    /* TARGETED FAMILY ALERT (KIRIM PERINGATAN TENGAH LAYAR) */
+    .home-alert-shortcut {
+      border-color: rgba(239, 68, 68, 0.48);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(234, 179, 8, 0.1));
+    }
+    .home-alert-shortcut .home-chat-ico {
+      background: rgba(239, 68, 68, 0.22);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+    .alert-target-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .alert-target-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 10px 6px;
+      border-radius: 15px;
+      border: 1.5px solid var(--glass-border);
+      background: var(--input-bg);
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      position: relative;
+      transition: transform 0.15s ease, border-color 0.2s, background 0.2s;
+    }
+    .alert-target-chip:active { transform: scale(0.96); }
+    .alert-target-chip.selected {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.22);
+      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
+    }
+    .alert-target-check {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .alert-target-chip.selected .alert-target-check { display: flex; }
+    .alert-preset-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .alert-preset-btn {
+      padding: 5px 9px;
+      border-radius: 99px;
+      border: 1px solid var(--glass-border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .alert-preset-btn:active { background: var(--accent-soft); border-color: var(--accent); }
+    .alert-hist-card {
+      padding: 10px 11px;
+      border-radius: 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--glass-border);
+      margin-bottom: 8px;
+    }
+    .alert-hist-card.active-pending {
+      border-color: rgba(239, 68, 68, 0.55);
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .alert-st-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 99px;
+      margin: 2px 4px 2px 0;
+    }
+    .alert-st-pill.pending {
+      background: rgba(239, 68, 68, 0.22);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+    [data-theme="light"] .alert-st-pill.pending { color: #b91c1c; }
+    .alert-st-pill.done {
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    /* FULL-SCREEN CENTERED TARGET ALERT OVERLAY (MUNCUL DI TENGAH LAYAR HP TARGET) */
+    #family-alert-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 380;
+      background: radial-gradient(circle at center, rgba(127, 29, 29, 0.92) 0%, rgba(7, 15, 22, 0.97) 72%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeUp 0.22s ease;
+    }
+    .family-alert-box {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 28px;
+      padding: 28px 22px 24px;
+      text-align: center;
+      background: linear-gradient(160deg, rgba(32, 14, 20, 0.96), rgba(10, 22, 30, 0.98));
+      border: 2.5px solid #ef4444;
+      box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.18), 0 22px 60px rgba(0, 0, 0, 0.78);
+      animation: alertCardPop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .family-alert-x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .family-alert-x:active { background: #ef4444; transform: scale(0.93); }
+    .family-alert-siren {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.24);
+      border: 3px solid #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: 0 0 28px rgba(239, 68, 68, 0.55);
+      animation: pulse 0.9s infinite;
+    }
+    .family-alert-from {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      background: rgba(234, 179, 8, 0.2);
+      border: 1px solid rgba(234, 179, 8, 0.5);
+      color: #facc15;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .family-alert-msg {
+      margin: 0 0 12px;
+      font-size: 1.85rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #ffffff;
+      text-shadow: 0 2px 16px rgba(239, 68, 68, 0.65);
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .family-alert-time {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+    .family-alert-btn {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.45);
+    }
+    .family-alert-btn:active { transform: scale(0.97); }
+    @keyframes alertCardPop {
+      from { opacity: 0; transform: scale(0.86); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
 
     /* BELAJAR SMP MODULE (FULLSCREEN GLASSMORPHISM) */
     #smp-modal {
@@ -1122,6 +1330,19 @@
             <div id="home-smp-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">15 Mapel • Multi-Buku & LKS Lebak • Cek Materi Sekolah</div>
           </div>
           <span class="unread-pill hidden" id="home-smp-badge">0</span>
+          <span style="font-size:1rem;color:var(--text-muted);font-weight:800;">›</span>
+        </button>
+
+        <button type="button" class="home-chat-shortcut home-alert-shortcut glass hidden" id="home-alert-card">
+          <div class="home-chat-ico">
+            🚨
+            <span class="home-chat-dot hidden" id="home-alert-dot"></span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:0.94rem;color:#fca5a5;">Kirim Peringatan Layar HP</div>
+            <div id="home-alert-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Colek anggota tertentu dengan pop-up tengah layar</div>
+          </div>
+          <span class="unread-pill hidden" id="home-alert-badge">0</span>
           <span style="font-size:1rem;color:var(--text-muted);font-weight:800;">›</span>
         </button>
 
@@ -1768,6 +1989,69 @@
     <button class="btn btn-primary" id="btn-stop-alarm" style="padding:14px 32px;font-size:1.05rem;">🔕 Matikan Alarm</button>
   </div>
 
+  <!-- MODAL: KIRIM PERINGATAN KHUSUS ANGGOTA (ADMIN ONLY) -->
+  <div id="send-alert-modal" class="modal-backdrop hidden">
+    <div class="modal-box" style="max-width:430px;">
+      <div class="modal-head">
+        <h3 class="modal-title">🚨 Kirim Peringatan ke Layar HP</h3>
+        <button type="button" class="btn btn-sm" id="btn-close-send-alert">✕</button>
+      </div>
+
+      <div class="field">
+        <label>1. Pilih Anggota Target (Hanya yang dipilih yang kena)</label>
+        <div class="alert-target-grid" id="alert-target-grid"></div>
+      </div>
+
+      <div class="field">
+        <label>2. Pesan Cepat atau Ketik Sendiri</label>
+        <div class="alert-preset-wrap" id="alert-preset-wrap">
+          <button type="button" class="alert-preset-btn" data-preset="MOYAS SHOLAT!!!">🕌 MOYAS SHOLAT!!!</button>
+          <button type="button" class="alert-preset-btn" data-preset="WAKTUNYA BELAJAR & KERJAKAN PR!">📚 Waktunya Belajar!</button>
+          <button type="button" class="alert-preset-btn" data-preset="AYO MENGAJI SEKARANG!">📖 Ayo Mengaji!</button>
+          <button type="button" class="alert-preset-btn" data-preset="PULANG KE RUMAH SEKARANG!">🏠 Pulang Sekarang!</button>
+          <button type="button" class="alert-preset-btn" data-preset="STOP HP! WAKTUNYA TIDUR!">😴 Waktunya Tidur!</button>
+        </div>
+        <textarea id="alert-text-input" class="input" rows="2" placeholder="Contoh: MOYAS SHOLAT!!!" style="font-weight:800;font-size:1rem;"></textarea>
+      </div>
+
+      <div class="field">
+        <label>3. Suara Peringatan di HP Target</label>
+        <select id="alert-sound-select" class="input" style="padding:9px 11px;font-size:0.84rem;">
+          <option value="sirine">🚨 Sirine Super Keras</option>
+          <option value="lonceng">🔔 Bel Lonceng Keras</option>
+          <option value="bedug">🥁 Bedug & Gema Adzan</option>
+          <option value="klasik">⏰ Alarm Jam Gahar</option>
+          <option value="terompet">🎺 Terompet & Gong</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-full" id="btn-submit-family-alert" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;padding:12px;">
+        🚨 KIRIM PERINGATAN SEKARANG
+      </button>
+
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--glass-border);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <strong style="font-size:0.84rem;color:var(--accent);">📋 Status Peringatan Terkirim</strong>
+          <button type="button" class="btn btn-sm" id="btn-refresh-alerts" style="padding:4px 8px;font-size:0.72rem;">🔄 Cek</button>
+        </div>
+        <div id="alert-history-list" style="max-height:220px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL-SCREEN CENTERED TARGET ALERT OVERLAY (TIDAK BISA HILANG KECUALI DISILANG DI APP) -->
+  <div id="family-alert-overlay" class="hidden" role="alertdialog" aria-modal="true">
+    <div class="family-alert-box" id="family-alert-box">
+      <button type="button" class="family-alert-x" id="btn-family-alert-x" title="Tutup Peringatan">✕</button>
+      <div class="family-alert-siren">🚨</div>
+      <div class="family-alert-from" id="family-alert-from">PERINGATAN DARI AYAH</div>
+      <h2 class="family-alert-msg" id="family-alert-msg">MOYAS SHOLAT!!!</h2>
+      <div class="family-alert-time" id="family-alert-time">Dikirim sekarang</div>
+      <button type="button" class="family-alert-btn" id="btn-family-alert-dismiss">✕ Tutup Peringatan (Siap, Dilaksanakan!)</button>
+      <div id="family-alert-queue-note" style="font-size:0.7rem;color:#fca5a5;margin-top:8px;font-weight:700;"></div>
+    </div>
+  </div>
+
   <!-- PWA INSTALL BANNER -->
   <div id="pwa-install-banner" class="hidden">
     <img src="logo.png" alt="OZNET"
@@ -1798,7 +2082,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v20-floating-notif-badge";
+    const APP_VERSION = "v21-targeted-alert";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -2081,7 +2365,7 @@
     }
 
     function isAnyBlockingModalOpen() {
-      return ["smp-modal", "smp-book-reader-modal", "smp-pdf-viewer-modal", "doa-editor-modal", "profile-modal", "sync-diag-modal", "report-photo-modal", "camera-modal"]
+      return ["family-alert-overlay", "send-alert-modal", "smp-modal", "smp-book-reader-modal", "smp-pdf-viewer-modal", "doa-editor-modal", "profile-modal", "sync-diag-modal", "report-photo-modal", "camera-modal"]
         .some((id) => $(id) && !$(id).classList.contains("hidden"));
     }
 
@@ -2116,6 +2400,7 @@
     let swRegistrationRef = null;
     const __initParams = new URLSearchParams(window.location.search);
     let pendingOpenTab = __initParams.get("tab") || "";
+    let pendingAlertId = __initParams.get("alert") || "";
     let pendingAlarmRing = __initParams.get("ring") === "1" ? {
       prayerName: __initParams.get("prayer") || "Sholat",
       prayerTime: __initParams.get("time") || "",
@@ -2341,6 +2626,8 @@
                 const n = (payload && payload.notification) || {};
                 if (d.type === "prayer_alarm") {
                   handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, d.isTest === "1");
+                } else if (d.type === "family_alert") {
+                  fetchAlertsViaRest(true).then(() => checkAndShowIncomingFamilyAlert());
                 } else {
                   const title = d.title || n.title || "💬 Pesan Baru";
                   const body = d.body || n.body || "";
@@ -2390,19 +2677,26 @@
       }
     }
 
-    async function sendFamilyPush({ title, body, tab = "chat", testOnly = false }) {
+    async function sendFamilyPush({ title, body, tab = "chat", testOnly = false, targetUserIds = null, type = "general", alertId = "", alertText = "", senderName = "" }) {
       try {
+        const payloadObj = {
+          title,
+          body,
+          tab,
+          type,
+          senderId: currentUserId || "system",
+          senderName: senderName || ((currentUserId && state.members[currentUserId] && state.members[currentUserId].name) || "Keluarga"),
+          senderToken: fcmToken || "",
+          testOnly
+        };
+        if (Array.isArray(targetUserIds) && targetUserIds.length) payloadObj.targetUserIds = targetUserIds;
+        if (alertId) payloadObj.alertId = alertId;
+        if (alertText) payloadObj.alertText = alertText;
+
         const res = await fetch("/api/send-push", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            body,
-            tab,
-            senderId: currentUserId || "system",
-            senderToken: fcmToken || "",
-            testOnly
-          })
+          body: JSON.stringify(payloadObj)
         });
         const data = await res.json().catch(() => ({}));
         if (testOnly) {
@@ -2869,6 +3163,474 @@
       return true;
     }
 
+    /* ================= FITUR PERINGATAN TENGAH LAYAR KHUSUS ANGGOTA (v21) ================= */
+    const ALERTS_CACHE_KEY = "oznet_family_alerts_v1";
+    function loadCachedAlerts() {
+      try {
+        const raw = localStorage.getItem(ALERTS_CACHE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (e) { return []; }
+    }
+    let familyAlerts = loadCachedAlerts();
+    let isFetchingRestAlerts = false;
+    let selectedAlertTargets = new Set(["kakak"]);
+    let activeFamilyAlertId = null;
+    let familyAlertLoopTimer = null;
+    let familyAlertFallbackAudio = null;
+
+    function saveCachedAlerts() {
+      try { localStorage.setItem(ALERTS_CACHE_KEY, JSON.stringify(familyAlerts.slice(0, 30))); } catch (e) {}
+    }
+
+    function normalizeAlertDoc(raw) {
+      if (!raw || typeof raw !== "object" || !raw.id) return null;
+      return {
+        id: String(raw.id),
+        senderId: String(raw.senderId || "ayah"),
+        senderName: String(raw.senderName || "Ayah"),
+        targetIds: Array.isArray(raw.targetIds) ? raw.targetIds.map(String) : [],
+        text: String(raw.text || ""),
+        sound: String(raw.sound || "sirine"),
+        createdAt: Number(raw.createdAt) || 0,
+        timeStr: String(raw.timeStr || ""),
+        dateStr: String(raw.dateStr || ""),
+        dismissedBy: (raw.dismissedBy && typeof raw.dismissedBy === "object") ? raw.dismissedBy : {},
+        dismissedTimeStr: (raw.dismissedTimeStr && typeof raw.dismissedTimeStr === "object") ? raw.dismissedTimeStr : {},
+        cancelled: Boolean(raw.cancelled)
+      };
+    }
+
+    async function fetchAlertsViaRest(silent = true) {
+      if (!navigator.onLine) return false;
+      if (isFetchingRestAlerts && silent) return false;
+      isFetchingRestAlerts = true;
+      try {
+        const url = `${FS_REST_BASE}:runQuery?key=${encodeURIComponent(FS_REST_KEY)}`;
+        const res = await fetchWithTimeout(url, {
+          method: "POST",
+          cache: "no-store",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            structuredQuery: {
+              from: [{ collectionId: "oznet_alerts" }],
+              orderBy: [{ field: { fieldPath: "createdAt" }, direction: "DESCENDING" }],
+              limit: 25
+            }
+          })
+        }, 9000);
+        if (!res.ok) return false;
+        const rows = await res.json();
+        const list = [];
+        if (Array.isArray(rows)) {
+          rows.forEach((row) => {
+            if (row && row.document && row.document.fields) {
+              const obj = fromFsFields(row.document.fields);
+              if (!obj.id && row.document.name) obj.id = row.document.name.split("/").pop();
+              const norm = normalizeAlertDoc(obj);
+              if (norm) list.push(norm);
+            }
+          });
+        }
+        applyIncomingFamilyAlerts(list);
+        return true;
+      } catch (e) {
+        return false;
+      } finally {
+        isFetchingRestAlerts = false;
+      }
+    }
+
+    async function writeAlertViaRest(alertObj) {
+      const docUrl = `${FS_REST_BASE}/oznet_alerts/${encodeURIComponent(alertObj.id)}?key=${encodeURIComponent(FS_REST_KEY)}`;
+      const res = await fetchWithTimeout(docUrl, {
+        method: "PATCH",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: toFsFields(alertObj) })
+      }, 10000);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(formatRestError(res.status, txt));
+      }
+      return true;
+    }
+
+    async function deleteAlertViaRest(alertId) {
+      const docUrl = `${FS_REST_BASE}/oznet_alerts/${encodeURIComponent(alertId)}?key=${encodeURIComponent(FS_REST_KEY)}`;
+      const res = await fetchWithTimeout(docUrl, { method: "DELETE", cache: "no-store" }, 9000);
+      return res.ok || res.status === 404;
+    }
+
+    function applyIncomingFamilyAlerts(list) {
+      const clean = (Array.isArray(list) ? list : [])
+        .map(normalizeAlertDoc)
+        .filter(Boolean)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      familyAlerts = clean;
+      saveCachedAlerts();
+      renderHomeAlertCard();
+      if ($("send-alert-modal") && !$("send-alert-modal").classList.contains("hidden")) {
+        renderAlertHistoryList();
+      }
+      checkAndShowIncomingFamilyAlert();
+    }
+
+    function getPendingAlertsForUser(roleId = currentUserId) {
+      if (!roleId) return [];
+      const cutoff = Date.now() - 48 * 3600 * 1000; // berlaku 48 jam agar peringatan tetap menunggu sampai dibuka
+      return familyAlerts.filter((a) =>
+        a &&
+        !a.cancelled &&
+        a.createdAt >= cutoff &&
+        Array.isArray(a.targetIds) &&
+        a.targetIds.includes(roleId) &&
+        !(a.dismissedBy && a.dismissedBy[roleId])
+      );
+    }
+
+    function stopFamilyAlertSound() {
+      clearInterval(familyAlertLoopTimer);
+      familyAlertLoopTimer = null;
+      if (familyAlertFallbackAudio) {
+        try { familyAlertFallbackAudio.pause(); familyAlertFallbackAudio.currentTime = 0; } catch (e) {}
+        familyAlertFallbackAudio = null;
+      }
+      releaseAlarmWakeLock();
+      if (navigator.vibrate) {
+        try { navigator.vibrate(0); } catch (e) {}
+      }
+    }
+
+    function startFamilyAlertSound(soundType) {
+      stopFamilyAlertSound();
+      const snd = soundType || "sirine";
+      acquireAlarmWakeLock();
+      playLoudAlarmBurst(snd);
+      try {
+        const audio = new Audio(buildAlarmWavDataUrl(snd));
+        audio.loop = true;
+        audio.volume = 1.0;
+        familyAlertFallbackAudio = audio;
+        audio.play().catch(() => {});
+      } catch (e) {}
+      if (navigator.vibrate) {
+        try { navigator.vibrate([500, 180, 500, 180, 700]); } catch (e) {}
+      }
+      familyAlertLoopTimer = setInterval(() => {
+        playLoudAlarmBurst(snd);
+        if (navigator.vibrate) {
+          try { navigator.vibrate([500, 180, 500]); } catch (e) {}
+        }
+      }, 1700);
+    }
+
+    function checkAndShowIncomingFamilyAlert() {
+      const overlay = $("family-alert-overlay");
+      if (!overlay) return;
+      if (!currentUserId) {
+        if (!overlay.classList.contains("hidden")) {
+          overlay.classList.add("hidden");
+          activeFamilyAlertId = null;
+          stopFamilyAlertSound();
+        }
+        return;
+      }
+
+      const pending = getPendingAlertsForUser(currentUserId);
+      if (!pending.length) {
+        if (!overlay.classList.contains("hidden")) {
+          overlay.classList.add("hidden");
+          activeFamilyAlertId = null;
+          stopFamilyAlertSound();
+        }
+        return;
+      }
+
+      // Prioritaskan alertId dari URL jika ada, kalau tidak ambil yang terbaru
+      let current = pending.find((a) => pendingAlertId && a.id === pendingAlertId) || pending[0];
+      if (pendingAlertId && current.id === pendingAlertId) pendingAlertId = "";
+
+      const senderMem = state.members[current.senderId];
+      const senderLabel = (senderMem && senderMem.name) || current.senderName || "Ayah";
+      $("family-alert-from").textContent = `🚨 PERINGATAN DARI ${senderLabel.toUpperCase()}`;
+      $("family-alert-msg").textContent = current.text || "PERINGATAN PENTING!";
+      $("family-alert-time").textContent = `Dikirim ${current.dateStr ? current.dateStr + " • " : ""}pukul ${current.timeStr || "-"}`;
+      $("family-alert-queue-note").textContent = pending.length > 1
+        ? `Masih ada ${pending.length - 1} peringatan lain yang menunggu.`
+        : "";
+
+      const isNewlyShown = activeFamilyAlertId !== current.id || overlay.classList.contains("hidden");
+      activeFamilyAlertId = current.id;
+      overlay.classList.remove("hidden");
+
+      if (isNewlyShown) {
+        hideFloatingNotifBanner();
+        updateAlarmMediaSession(`🚨 ${current.text}`, `Peringatan dari ${senderLabel}`);
+        startFamilyAlertSound(current.sound || "sirine");
+      }
+    }
+
+    async function dismissActiveFamilyAlert() {
+      const alertId = activeFamilyAlertId;
+      if (!alertId || !currentUserId) {
+        $("family-alert-overlay").classList.add("hidden");
+        stopFamilyAlertSound();
+        return;
+      }
+      const targetAlert = familyAlerts.find((a) => a.id === alertId);
+      stopFamilyAlertSound();
+
+      const now = Date.now();
+      const timeStr = new Date(now).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+      if (targetAlert) {
+        if (!targetAlert.dismissedBy || typeof targetAlert.dismissedBy !== "object") targetAlert.dismissedBy = {};
+        if (!targetAlert.dismissedTimeStr || typeof targetAlert.dismissedTimeStr !== "object") targetAlert.dismissedTimeStr = {};
+        targetAlert.dismissedBy[currentUserId] = now;
+        targetAlert.dismissedTimeStr[currentUserId] = timeStr;
+        saveCachedAlerts();
+      }
+
+      activeFamilyAlertId = null;
+      $("family-alert-overlay").classList.add("hidden");
+      showToast("✅ Peringatan telah dikonfirmasi & ditutup.", 2400);
+
+      // Cek apakah masih ada peringatan lain yang mengantri
+      setTimeout(() => checkAndShowIncomingFamilyAlert(), 250);
+
+      // Simpan konfirmasi ke Firestore (REST + SDK) & kabari pengirim (Ayah)
+      if (targetAlert) {
+        try {
+          await writeAlertViaRest(targetAlert);
+          markServerConnected();
+        } catch (e) {
+          if (cloudReady && db) {
+            db.collection("oznet_alerts").doc(targetAlert.id).set(targetAlert, { merge: true }).catch(() => {});
+          }
+        }
+        const myName = (state.members[currentUserId] && state.members[currentUserId].name) || currentUserId;
+        if (targetAlert.senderId && targetAlert.senderId !== currentUserId) {
+          sendFamilyPush({
+            title: `✅ ${myName} Menutup Peringatan`,
+            body: `"${targetAlert.text.slice(0, 80)}" sudah dibaca & disilang pukul ${timeStr}.`,
+            tab: "beranda",
+            targetUserIds: [targetAlert.senderId]
+          });
+        }
+      }
+    }
+
+    function renderHomeAlertCard() {
+      const card = $("home-alert-card");
+      if (!card) return;
+      const show = isAdmin();
+      card.classList.toggle("hidden", !show);
+      if (!show) return;
+
+      const cutoff = Date.now() - 48 * 3600 * 1000;
+      const unackedAlerts = familyAlerts.filter((a) => {
+        if (!a || a.cancelled || a.createdAt < cutoff) return false;
+        return a.targetIds.some((tid) => !(a.dismissedBy && a.dismissedBy[tid]));
+      });
+      const badge = $("home-alert-badge");
+      const dot = $("home-alert-dot");
+      const prev = $("home-alert-preview");
+
+      if (unackedAlerts.length > 0) {
+        const latest = unackedAlerts[0];
+        const waitingNames = latest.targetIds
+          .filter((tid) => !(latest.dismissedBy && latest.dismissedBy[tid]))
+          .map((tid) => (state.members[tid] && state.members[tid].name) || tid);
+        badge.textContent = String(unackedAlerts.length);
+        badge.classList.remove("hidden");
+        dot.classList.remove("hidden");
+        prev.textContent = `🔴 Menunggu ${waitingNames.join(", ")}: "${latest.text}"`;
+        prev.style.color = "var(--text)";
+        prev.style.fontWeight = "700";
+      } else {
+        badge.classList.add("hidden");
+        dot.classList.add("hidden");
+        prev.textContent = "Pilih anggota keluarga → muncul pop-up tengah layar HP";
+        prev.style.color = "var(--text-muted)";
+        prev.style.fontWeight = "500";
+      }
+    }
+
+    function renderAlertTargetGrid() {
+      const grid = $("alert-target-grid");
+      if (!grid) return;
+      const candidates = ["ibu", "kakak", "adik"].filter((k) => k !== currentUserId);
+      grid.innerHTML = candidates.map((k) => {
+        const mem = state.members[k] || { name: k, emoji: "👤", photo: "" };
+        const isSel = selectedAlertTargets.has(k);
+        return `
+          <button type="button" class="alert-target-chip ${isSel ? "selected" : ""}" data-target-id="${k}">
+            <span class="alert-target-check">✓</span>
+            <div class="role-avatar" style="width:40px;height:40px;font-size:1.2rem;">${renderAvatarHtml(mem)}</div>
+            <span style="font-size:0.78rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${escapeHtml(mem.name)}</span>
+          </button>
+        `;
+      }).join("");
+
+      grid.querySelectorAll(".alert-target-chip").forEach((btn) => {
+        btn.onclick = () => {
+          const tid = btn.dataset.targetId;
+          if (selectedAlertTargets.has(tid)) selectedAlertTargets.delete(tid);
+          else selectedAlertTargets.add(tid);
+          renderAlertTargetGrid();
+        };
+      });
+    }
+
+    function renderAlertHistoryList() {
+      const box = $("alert-history-list");
+      if (!box) return;
+      const recent = familyAlerts.filter((a) => a && !a.cancelled).slice(0, 10);
+      if (!recent.length) {
+        box.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.78rem;padding:12px;">Belum ada peringatan yang dikirim.</div>';
+        return;
+      }
+      box.innerHTML = recent.map((a) => {
+        const pendingIds = a.targetIds.filter((tid) => !(a.dismissedBy && a.dismissedBy[tid]));
+        const hasPending = pendingIds.length > 0;
+        const pillsHtml = a.targetIds.map((tid) => {
+          const name = (state.members[tid] && state.members[tid].name) || tid;
+          const doneAt = a.dismissedTimeStr && a.dismissedTimeStr[tid];
+          if (a.dismissedBy && a.dismissedBy[tid]) {
+            return `<span class="alert-st-pill done">✅ ${escapeHtml(name)} (${escapeHtml(doneAt || "dibaca")})</span>`;
+          }
+          return `<span class="alert-st-pill pending">🔴 ${escapeHtml(name)}: Belum dibuka</span>`;
+        }).join("");
+        return `
+          <div class="alert-hist-card ${hasPending ? "active-pending" : ""}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:5px;">
+              <strong style="font-size:0.86rem;color:var(--text);word-break:break-word;">🚨 ${escapeHtml(a.text)}</strong>
+              <span style="font-size:0.68rem;color:var(--text-muted);flex-shrink:0;">${escapeHtml(a.timeStr || "")}</span>
+            </div>
+            <div style="margin-bottom:6px;">${pillsHtml}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${hasPending ? `<button type="button" class="btn btn-sm btn-primary" style="padding:4px 9px;font-size:0.72rem;" onclick="nudgeFamilyAlert('${escapeHtml(a.id)}')">🔔 Colek Lagi</button>` : ""}
+              <button type="button" class="btn btn-sm btn-danger" style="padding:4px 9px;font-size:0.72rem;" onclick="cancelFamilyAlert('${escapeHtml(a.id)}')">🗑️ ${hasPending ? "Batalkan" : "Hapus"}</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openSendAlertModal() {
+      if (!isAdmin()) return showToast("🔒 Fitur Kirim Peringatan khusus untuk Admin.");
+      renderAlertTargetGrid();
+      renderAlertHistoryList();
+      openModalById("send-alert-modal");
+      fetchAlertsViaRest(true);
+    }
+
+    async function submitFamilyAlert() {
+      if (!isAdmin()) return;
+      const targets = Array.from(selectedAlertTargets).filter((t) => t !== currentUserId);
+      if (!targets.length) return showToast("Pilih minimal 1 anggota keluarga target dulu!", 2600);
+      const text = ($("alert-text-input").value || "").trim();
+      if (!text) return showToast("Tulis pesan peringatannya dulu (misal: MOYAS SHOLAT!!!)", 2600);
+      const sound = $("alert-sound-select").value || "sirine";
+      const now = new Date();
+      const senderName = (state.members[currentUserId] && state.members[currentUserId].name) || "Ayah";
+      const alertObj = {
+        id: "alrt-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        senderId: currentUserId,
+        senderName,
+        targetIds: targets,
+        text,
+        sound,
+        createdAt: Date.now(),
+        dateStr: now.toLocaleDateString("id-ID"),
+        timeStr: now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+        dismissedBy: {},
+        dismissedTimeStr: {},
+        cancelled: false
+      };
+
+      const btn = $("btn-submit-family-alert");
+      btn.disabled = true;
+      btn.textContent = "⏳ Mengirim peringatan...";
+      try {
+        familyAlerts.unshift(alertObj);
+        saveCachedAlerts();
+        $("alert-text-input").value = "";
+        renderAlertHistoryList();
+        renderHomeAlertCard();
+
+        // 1. Simpan ke Cloud Firestore (REST dulu agar terjamin sampai server, fallback SDK)
+        try {
+          await writeAlertViaRest(alertObj);
+          markServerConnected();
+        } catch (err) {
+          if (cloudReady && db) await db.collection("oznet_alerts").doc(alertObj.id).set(alertObj);
+          else throw err;
+        }
+
+        // 2. Kirim Push Prioritas Tinggi KHUSUS ke HP anggota target yang dipilih
+        const pushRes = await sendFamilyPush({
+          title: `🚨 PERINGATAN DARI ${senderName.toUpperCase()}!`,
+          body: `${text} — Buka OZNET FAMILY untuk mematikan!`,
+          tab: "beranda",
+          type: "family_alert",
+          alertId: alertObj.id,
+          alertText: text,
+          senderName,
+          targetUserIds: targets
+        });
+
+        const targetNames = targets.map((t) => (state.members[t] && state.members[t].name) || t).join(", ");
+        if (pushRes && pushRes.ok && (pushRes.sent || 0) > 0) {
+          showToast(`🚨 Peringatan terkirim ke ${targetNames}!`, 3200);
+        } else {
+          showToast(`🚨 Peringatan aktif untuk ${targetNames}! (Akan muncul begitu app dibuka)`, 3400);
+        }
+      } catch (err) {
+        showToast("❌ Gagal mengirim peringatan: " + (err.message || err), 3800);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🚨 KIRIM PERINGATAN SEKARANG";
+      }
+    }
+
+    window.nudgeFamilyAlert = async (alertId) => {
+      if (!isAdmin()) return;
+      const a = familyAlerts.find((x) => x.id === alertId);
+      if (!a) return;
+      const pendingTargets = a.targetIds.filter((tid) => !(a.dismissedBy && a.dismissedBy[tid]));
+      if (!pendingTargets.length) return showToast("Semua target sudah menutup peringatan ini.");
+      showToast("🔔 Mengirim ulang peringatan...", 1800);
+      const senderName = (state.members[currentUserId] && state.members[currentUserId].name) || a.senderName || "Ayah";
+      await sendFamilyPush({
+        title: `🚨 PERINGATAN ULANG DARI ${senderName.toUpperCase()}!`,
+        body: `${a.text} — Segera buka OZNET FAMILY!`,
+        tab: "beranda",
+        type: "family_alert",
+        alertId: a.id,
+        alertText: a.text,
+        senderName,
+        targetUserIds: pendingTargets
+      });
+      showToast("✅ Colekan ulang terkirim ke target yang belum membuka!", 2600);
+    };
+
+    window.cancelFamilyAlert = async (alertId) => {
+      if (!isAdmin()) return;
+      if (!confirm("Hapus / batalkan peringatan ini?")) return;
+      familyAlerts = familyAlerts.filter((x) => x.id !== alertId);
+      saveCachedAlerts();
+      renderAlertHistoryList();
+      renderHomeAlertCard();
+      try {
+        await deleteAlertViaRest(alertId);
+      } catch (e) {}
+      if (cloudReady && db) {
+        db.collection("oznet_alerts").doc(alertId).delete().catch(() => {});
+      }
+      showToast("🗑️ Peringatan dibatalkan & dihapus.", 2200);
+    };
+
     function clearCloudListeners() {
       cloudUnsubs.forEach((fn) => { try { fn(); } catch (e) {} });
       cloudUnsubs = [];
@@ -3008,8 +3770,8 @@
       if (isPullingCloudNow && silent) return;
       isPullingCloudNow = true;
       try {
-        // 1. Selalu tarik Chat langsung via HTTPS REST (anti-beku)
-        const chatPromise = fetchMessagesViaRest(silent);
+        // 1. Selalu tarik Chat & Peringatan langsung via HTTPS REST (anti-beku)
+        const chatPromise = Promise.all([fetchMessagesViaRest(silent), fetchAlertsViaRest(true)]);
 
         // 2. Tarik data keluarga lain via SDK Firestore
         if (cloudReady && db) {
@@ -3306,11 +4068,21 @@
           applyIncomingMessages(list);
         }, handleCloudError)
       );
+
+      // 5. Real-time Peringatan Layar Khusus Anggota (v21)
+      cloudUnsubs.push(
+        db.collection("oznet_alerts").orderBy("createdAt", "desc").limit(25).onSnapshot((snap) => {
+          if (isSnapFromServer(snap)) markServerConnected();
+          const list = snap.empty ? [] : snap.docs.map((doc) => doc.data());
+          applyIncomingFamilyAlerts(list);
+        }, handleCloudError)
+      );
     }
 
     function reviveCloudConnection(reason = "") {
       if (!navigator.onLine) return;
       fetchMessagesViaRest(true);
+      fetchAlertsViaRest(true);
       if (cloudReady && db && lastSyncErrorText) {
         attachCloudListeners();
       }
@@ -3321,8 +4093,9 @@
 
     let bgTickCounter = 0;
     function initCloudSync() {
-      // Mulai Direct HTTPS Chat Sync segera (tidak menunggu SDK WebChannel!)
+      // Mulai Direct HTTPS Chat & Alert Sync segera (tidak menunggu SDK WebChannel!)
       fetchMessagesViaRest(true);
+      fetchAlertsViaRest(true);
 
       if (typeof firebase === "undefined") {
         lastSyncErrorText = "SDK Firebase gagal dimuat (Chat tetap berjalan via Direct HTTPS).";
@@ -3380,6 +4153,9 @@
         bgTickCounter++;
         if (activeTab === "chat" || bgTickCounter % 3 === 0) {
           fetchMessagesViaRest(true);
+        }
+        if (bgTickCounter % 2 === 0) {
+          fetchAlertsViaRest(true);
         }
       }, 3000);
     }
@@ -3698,6 +4474,10 @@
           triggerAlarmOverlay(ringData.prayerName, ringData.prayerTime, ringData.offsetMin, false);
         }, 250);
       }
+      setTimeout(() => {
+        checkAndShowIncomingFamilyAlert();
+        fetchAlertsViaRest(true);
+      }, 220);
       if (!opts.silent) {
         showToast(`Selamat datang, ${state.members[roleId].name}! (Login permanen aktif)`);
       }
@@ -5319,7 +6099,7 @@
       if (id === "smp-pdf-viewer-modal" && $("smp-pdf-frame")) $("smp-pdf-frame").src = "about:blank";
     }
     function closeAllModals() {
-      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "smp-pdf-viewer-modal", "smp-book-reader-modal", "smp-add-book-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
+      ["send-alert-modal", "sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "smp-pdf-viewer-modal", "smp-book-reader-modal", "smp-add-book-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
     }
     window.openLightbox = (src) => { $("lightbox-img").src = src; openModalById("lightbox-modal"); };
     window.closeModalById = closeModalById;
@@ -5345,7 +6125,12 @@
     }
 
     function handleBackAction() {
-      const openModal = ["lightbox-modal", "smp-pdf-viewer-modal", "smp-book-reader-modal", "smp-add-book-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
+      if ($("family-alert-overlay") && !$("family-alert-overlay").classList.contains("hidden")) {
+        pushNavState("family-alert-lock");
+        showToast("🚨 Ketuk tombol ✕ / Tutup Peringatan di layar untuk menghilangkannya!", 2400);
+        return;
+      }
+      const openModal = ["lightbox-modal", "send-alert-modal", "smp-pdf-viewer-modal", "smp-book-reader-modal", "smp-add-book-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
         .find((id) => !$(id).classList.contains("hidden"));
       if (openModal) { closeModalById(openModal); return; }
       if (currentUserId && tabHistory.length > 0) {
@@ -5386,6 +6171,8 @@
       renderChat();
       updateUnreadBadge();
       if (typeof renderHomeSmpCard === "function") renderHomeSmpCard();
+      if (typeof renderHomeAlertCard === "function") renderHomeAlertCard();
+      checkAndShowIncomingFamilyAlert();
       updateClockAndPrayers();
     }
 
@@ -5442,6 +6229,9 @@
           handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, Boolean(d.isTest));
         } else if (d.type === "STOP_PRAYER_ALARM") {
           stopAlarmOverlay();
+        } else if (d.type === "TRIGGER_FAMILY_ALERT") {
+          if (d.alertId) pendingAlertId = d.alertId;
+          fetchAlertsViaRest(true).then(() => checkAndShowIncomingFamilyAlert());
         }
       });
 
@@ -5606,8 +6396,28 @@
         saveState(); renderProfileModal(); showToast("Sidik jari dihapus.");
       };
 
-      // Home Chat Menu Shortcut
+      // Home Chat & Targeted Alert Menu Shortcuts
       $("home-chat-card").onclick = () => switchTab("chat", true);
+      $("home-alert-card").onclick = openSendAlertModal;
+      $("btn-close-send-alert").onclick = () => closeModalById("send-alert-modal");
+      $("btn-submit-family-alert").onclick = submitFamilyAlert;
+      $("btn-refresh-alerts").onclick = () => {
+        showToast("🔄 Memeriksa status peringatan...", 1200);
+        fetchAlertsViaRest(false);
+      };
+      document.querySelectorAll("#alert-preset-wrap .alert-preset-btn").forEach((b) => {
+        b.onclick = () => {
+          $("alert-text-input").value = b.dataset.preset || "";
+          $("alert-text-input").focus();
+        };
+      });
+      $("btn-family-alert-x").onclick = dismissActiveFamilyAlert;
+      $("btn-family-alert-dismiss").onclick = dismissActiveFamilyAlert;
+      // Jika Chrome sempat menahan suara sebelum ada sentuhan pertama, sentuhan di kotak peringatan langsung menyalakan suaranya
+      $("family-alert-box").addEventListener("pointerdown", (e) => {
+        if (e.target.closest("#btn-family-alert-x, #btn-family-alert-dismiss")) return;
+        try { getAudioCtx(); } catch (err) {}
+      });
 
       // Profile & Chat Notification Sound Controls
       $("prof-notif-sound").onchange = (e) => setMyNotifSound(e.target.value, true);
