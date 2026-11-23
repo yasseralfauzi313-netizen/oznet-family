@@ -1,4 +1,5 @@
-const CACHE_NAME = "oznet-family-v20";
+// OZNET FAMILY sw.js v21-targeted-alert
+const CACHE_NAME = "oznet-family-v21";
 const BADGE_CACHE_KEY = "oznet-badge-store-v1";
 const CORE_ASSETS = [
   "./",
@@ -56,8 +57,7 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// Pastikan SETIAP push yang masuk (baik payload notification maupun data-only)
-// selalu menyalakan tanda merah di ikon aplikasi layar utama & mengirim SYNC_NOW ke tab terbuka
+// Pastikan SETIAP push yang masuk selalu menyalakan tanda merah di ikon layar utama & memicu sinkron tab terbuka
 self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
     try {
@@ -80,12 +80,10 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Jangan pernah cegat request non-GET, endpoint API Vercel (/api/*), atau server eksternal (Firebase / Google)
   if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) {
     return;
   }
 
-  // Network-First mutlak agar pembaruan index.html di Vercel selalu langsung tampil tanpa perlu hapus cache manual
   event.respondWith(
     fetch(request, { cache: "no-store" })
       .then((res) => {
@@ -99,7 +97,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-/* ================= FIREBASE CLOUD MESSAGING (BACKGROUND PUSH & ALARM SHOLAT) ================= */
+/* ================= FIREBASE CLOUD MESSAGING (BACKGROUND PUSH, ALARM SHOLAT & PERINGATAN TARGET) ================= */
 try {
   importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
   importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
@@ -118,7 +116,52 @@ try {
   messaging.onBackgroundMessage((payload) => {
     const data = (payload && payload.data) || {};
 
-    // 1. PRIORITAS TINGGI: ALARM WAKTU SHOLAT (Aplikasi ditutup atau di layar belakang)
+    // 1. PRIORITAS TERTINGGI: PERINGATAN LAYAR KHUSUS ANGGOTA (v21)
+    if (data.type === "family_alert") {
+      const alertId = data.alertId || "";
+      const alertText = data.alertText || data.body || "PERINGATAN PENTING!";
+      const senderName = data.senderName || "Ayah";
+      const title = data.title || `🚨 PERINGATAN DARI ${senderName.toUpperCase()}!`;
+      const body = data.body || `${alertText} — Buka OZNET FAMILY untuk mematikan!`;
+      const targetUrl = "/?alert=" + encodeURIComponent(alertId);
+
+      const notifPromise = self.registration.showNotification(title, {
+        body,
+        icon: "/logo.png",
+        badge: "/logo.png",
+        vibrate: [800, 200, 800, 200, 800, 200, 1000],
+        tag: "oznet-family-alert-" + (alertId || Date.now()),
+        renotify: true,
+        requireInteraction: true,
+        silent: false,
+        timestamp: Date.now(),
+        actions: [
+          { action: "open_alert", title: "🚨 Buka OZNET & Tutup" }
+        ],
+        data: {
+          type: "family_alert",
+          alertId,
+          alertText,
+          senderName,
+          tab: "beranda",
+          url: targetUrl
+        }
+      });
+
+      const wakePromise = self.clients.matchAll({ type: "window", includeUncontrolled: true })
+        .then((windowClients) => {
+          windowClients.forEach((client) => {
+            if (client.url.startsWith(self.location.origin)) {
+              client.postMessage({ type: "TRIGGER_FAMILY_ALERT", alertId });
+            }
+          });
+        })
+        .catch(() => {});
+
+      return Promise.all([notifPromise, wakePromise]);
+    }
+
+    // 2. PRIORITAS TINGGI: ALARM WAKTU SHOLAT
     if (data.type === "prayer_alarm") {
       const prayerName = data.prayerName || "Sholat";
       const prayerTime = data.prayerTime || "";
@@ -172,7 +215,7 @@ try {
       return Promise.all([notifPromise, wakeClientsPromise]);
     }
 
-    // 2. Pesan Chat / Laporan: tampilkan notifikasi heads-up jika data-only
+    // 3. Pesan Chat / Laporan: tampilkan notifikasi heads-up jika data-only
     if (!payload.notification && payload.data) {
       const title = data.title || "OZNET FAMILY";
       const body = data.body || "Ada pembaruan baru di keluarga OZNET";
@@ -214,13 +257,16 @@ self.addEventListener("notificationclick", (event) => {
   }
 
   const tab = data.tab || fcmData.tab || "chat";
+  const alertId = data.alertId || fcmData.alertId || "";
   const prayerName = data.prayerName || fcmData.prayerName || "";
   const prayerTime = data.prayerTime || fcmData.prayerTime || "";
   const offsetMin = Number(data.offsetMin !== undefined ? data.offsetMin : (fcmData.offsetMin || 0)) || 0;
   const isTest = Boolean(data.isTest || fcmData.isTest === "1");
 
   let targetPath = "/?tab=" + encodeURIComponent(tab);
-  if (notifType === "prayer_alarm" && prayerName) {
+  if (notifType === "family_alert") {
+    targetPath = "/?alert=" + encodeURIComponent(alertId);
+  } else if (notifType === "prayer_alarm" && prayerName) {
     targetPath = `/?tab=alarm&ring=1&prayer=${encodeURIComponent(prayerName)}&time=${encodeURIComponent(prayerTime)}&offset=${offsetMin}`;
   }
   const targetUrl = new URL(targetPath, self.location.origin).href;
@@ -230,17 +276,21 @@ self.addEventListener("notificationclick", (event) => {
     const windowClients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const client of windowClients) {
       if (client.url.startsWith(self.location.origin) && "focus" in client) {
-        client.postMessage({ type: "OPEN_TAB", tab });
-        client.postMessage({ type: "SYNC_NOW" });
-        if (notifType === "prayer_alarm" && prayerName) {
-          client.postMessage({
-            type: "TRIGGER_PRAYER_ALARM",
-            prayerName,
-            prayerTime,
-            offsetMin,
-            isTest
-          });
+        if (notifType === "family_alert") {
+          client.postMessage({ type: "TRIGGER_FAMILY_ALERT", alertId });
+        } else {
+          client.postMessage({ type: "OPEN_TAB", tab });
+          if (notifType === "prayer_alarm" && prayerName) {
+            client.postMessage({
+              type: "TRIGGER_PRAYER_ALARM",
+              prayerName,
+              prayerTime,
+              offsetMin,
+              isTest
+            });
+          }
         }
+        client.postMessage({ type: "SYNC_NOW" });
         return client.focus();
       }
     }
