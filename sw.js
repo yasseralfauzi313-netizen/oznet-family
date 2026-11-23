@@ -1,4 +1,5 @@
-const CACHE_NAME = "oznet-family-v18";
+const CACHE_NAME = "oznet-family-v20";
+const BADGE_CACHE_KEY = "oznet-badge-store-v1";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -16,9 +17,63 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== BADGE_CACHE_KEY).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
+});
+
+async function readBadgeCount() {
+  try {
+    const cache = await caches.open(BADGE_CACHE_KEY);
+    const res = await cache.match("/__badge_count__");
+    if (!res) return 0;
+    const txt = await res.text();
+    return Math.max(0, parseInt(txt, 10) || 0);
+  } catch (e) { return 0; }
+}
+
+async function writeBadgeCount(count) {
+  const n = Math.max(0, Number(count) || 0);
+  try {
+    const cache = await caches.open(BADGE_CACHE_KEY);
+    await cache.put("/__badge_count__", new Response(String(n)));
+  } catch (e) {}
+  try {
+    if (self.navigator && typeof self.navigator.setAppBadge === "function") {
+      if (n > 0) await self.navigator.setAppBadge(n);
+      else if (typeof self.navigator.clearAppBadge === "function") await self.navigator.clearAppBadge();
+    }
+  } catch (e) {}
+  return n;
+}
+
+self.addEventListener("message", (event) => {
+  const d = (event && event.data) || {};
+  if (d.type === "CLEAR_APP_BADGE") {
+    event.waitUntil(writeBadgeCount(0));
+  } else if (d.type === "SET_APP_BADGE") {
+    event.waitUntil(writeBadgeCount(Number(d.count) || 0));
+  }
+});
+
+// Pastikan SETIAP push yang masuk (baik payload notification maupun data-only)
+// selalu menyalakan tanda merah di ikon aplikasi layar utama & mengirim SYNC_NOW ke tab terbuka
+self.addEventListener("push", (event) => {
+  event.waitUntil((async () => {
+    try {
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const hasVisibleClient = clients.some((c) => c.visibilityState === "visible");
+      clients.forEach((c) => {
+        if (c.url.startsWith(self.location.origin)) {
+          c.postMessage({ type: "SYNC_NOW" });
+        }
+      });
+      if (!hasVisibleClient) {
+        const cur = await readBadgeCount();
+        await writeBadgeCount(cur + 1);
+      }
+    } catch (e) {}
+  })());
 });
 
 self.addEventListener("fetch", (event) => {
@@ -82,6 +137,7 @@ try {
         renotify: true,
         requireInteraction: true,
         silent: false,
+        timestamp: Date.now(),
         actions: [
           { action: "open_alarm", title: "🔔 Buka & Bunyikan" },
           { action: "dismiss", title: "🔕 Tutup" }
@@ -116,34 +172,23 @@ try {
       return Promise.all([notifPromise, wakeClientsPromise]);
     }
 
-    // 2. Pesan Chat / Laporan: kirim sinyal SYNC_NOW ke tab yang terbuka agar langsung muncul tanpa delay
-    const wakeSyncPromise = self.clients.matchAll({ type: "window", includeUncontrolled: true })
-      .then((windowClients) => {
-        windowClients.forEach((client) => {
-          if (client.url.startsWith(self.location.origin)) {
-            client.postMessage({ type: "SYNC_NOW" });
-          }
-        });
-      })
-      .catch(() => {});
-
-    // Fallback tampilkan notifikasi jika payload data-only
+    // 2. Pesan Chat / Laporan: tampilkan notifikasi heads-up jika data-only
     if (!payload.notification && payload.data) {
       const title = data.title || "OZNET FAMILY";
       const body = data.body || "Ada pembaruan baru di keluarga OZNET";
       const tab = data.tab || "chat";
-      const notifP = self.registration.showNotification(title, {
+      return self.registration.showNotification(title, {
         body,
         icon: "/logo.png",
         badge: "/logo.png",
         vibrate: [250, 100, 250],
         tag: "oznet-" + tab,
         renotify: true,
+        silent: false,
+        timestamp: Date.now(),
         data: { url: "/?tab=" + encodeURIComponent(tab), tab }
       });
-      return Promise.all([notifP, wakeSyncPromise]);
     }
-    return wakeSyncPromise;
   });
 } catch (e) {
   // Tetap berjalan normal meski sedang offline
@@ -180,25 +225,25 @@ self.addEventListener("notificationclick", (event) => {
   }
   const targetUrl = new URL(targetPath, self.location.origin).href;
 
-  event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
-      for (const client of windowClients) {
-        if (client.url.startsWith(self.location.origin) && "focus" in client) {
-          client.postMessage({ type: "OPEN_TAB", tab });
-          client.postMessage({ type: "SYNC_NOW" });
-          if (notifType === "prayer_alarm" && prayerName) {
-            client.postMessage({
-              type: "TRIGGER_PRAYER_ALARM",
-              prayerName,
-              prayerTime,
-              offsetMin,
-              isTest
-            });
-          }
-          return client.focus();
+  event.waitUntil((async () => {
+    if (tab === "chat") await writeBadgeCount(0);
+    const windowClients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of windowClients) {
+      if (client.url.startsWith(self.location.origin) && "focus" in client) {
+        client.postMessage({ type: "OPEN_TAB", tab });
+        client.postMessage({ type: "SYNC_NOW" });
+        if (notifType === "prayer_alarm" && prayerName) {
+          client.postMessage({
+            type: "TRIGGER_PRAYER_ALARM",
+            prayerName,
+            prayerTime,
+            offsetMin,
+            isTest
+          });
         }
+        return client.focus();
       }
-      if (self.clients.openWindow) return self.clients.openWindow(targetUrl);
-    })
-  );
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(targetUrl);
+  })());
 });
