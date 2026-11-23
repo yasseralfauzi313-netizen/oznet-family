@@ -1,4 +1,4 @@
-const CACHE_NAME = "oznet-family-v12";
+const CACHE_NAME = "oznet-family-v18";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -25,12 +25,12 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Jangan cegat request non-GET, endpoint API Vercel (/api/*), atau server eksternal (Firebase)
+  // Jangan pernah cegat request non-GET, endpoint API Vercel (/api/*), atau server eksternal (Firebase / Google)
   if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) {
     return;
   }
 
-  // Network-First agar pembaruan index.html di Vercel selalu langsung tampil
+  // Network-First mutlak agar pembaruan index.html di Vercel selalu langsung tampil tanpa perlu hapus cache manual
   event.respondWith(
     fetch(request, { cache: "no-store" })
       .then((res) => {
@@ -97,7 +97,6 @@ try {
         }
       });
 
-      // Bangunkan tab/PWA yang sedang berjalan di belakang layar agar langsung membunyikan sirine/bedug
       const wakeClientsPromise = self.clients.matchAll({ type: "window", includeUncontrolled: true })
         .then((windowClients) => {
           windowClients.forEach((client) => {
@@ -117,21 +116,34 @@ try {
       return Promise.all([notifPromise, wakeClientsPromise]);
     }
 
-    // 2. Fallback untuk pesan chat/laporan data-only (hindari notifikasi ganda jika payload.notification sudah ada)
+    // 2. Pesan Chat / Laporan: kirim sinyal SYNC_NOW ke tab yang terbuka agar langsung muncul tanpa delay
+    const wakeSyncPromise = self.clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        windowClients.forEach((client) => {
+          if (client.url.startsWith(self.location.origin)) {
+            client.postMessage({ type: "SYNC_NOW" });
+          }
+        });
+      })
+      .catch(() => {});
+
+    // Fallback tampilkan notifikasi jika payload data-only
     if (!payload.notification && payload.data) {
       const title = data.title || "OZNET FAMILY";
       const body = data.body || "Ada pembaruan baru di keluarga OZNET";
       const tab = data.tab || "chat";
-      return self.registration.showNotification(title, {
+      const notifP = self.registration.showNotification(title, {
         body,
         icon: "/logo.png",
         badge: "/logo.png",
-        vibrate: [200, 100, 200],
+        vibrate: [250, 100, 250],
         tag: "oznet-" + tab,
         renotify: true,
         data: { url: "/?tab=" + encodeURIComponent(tab), tab }
       });
+      return Promise.all([notifP, wakeSyncPromise]);
     }
+    return wakeSyncPromise;
   });
 } catch (e) {
   // Tetap berjalan normal meski sedang offline
@@ -143,7 +155,6 @@ self.addEventListener("notificationclick", (event) => {
   const fcmData = (data.FCM_MSG && data.FCM_MSG.data) ? data.FCM_MSG.data : {};
   const notifType = data.type || fcmData.type || "";
 
-  // Jika pengguna menekan tombol "🔕 Tutup" pada notifikasi alarm
   if (event.action === "dismiss") {
     event.waitUntil(
       self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
@@ -174,6 +185,7 @@ self.addEventListener("notificationclick", (event) => {
       for (const client of windowClients) {
         if (client.url.startsWith(self.location.origin) && "focus" in client) {
           client.postMessage({ type: "OPEN_TAB", tab });
+          client.postMessage({ type: "SYNC_NOW" });
           if (notifType === "prayer_alarm" && prayerName) {
             client.postMessage({
               type: "TRIGGER_PRAYER_ALARM",
