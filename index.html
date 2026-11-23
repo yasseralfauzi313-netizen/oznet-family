@@ -1668,7 +1668,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v17-smp-rak-buku";
+    const APP_VERSION = "v18-stable-sync-fcm";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -1927,6 +1927,8 @@
 
     let fcmToken = localStorage.getItem("oznet_fcm_token") || "";
     let fcmStatusNote = "";
+    let fcmLastError = "";
+    let fcmRegisterInFlight = null;
     let swRegistrationRef = null;
     const __initParams = new URLSearchParams(window.location.search);
     let pendingOpenTab = __initParams.get("tab") || "";
@@ -1945,7 +1947,7 @@
     function updateNotifBellUI() {
       const btn = $("btn-notif-toggle");
       if (!btn) return;
-      const granted = ("Notification" in window) && Notification.permission === "granted" && !!fcmToken;
+      const granted = ("Notification" in window) && Notification.permission === "granted" && !!fcmToken && !fcmLastError;
       btn.classList.toggle("notif-on", granted);
       btn.classList.toggle("notif-off", !granted);
       btn.textContent = granted ? "🔔" : "🔕";
@@ -1964,8 +1966,10 @@
 
       const perm = ("Notification" in window) ? Notification.permission : "unsupported";
       let fcmHtml = "";
-      if (perm === "granted" && fcmToken) {
-        fcmHtml = `<span style="color:var(--emerald);font-weight:700;">Aktif ✅ (Token terdaftar)</span>`;
+      if (fcmLastError) {
+        fcmHtml = `<span style="color:var(--danger);font-weight:700;">Gagal / Tidak Aktif ❌ (Perlu perbaikan)</span>`;
+      } else if (perm === "granted" && fcmToken) {
+        fcmHtml = `<span style="color:var(--emerald);font-weight:700;">Aktif ✅ (Token terverifikasi)</span>`;
       } else if (perm === "denied") {
         fcmHtml = `<span style="color:var(--danger);font-weight:700;">Diblokir browser (izinkan di Pengaturan Situs Chrome)</span>`;
       } else if (perm === "unsupported") {
@@ -2013,66 +2017,172 @@
       updateDiagView();
     }
 
-    async function registerFcmPush(interactive = false) {
-      if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-        if (interactive) showToast("Browser ini belum mendukung Notifikasi Push.", 3200);
-        return false;
-      }
-      if (typeof firebase === "undefined" || typeof firebase.messaging !== "function") {
-        if (interactive) showToast("Modul Firebase Messaging gagal dimuat.", 3000);
-        return false;
-      }
+    async function waitForActiveServiceWorker(timeoutMs = 8000) {
+      if (!("serviceWorker" in navigator)) return null;
       try {
-        let perm = Notification.permission;
-        if (perm !== "granted") {
-          if (!interactive) { updateNotifBellUI(); return false; }
-          perm = await Notification.requestPermission();
+        let reg = await navigator.serviceWorker.getRegistration("./");
+        if (!reg) reg = await navigator.serviceWorker.register("./sw.js");
+        swRegistrationRef = reg;
+        if (reg.active) return reg;
+        const readyReg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((resolve) => setTimeout(() => resolve(reg), timeoutMs))
+        ]);
+        if (readyReg) swRegistrationRef = readyReg;
+        return readyReg || reg;
+      } catch (e) {
+        return swRegistrationRef || null;
+      }
+    }
+
+    async function removeOldFcmTokenFromCloud(oldTok) {
+      if (!oldTok || !db) return;
+      try {
+        await db.collection("oznet_tokens").doc(getTokenDocId(oldTok)).delete();
+      } catch (e) {}
+    }
+
+    async function resetBrokenPushSubscription(reg) {
+      const oldTok = fcmToken;
+      fcmToken = "";
+      try { localStorage.removeItem("oznet_fcm_token"); } catch (e) {}
+      if (oldTok) await removeOldFcmTokenFromCloud(oldTok);
+      try {
+        if (reg && reg.pushManager) {
+          const existingSub = await reg.pushManager.getSubscription();
+          if (existingSub) await existingSub.unsubscribe();
         }
-        if (perm !== "granted") {
-          fcmStatusNote = perm === "denied"
-            ? "Izin notifikasi ditolak. Buka Pengaturan Situs Chrome untuk mengizinkan."
-            : "Izin notifikasi belum diberikan.";
-          if (interactive) showToast(fcmStatusNote, 3600);
-          updateNotifBellUI();
-          updateDiagView();
+      } catch (e) {}
+    }
+
+    function explainFcmPushError(err) {
+      const msg = String((err && err.message) || err || "");
+      const code = String((err && err.code) || "");
+      if (code === "20" || /push service error|AbortError|Registration failed/i.test(msg)) {
+        return "Layanan Push Google di HP ini diblokir/terhenti (Error 20). Solusi: matikan VPN/DNS Pribadi (AdGuard), pastikan pakai Google Chrome asli (bukan browser bawaan HP), dan matikan Penghemat Baterai untuk Chrome & OZNET FAMILY.";
+      }
+      if (/permission|denied|not allowed/i.test(msg)) {
+        return "Izin notifikasi diblokir. Aktifkan di Pengaturan HP → Aplikasi → Chrome/OZNET FAMILY → Notifikasi.";
+      }
+      return "FCM error: " + (code || msg);
+    }
+
+    async function registerFcmPush(interactive = false, forceReset = false) {
+      if (fcmRegisterInFlight) return fcmRegisterInFlight;
+      fcmRegisterInFlight = (async () => {
+        if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+          if (interactive) showToast("Browser ini belum mendukung Notifikasi Push.", 3200);
           return false;
         }
-
-        const reg = swRegistrationRef || await navigator.serviceWorker.ready;
-        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-        const messaging = firebase.messaging();
-        const token = await messaging.getToken({
-          vapidKey: FCM_VAPID_KEY,
-          serviceWorkerRegistration: reg
-        });
-
-        if (token) {
-          fcmToken = token;
-          localStorage.setItem("oznet_fcm_token", token);
-          await saveFcmTokenToFirestore(token);
-          if (interactive) showToast("🔔 Notifikasi Push Background AKTIF di HP ini!", 3000);
-
-          if (!window.__oznetFcmOnMsgBound) {
-            window.__oznetFcmOnMsgBound = true;
-            messaging.onMessage((payload) => {
-              const d = (payload && payload.data) || {};
-              if (d.type === "prayer_alarm") {
-                handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, d.isTest === "1");
-              }
-            });
-          }
-          return true;
-        } else {
-          fcmStatusNote = "Token tidak diterima dari server FCM.";
-          if (interactive) showToast(fcmStatusNote, 3200);
+        if (typeof firebase === "undefined" || typeof firebase.messaging !== "function") {
+          if (interactive) showToast("Modul Firebase Messaging gagal dimuat.", 3000);
+          return false;
         }
-      } catch (err) {
-        fcmStatusNote = "FCM error: " + (err.code || err.message || err);
-        if (interactive) showToast("Gagal aktifkan notifikasi: " + (err.message || err), 3800);
+        if (!navigator.onLine) {
+          if (interactive) showToast("HP sedang offline. Hubungkan internet lalu coba lagi.", 3200);
+          return false;
+        }
+        try {
+          let perm = Notification.permission;
+          if (perm !== "granted") {
+            if (!interactive) { updateNotifBellUI(); return false; }
+            perm = await Notification.requestPermission();
+          }
+          if (perm !== "granted") {
+            fcmLastError = "Izin notifikasi ditolak";
+            fcmStatusNote = perm === "denied"
+              ? "Izin notifikasi ditolak. Buka Pengaturan Situs Chrome untuk mengizinkan."
+              : "Izin notifikasi belum diberikan.";
+            if (interactive) showToast(fcmStatusNote, 3600);
+            updateNotifBellUI();
+            updateDiagView();
+            return false;
+          }
+
+          const reg = await waitForActiveServiceWorker(9000);
+          if (!reg || !reg.active) {
+            fcmLastError = "SW belum aktif";
+            fcmStatusNote = "Service Worker belum aktif. Muat ulang aplikasi sekali lalu coba lagi.";
+            if (interactive) showToast(fcmStatusNote, 3500);
+            updateNotifBellUI();
+            updateDiagView();
+            return false;
+          }
+
+          if (forceReset) {
+            await resetBrokenPushSubscription(reg);
+            await new Promise((r) => setTimeout(r, 400));
+          }
+
+          if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+          const messaging = firebase.messaging();
+
+          let token = "";
+          try {
+            token = await messaging.getToken({
+              vapidKey: FCM_VAPID_KEY,
+              serviceWorkerRegistration: reg
+            });
+          } catch (firstErr) {
+            const firstMsg = String((firstErr && firstErr.message) || firstErr || "");
+            const firstCode = String((firstErr && firstErr.code) || "");
+            if (firstCode === "20" || /push service error|AbortError|Registration failed|token/i.test(firstMsg)) {
+              // Auto-Heal: hapus langganan push rusak & coba daftar ulang bersih 1 kali
+              await resetBrokenPushSubscription(reg);
+              try { await messaging.deleteToken(); } catch (e) {}
+              await new Promise((r) => setTimeout(r, 700));
+              token = await messaging.getToken({
+                vapidKey: FCM_VAPID_KEY,
+                serviceWorkerRegistration: reg
+              });
+            } else {
+              throw firstErr;
+            }
+          }
+
+          if (token) {
+            const prevTok = fcmToken;
+            fcmToken = token;
+            fcmLastError = "";
+            localStorage.setItem("oznet_fcm_token", token);
+            if (prevTok && prevTok !== token) await removeOldFcmTokenFromCloud(prevTok);
+            await saveFcmTokenToFirestore(token);
+            if (interactive) showToast("🔔 Notifikasi Push Background AKTIF di HP ini!", 3000);
+
+            if (!window.__oznetFcmOnMsgBound) {
+              window.__oznetFcmOnMsgBound = true;
+              messaging.onMessage((payload) => {
+                const d = (payload && payload.data) || {};
+                if (d.type === "prayer_alarm") {
+                  handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, d.isTest === "1");
+                } else {
+                  pullLatestCloudData(true);
+                }
+              });
+            }
+            return true;
+          } else {
+            fcmLastError = "Token kosong";
+            fcmStatusNote = "Token tidak diterima dari server FCM.";
+            if (interactive) showToast(fcmStatusNote, 3200);
+          }
+        } catch (err) {
+          fcmLastError = String((err && (err.code || err.message)) || err);
+          fcmStatusNote = explainFcmPushError(err);
+          // Jangan biarkan token mati terlihat "Aktif ✅"
+          fcmToken = "";
+          try { localStorage.removeItem("oznet_fcm_token"); } catch (e) {}
+          if (interactive) showToast("Gagal aktifkan notifikasi: " + (err.message || err), 4200);
+        }
+        updateNotifBellUI();
+        updateDiagView();
+        return false;
+      })();
+      try {
+        return await fcmRegisterInFlight;
+      } finally {
+        fcmRegisterInFlight = null;
       }
-      updateNotifBellUI();
-      updateDiagView();
-      return false;
     }
 
     async function sendFamilyPush({ title, body, tab = "chat", testOnly = false }) {
@@ -2312,6 +2422,8 @@
     let cloudUnsubs = [];
     let cloudReconnectTimer = null;
     let chatFallbackPollTimer = null;
+    let lastServerActivityMs = 0;
+    let isPullingCloudNow = false;
     const pendingLocalMessages = new Map();
 
     function clearCloudListeners() {
@@ -2402,6 +2514,7 @@
 
     function markServerConnected() {
       lastSyncErrorText = "";
+      lastServerActivityMs = Date.now();
       lastSyncSuccessAt = new Date().toLocaleTimeString("id-ID");
       setSyncPill("🟢 Cloud");
       const hint = $("chat-sync-hint");
@@ -2410,15 +2523,21 @@
     }
 
     async function pullLatestCloudData(silent = true) {
-      if (!cloudReady || !db) return;
+      if (!cloudReady || !db || !navigator.onLine) return;
+      if (isPullingCloudNow && silent) return;
+      isPullingCloudNow = true;
+      const getOpts = { source: "server" };
       try {
+        if (typeof db.enableNetwork === "function") {
+          await db.enableNetwork().catch(() => {});
+        }
         const [cfgSnap, sessSnap, smpSnap, msgSnap, repSnap, doaSnap] = await Promise.all([
-          db.collection("oznet_config").doc("main").get(),
-          db.collection("oznet_config").doc("sessions").get(),
-          db.collection("oznet_config").doc("smp").get(),
-          db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get(),
-          db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(),
-          db.collection("oznet_doas").get()
+          db.collection("oznet_config").doc("main").get(getOpts),
+          db.collection("oznet_config").doc("sessions").get(getOpts),
+          db.collection("oznet_config").doc("smp").get(getOpts),
+          db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get(getOpts),
+          db.collection("oznet_reports").orderBy("createdAt", "desc").limit(100).get(getOpts),
+          db.collection("oznet_doas").get(getOpts)
         ]);
         markServerConnected();
 
@@ -2463,6 +2582,8 @@
       } catch (err) {
         handleCloudError(err);
         if (!silent) showToast("Gagal menyegarkan: " + (err.code || err.message), 3000);
+      } finally {
+        isPullingCloudNow = false;
       }
     }
 
@@ -2694,6 +2815,23 @@
       );
     }
 
+    function reviveCloudConnection(reason = "") {
+      if (!cloudReady || !db || !navigator.onLine) return;
+      const idleMs = Date.now() - (lastServerActivityMs || 0);
+      if (typeof db.enableNetwork === "function") {
+        db.enableNetwork().catch(() => {});
+      }
+      // Jika sudah >20 detik tanpa respons atau sempat error, sambung ulang semua listener agar tidak zombie
+      if (lastSyncErrorText || idleMs > 20000) {
+        attachCloudListeners();
+      }
+      pullLatestCloudData(true);
+      // Cek ulang kesehatan token push diam-diam saat HP kembali aktif
+      if (("Notification" in window) && Notification.permission === "granted" && (!fcmToken || fcmLastError)) {
+        registerFcmPush(false);
+      }
+    }
+
     function initCloudSync() {
       if (typeof firebase === "undefined") {
         lastSyncErrorText = "SDK Firebase gagal dimuat (cek koneksi internet).";
@@ -2703,42 +2841,61 @@
       try {
         if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         db = firebase.firestore();
-        // Auto-detect long polling (lebih stabil di HP Android dibanding memaksa long polling)
-        db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+        // Force Long Polling + matikan Fetch Streams agar koneksi HP Android (Indosat/Telkomsel/WiFi) TIDAK membeku diam-diam
+        db.settings({
+          experimentalForceLongPolling: true,
+          useFetchStreams: false,
+          merge: true
+        });
         cloudReady = true;
         setSyncPill("🟡 Sync...");
 
         attachCloudListeners();
         pullLatestCloudData(true);
 
-        // Otomatis sambung ulang & tarik chat terbaru saat layar HP menyala atau balik dari notif
+        // Otomatis sambung ulang & tarik chat terbaru setiap layar HP menyala / balik dari aplikasi lain
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "visible" && navigator.onLine) {
-            pullLatestCloudData(true);
-            if (lastSyncErrorText) attachCloudListeners();
+            reviveCloudConnection("visibility");
           }
+        });
+        window.addEventListener("focus", () => {
+          if (navigator.onLine) reviveCloudConnection("focus");
+        });
+        window.addEventListener("pageshow", () => {
+          if (navigator.onLine) reviveCloudConnection("pageshow");
         });
         window.addEventListener("online", () => {
           setSyncPill("🟡 Sync...");
           attachCloudListeners();
           pullLatestCloudData(true);
+          if (("Notification" in window) && Notification.permission === "granted" && (!fcmToken || fcmLastError)) {
+            registerFcmPush(false);
+          }
         });
         window.addEventListener("offline", () => {
           setSyncPill("🟠 Offline");
         });
 
-        // Fallback sinkronisasi ringan khusus saat sedang membuka tab Chat agar pesan tidak pernah telat
+        // Watchdog Universal: setiap 5 detik saat aplikasi terlihat (di tab MANAPUN), tarik pesan terbaru langsung dari server
+        // agar chat & badge tidak pernah telat meski koneksi WebChannel HP sempat tidur
         clearInterval(chatFallbackPollTimer);
         chatFallbackPollTimer = setInterval(() => {
-          if (document.visibilityState === "visible" && navigator.onLine && currentUserId && activeTab === "chat" && !activeAudio) {
-            db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get()
+          if (document.visibilityState !== "visible" || !navigator.onLine || !cloudReady || !db) return;
+          if (activeAudio) return;
+          const staleMs = Date.now() - (lastServerActivityMs || 0);
+          if (activeTab === "chat" || staleMs >= 8000) {
+            db.collection("oznet_messages").orderBy("createdAt", "desc").limit(150).get({ source: "server" })
               .then((snap) => {
                 markServerConnected();
                 applyIncomingMessages(snap.empty ? [] : snap.docs.map((d) => d.data()).reverse());
               })
-              .catch(() => {});
+              .catch(() => {
+                // Jika fetch server gagal karena koneksi tidur, paksa sambung ulang listener
+                if (navigator.onLine) attachCloudListeners();
+              });
           }
-        }, 6000);
+        }, 5000);
       } catch (e) {
         handleCloudError(e);
         cloudReady = false;
@@ -4723,6 +4880,9 @@
         if (d.type === "OPEN_TAB" && d.tab) {
           if (currentUserId) switchTab(d.tab, true);
           else pendingOpenTab = d.tab;
+          pullLatestCloudData(true);
+        } else if (d.type === "SYNC_NOW") {
+          pullLatestCloudData(true);
         } else if (d.type === "TRIGGER_PRAYER_ALARM") {
           handleIncomingPushAlarm(d.prayerName || "Sholat", d.prayerTime || "", Number(d.offsetMin) || 0, Boolean(d.isTest));
         } else if (d.type === "STOP_PRAYER_ALARM") {
@@ -4730,14 +4890,17 @@
         }
       });
 
-      navigator.serviceWorker.register("./sw.js").then((reg) => {
+      navigator.serviceWorker.register("./sw.js").then(async (reg) => {
         swRegistrationRef = reg;
-        reg.update();
+        reg.update().catch(() => {});
+        // Tunggu sampai Service Worker benar-benar AKTIF sebelum memanggil FCM getToken (cegah error 20!)
+        const readyReg = await navigator.serviceWorker.ready;
+        swRegistrationRef = readyReg || reg;
         if (("Notification" in window) && Notification.permission === "granted") {
           registerFcmPush(false);
         }
         document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "visible") reg.update();
+          if (document.visibilityState === "visible") reg.update().catch(() => {});
         });
       }).catch(() => {});
     }
@@ -4762,7 +4925,7 @@
       // Diagnostic Sync & Push Modal
       $("sync-status-pill").onclick = () => { updateDiagView(); openModalById("sync-diag-modal"); };
       $("btn-close-sync-diag").onclick = () => closeModalById("sync-diag-modal");
-      $("btn-enable-fcm").onclick = () => registerFcmPush(true);
+      $("btn-enable-fcm").onclick = () => registerFcmPush(true, !!fcmLastError);
       $("btn-test-fcm-push").onclick = async () => {
         if (!fcmToken) {
           const ok = await registerFcmPush(true);
@@ -4778,17 +4941,30 @@
       };
       $("btn-test-cloud-sync").onclick = runCloudSyncTest;
       $("btn-force-refresh-cache").onclick = async () => {
+        showToast("🧹 Membersihkan cache & mereset koneksi Push...", 2000);
         try {
+          // Bersihkan token lama dari Firestore & localStorage agar tidak nyangkut error 20 saat reload
+          const oldTok = fcmToken || localStorage.getItem("oznet_fcm_token") || "";
+          fcmToken = "";
+          localStorage.removeItem("oznet_fcm_token");
+          if (oldTok) await removeOldFcmTokenFromCloud(oldTok);
+
           if ("caches" in window) {
             const keys = await caches.keys();
             await Promise.all(keys.map((k) => caches.delete(k)));
           }
           if ("serviceWorker" in navigator) {
             const regs = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(regs.map((r) => r.unregister()));
+            for (const r of regs) {
+              try {
+                const sub = await r.pushManager.getSubscription();
+                if (sub) await sub.unsubscribe();
+              } catch (e) {}
+              await r.unregister().catch(() => {});
+            }
           }
         } catch (e) {}
-        window.location.reload(true);
+        window.location.replace(window.location.pathname + "?v=" + Date.now());
       };
 
       document.querySelectorAll(".nav-item").forEach((btn) => {
