@@ -677,8 +677,8 @@
       background: var(--accent); color: #091318; border-color: var(--accent);
     }
     .smp-subtabs {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-      padding: 9px 14px 10px; border-bottom: 1px solid var(--glass-border);
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;
+      padding: 9px 12px 10px; border-bottom: 1px solid var(--glass-border);
     }
     .smp-subtab {
       padding: 8px 4px; border-radius: 12px; border: 1px solid var(--glass-border);
@@ -760,12 +760,135 @@
       padding: 2px 6px; border-radius: 99px; background: rgba(16, 185, 129, 0.18);
       border: 1px solid rgba(16, 185, 129, 0.4); white-space: nowrap;
     }
-    .smp-ed-slot-row {
-      display: grid; grid-template-columns: 78px 78px 1fr auto; gap: 5px;
-      align-items: center; margin-bottom: 7px;
+    .smp-slot-jp {
+      font-size: 0.67rem; font-weight: 800; color: var(--emerald);
+      padding: 2px 6px; border-radius: 7px; background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.32); white-space: nowrap; flex-shrink: 0;
     }
-    .smp-ed-slot-row input {
-      padding: 7px 6px; font-size: 0.76rem; border-radius: 10px;
+    .smp-slot-row.is-break .smp-slot-jp {
+      color: var(--accent); background: var(--accent-soft); border-color: rgba(234, 179, 8, 0.35);
+    }
+    .smp-slot-row.is-now .smp-slot-jp {
+      background: var(--accent); color: #091318; border-color: transparent;
+    }
+    .smp-slot-meta-col {
+      display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; min-width: 86px;
+    }
+    .smp-ed-slot-card {
+      padding: 8px; border-radius: 13px; margin-bottom: 8px;
+      background: var(--input-bg); border: 1px solid var(--glass-border);
+    }
+    .smp-ed-slot-top {
+      display: grid; grid-template-columns: 1fr 82px 82px 30px; gap: 5px;
+      align-items: center; margin-bottom: 6px;
+    }
+    .smp-ed-slot-card input {
+      padding: 7px 7px; font-size: 0.76rem; border-radius: 9px;
+    }
+    .smp-book-card {
+      border-radius: 18px; padding: 13px; margin-bottom: 10px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .smp-book-cover {
+      width: 54px; height: 74px; border-radius: 12px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1.5px solid rgba(255,255,255,0.22); text-align: center; padding: 4px;
+      box-shadow: 0 5px 14px rgba(0,0,0,0.28);
+    }
+    .smp-book-cover-ico { font-size: 1.45rem; line-height: 1; }
+    .smp-book-cover-cls { font-size: 0.6rem; font-weight: 800; color: #fff; margin-top: 4px; letter-spacing: 0.3px; text-transform: uppercase; }
+    .smp-book-info { flex: 1; min-width: 0; }
+    .smp-book-title { font-weight: 800; font-size: 0.89rem; color: var(--text); line-height: 1.3; }
+    .smp-book-pub { font-size: 0.71rem; color: var(--text-muted); margin-top: 2px; }
+    .smp-book-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .smp-book-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+    #smp-book-reader-modal, #smp-pdf-viewer-modal {
+      position: fixed; inset: 0; z-index: 165;
+      background: var(--bg-grad); display: flex; flex-direction: column;
+    }
+    .smp-reader-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+      background: var(--nav-bg); backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .smp-reader-chaps {
+      display: flex; gap: 6px; overflow-x: auto; padding: 9px 14px;
+      border-bottom: 1px solid var(--glass-border); scrollbar-width: none;
+    }
+    .smp-reader-chaps::-webkit-scrollbar { display: none; }
+    .smp-reader-chap-pill {
+      flex: 0 0 auto; padding: 6px 11px; border-radius: 99px;
+      border: 1px solid var(--glass-border); background: var(--glass);
+      color: var(--text-muted); font-family: inherit; font-size: 0.74rem;
+      font-weight: 700; cursor: pointer;
+    }
+    .smp-reader-chap-pill.active {
+      background: var(--accent); color: #091318; border-color: var(--accent);
+    }
+    .smp-reader-chap-pill.done {
+      border-color: var(--emerald); color: var(--emerald);
+    }
+    .smp-reader-chap-pill.active.done {
+      background: var(--emerald); color: #fff; border-color: var(--emerald);
+    }
+    .smp-reader-body {
+      flex: 1; overflow-y: auto; padding: 14px 15px calc(26px + env(safe-area-inset-bottom));
+      -webkit-overflow-scrolling: touch; line-height: 1.72;
+    }
+    .smp-reader-sec {
+      border-radius: 16px; padding: 13px 14px; margin-bottom: 11px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+    }
+    .smp-reader-sec h4 {
+      margin: 0 0 7px; font-size: 0.9rem; color: var(--accent);
+    }
+    .smp-mini-shelf {
+      display: flex; flex-direction: column; gap: 7px; margin: 9px 0 10px;
+    }
+    .smp-mini-book {
+      display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+      border-radius: 13px; background: var(--input-bg); border: 1px solid var(--glass-border);
+      cursor: pointer; transition: border-color 0.16s;
+    }
+    .smp-mini-book:active { transform: scale(0.985); }
+    .smp-mini-book.is-school-book { border-color: rgba(234, 179, 8, 0.5); }
+    .smp-mini-cover {
+      width: 34px; height: 44px; border-radius: 8px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 1rem; color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    }
+    .smp-mini-cover small { font-size: 0.48rem; font-weight: 800; letter-spacing: 0.2px; margin-top: 2px; }
+    .smp-school-pill {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.65rem; font-weight: 800; padding: 2px 7px; border-radius: 99px;
+      background: rgba(234, 179, 8, 0.2); color: var(--accent);
+      border: 1px solid rgba(234, 179, 8, 0.45);
+    }
+    .smp-sem-pill {
+      font-size: 0.64rem; font-weight: 800; padding: 2px 6px; border-radius: 6px;
+      background: rgba(56, 189, 248, 0.16); color: #38bdf8;
+    }
+    [data-theme="light"] .smp-sem-pill { color: #0369a1; background: rgba(2, 132, 199, 0.14); }
+    .smp-reader-chap-pill.school-now {
+      border-color: var(--accent); box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.45);
+    }
+    .smp-chap-toc-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 8px 10px; border-radius: 12px; margin-top: 6px;
+      background: var(--input-bg); border: 1px solid var(--glass-border); cursor: pointer;
+    }
+    .smp-chap-toc-row.school-now {
+      border-color: var(--accent); background: var(--accent-soft);
+    }
+    .smp-book-group-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      margin: 12px 2px 7px; padding-bottom: 4px; border-bottom: 1px solid var(--glass-border);
+    }
+
+    .smp-reader-sec-text {
+      white-space: pre-wrap; word-break: break-word; color: var(--text);
     }
     .smp-task-card {
       display: flex; align-items: flex-start; gap: 10px;
@@ -880,7 +1003,7 @@
           </div>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:800;font-size:0.94rem;color:var(--accent);">Belajar SMP • KBM Kab. Lebak</div>
-            <div id="home-smp-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">15 Mapel KBM Lebak • Jadwal & Jam • PR • Kuis</div>
+            <div id="home-smp-preview" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">15 Mapel • Multi-Buku & LKS Lebak • Cek Materi Sekolah</div>
           </div>
           <span class="unread-pill hidden" id="home-smp-badge">0</span>
           <span style="font-size:1rem;color:var(--text-muted);font-weight:800;">›</span>
@@ -1267,8 +1390,9 @@
 
     <div class="smp-subtabs" id="smp-subtabs">
       <button type="button" class="smp-subtab active" data-smptab="materi">📖 Materi</button>
+      <button type="button" class="smp-subtab" data-smptab="buku">📕 Buku</button>
       <button type="button" class="smp-subtab" data-smptab="jadwal">📅 Jadwal</button>
-      <button type="button" class="smp-subtab" data-smptab="pr">📝 PR & Tes</button>
+      <button type="button" class="smp-subtab" data-smptab="pr">📝 PR</button>
       <button type="button" class="smp-subtab" data-smptab="kuis">🧠 Kuis</button>
     </div>
 
@@ -1280,6 +1404,30 @@
           <button type="button" class="btn btn-sm btn-primary hidden" id="btn-smp-add-materi" style="flex-shrink:0;padding:9px 11px;">+ Catatan</button>
         </div>
         <div id="smp-materi-list"></div>
+      </div>
+
+      <!-- SUBTAB 2: BUKU PELAJARAN LENGKAP KBM KAB. LEBAK -->
+      <div id="smp-pane-buku" class="hidden">
+        <div class="card glass" style="padding:12px 13px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+            <strong style="font-size:0.86rem;color:var(--accent);">📚 Perpustakaan Buku SMP • KBM Kab. Lebak</strong>
+            <button type="button" class="btn btn-sm btn-primary hidden" id="btn-smp-add-book" style="padding:5px 9px;font-size:0.74rem;">+ Buku PDF</button>
+          </div>
+          <div id="smp-buku-stats" style="font-size:0.74rem;color:var(--text-muted);line-height:1.45;">
+            15 buku pelajaran lengkap (Kurikulum Merdeka + Mulok Bahasa Sunda & BTQ Kab. Lebak) siap dibaca offline & terhubung PDF/Drive.
+          </div>
+        </div>
+        <div style="display:flex;gap:7px;margin-bottom:9px;">
+          <input type="search" id="smp-buku-search" class="input" placeholder="🔍 Cari judul buku / mapel (misal: Sunda, BTQ, Matematika)..." style="padding:9px 12px;font-size:0.83rem;" />
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="smp-buku-filters">
+          <button type="button" class="pill-opt active" data-bfilter="all">Semua (30+)</button>
+          <button type="button" class="pill-opt" data-bfilter="school">🏫 Fokus Sekolah</button>
+          <button type="button" class="pill-opt" data-bfilter="inti">📘 Inti</button>
+          <button type="button" class="pill-opt" data-bfilter="lebak">🌿 Mulok Lebak</button>
+          <button type="button" class="pill-opt" data-bfilter="custom">📎 Buku Sekolah</button>
+        </div>
+        <div id="smp-buku-list"></div>
       </div>
 
       <!-- SUBTAB 2: JADWAL PELAJARAN HARIAN -->
@@ -1384,27 +1532,111 @@
     </div>
   </div>
 
-  <!-- MODAL: EDIT JADWAL HARIAN SMP (DENGAN JAM KBM) -->
+  <!-- MODAL: EDIT JADWAL HARIAN SMP (DENGAN JAM PELAJARAN & WAKTU KBM) -->
   <div id="smp-edit-day-modal" class="modal-backdrop hidden">
-    <div class="modal-box" style="max-width:430px;">
+    <div class="modal-box" style="max-width:440px;">
       <div class="modal-head">
-        <h3 class="modal-title" id="smp-edit-day-title">📅 Edit Jadwal & Jam</h3>
+        <h3 class="modal-title" id="smp-edit-day-title">📅 Edit Jam Pelajaran</h3>
         <button class="btn btn-sm" id="btn-close-smp-edit-day">✕</button>
       </div>
-      <div style="display:grid;grid-template-columns:78px 78px 1fr 30px;gap:5px;font-size:0.7rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;padding:0 2px;">
-        <span>Mulai</span><span>Selesai</span><span>Mata Pelajaran</span><span></span>
+      <div style="font-size:0.71rem;color:var(--text-muted);margin-bottom:8px;">
+        Atur label <strong>Jam Pelajaran</strong> (misal: Jam 1–2), <strong>Waktu Mulai–Selesai</strong>, dan <strong>Mata Pelajaran</strong>.
       </div>
-      <div id="smp-edit-day-rows" style="max-height:46vh;overflow-y:auto;margin-bottom:10px;"></div>
+      <div id="smp-edit-day-rows" style="max-height:48vh;overflow-y:auto;margin-bottom:10px;"></div>
       <datalist id="smp-subject-suggestions"></datalist>
+      <datalist id="smp-jp-suggestions">
+        <option value="Pra-KBM">
+        <option value="Jam 1">
+        <option value="Jam 1–2">
+        <option value="Jam 1–3">
+        <option value="Jam 2–3">
+        <option value="Jam 3">
+        <option value="Jam 3–4">
+        <option value="Jam 4">
+        <option value="Jam 4–5">
+        <option value="Jam 5">
+        <option value="Jam 5–6">
+        <option value="Jam 6">
+        <option value="Jam 7–8">
+        <option value="Istirahat">
+        <option value="Ekskul">
+      </datalist>
       <div style="display:flex;gap:7px;margin-bottom:12px;">
         <button type="button" class="btn btn-sm btn-emerald" id="btn-smp-add-slot" style="flex:1;">+ Tambah Jam</button>
         <button type="button" class="btn btn-sm" id="btn-smp-reset-day" style="flex:1;">↺ Standar Lebak</button>
       </div>
-      <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:11px;">
-        Perubahan jam & mata pelajaran langsung tersinkron ke semua HP keluarga.
-      </div>
       <button type="button" class="btn btn-primary btn-full" id="btn-save-smp-day">💾 Simpan Jadwal</button>
     </div>
+  </div>
+
+  <!-- MODAL: TAMBAH BUKU PER MAPEL (PDF/DRIVE ATAU BUKU DIGITAL KETIK SENDIRI) -->
+  <div id="smp-add-book-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="modal-title">📕 Tambah Buku Pelajaran</h3>
+        <button class="btn btn-sm" id="btn-close-smp-add-book">✕</button>
+      </div>
+      <div class="field">
+        <label>Mata Pelajaran</label>
+        <select id="smp-cb-subject" class="input"></select>
+      </div>
+      <div class="field">
+        <label>Jenis Buku</label>
+        <select id="smp-cb-mode" class="input">
+          <option value="pdf">📎 Link Buku PDF / Google Drive / Dropbox</option>
+          <option value="digital">📖 Buku Digital / Rangkuman LKS (Ketik Isi Bab)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Judul Buku / LKS Sekolah</label>
+        <input type="text" id="smp-cb-title" class="input" placeholder="Contoh: LKS Matematika Semester 1 / Buku Paket Sekolah" />
+      </div>
+      <div class="field">
+        <label>Penerbit / Keterangan (Opsional)</label>
+        <input type="text" id="smp-cb-pub" class="input" placeholder="Contoh: Intan Pariwara / Erlangga / Guru Mapel" />
+      </div>
+      <div class="field" id="smp-cb-url-wrap">
+        <label>Link PDF / Google Drive / Dropbox</label>
+        <input type="url" id="smp-cb-url" class="input" placeholder="https://drive.google.com/file/d/.../view" />
+        <div style="font-size:0.71rem;color:var(--text-muted);margin-top:4px;">
+          Link Google Drive otomatis tampil langsung di dalam aplikasi (set akses: <em>Siapa saja yang memiliki link</em>).
+        </div>
+      </div>
+      <div class="field hidden" id="smp-cb-digital-wrap">
+        <label>Judul Bab Pertama</label>
+        <input type="text" id="smp-cb-ch1-title" class="input" placeholder="Contoh: Bab 1 - Bilangan Bulat (Hal. 1-18)" style="margin-bottom:8px;" />
+        <label>Isi Ringkasan / Materi Bab Pertama</label>
+        <textarea id="smp-cb-ch1-body" class="input" rows="4" placeholder="Salin poin-poin penting dari buku cetak/LKS anak agar mudah dipantau..."></textarea>
+      </div>
+      <button type="button" class="btn btn-primary btn-full" id="btn-save-smp-cb">💾 Simpan Buku ke Rak Mapel</button>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN MODAL: PEMBACA BUKU PELAJARAN DIGITAL OFFLINE -->
+  <div id="smp-book-reader-modal" class="hidden">
+    <div class="smp-reader-top">
+      <button type="button" class="btn btn-sm" id="btn-close-book-reader">← Tutup</button>
+      <div style="flex:1;min-width:0;text-align:center;">
+        <div id="smp-reader-title" style="font-weight:800;font-size:0.86rem;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Buku Pelajaran</div>
+        <div id="smp-reader-sub" style="font-size:0.68rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">KBM Kab. Lebak</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        <button type="button" class="btn btn-sm" id="btn-reader-font-dec" style="padding:5px 7px;">A-</button>
+        <button type="button" class="btn btn-sm" id="btn-reader-font-inc" style="padding:5px 7px;">A+</button>
+      </div>
+    </div>
+    <div class="smp-reader-chaps" id="smp-reader-chaps"></div>
+    <div class="smp-reader-body" id="smp-reader-body"></div>
+  </div>
+
+  <!-- FULLSCREEN MODAL: PEMBACA PDF / GOOGLE DRIVE -->
+  <div id="smp-pdf-viewer-modal" class="hidden">
+    <div class="smp-reader-top">
+      <button type="button" class="btn btn-sm" id="btn-close-pdf-viewer">← Tutup</button>
+      <strong id="smp-pdf-title" style="flex:1;min-width:0;font-size:0.85rem;color:var(--accent);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Buku PDF</strong>
+      <a id="smp-pdf-ext-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="text-decoration:none;">↗ Buka</a>
+    </div>
+    <iframe id="smp-pdf-frame" src="about:blank" style="flex:1;width:100%;border:none;background:#0b1820;" allow="autoplay"></iframe>
   </div>
 
   <!-- MODAL: LIGHTBOX -->
@@ -1436,7 +1668,7 @@
 
   <script>
     /* ================= KONFIGURASI FIREBASE OZNET FAMILY ================= */
-    const APP_VERSION = "v15-smp-lebak";
+    const APP_VERSION = "v17-smp-rak-buku";
     const FCM_VAPID_KEY = "BKjiqdfA3BZSUyZ-OsEizuAIQfA5BDyr2SG6NActHttqBHEWlifw3LV3JL3MJuiTqd8PYyOp05BkVjMfDHHI0uM";
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyATGjBZhUAe4FKEcwYRPLlWJyuGA-pZZWc",
@@ -4372,9 +4604,10 @@
       if (id === "camera-modal") stopCameraStream();
       if (id === "report-photo-modal") activeReportModalId = null;
       if (id === "chat-action-modal") activeChatActionMsgId = null;
+      if (id === "smp-pdf-viewer-modal" && $("smp-pdf-frame")) $("smp-pdf-frame").src = "about:blank";
     }
     function closeAllModals() {
-      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
+      ["sync-diag-modal", "admin-login-modal", "profile-modal", "notif-sound-modal", "report-photo-modal", "chat-action-modal", "smp-pdf-viewer-modal", "smp-book-reader-modal", "smp-add-book-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "doa-editor-modal", "camera-modal", "lightbox-modal"].forEach(closeModalById);
     }
     window.openLightbox = (src) => { $("lightbox-img").src = src; openModalById("lightbox-modal"); };
     window.closeModalById = closeModalById;
@@ -4400,7 +4633,7 @@
     }
 
     function handleBackAction() {
-      const openModal = ["lightbox-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
+      const openModal = ["lightbox-modal", "smp-pdf-viewer-modal", "smp-book-reader-modal", "smp-add-book-modal", "smp-add-materi-modal", "smp-edit-day-modal", "smp-modal", "chat-action-modal", "report-photo-modal", "camera-modal", "doa-editor-modal", "notif-sound-modal", "profile-modal", "admin-login-modal", "sync-diag-modal"]
         .find((id) => !$(id).classList.contains("hidden"));
       if (openModal) { closeModalById(openModal); return; }
       if (currentUserId && tabHistory.length > 0) {
@@ -4986,158 +5219,158 @@
 
     const SMP_DAYS = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
-    // Jadwal KBM standar SMP Zona Kab. Lebak, Banten (1 JP = 40 menit, mulai 07:00 WIB)
+    // Jadwal KBM standar SMP Zona Kab. Lebak, Banten (Jam Pelajaran / JP + Waktu WIB, 1 JP = 40 menit)
     const DEFAULT_SMP_SCHEDULES = {
       "7": {
         Senin: [
-          { start: "07:00", end: "07:40", subject: "Upacara Bendera" },
-          { start: "07:40", end: "09:00", subject: "Matematika" },
-          { start: "09:00", end: "09:40", subject: "Bahasa Indonesia" },
-          { start: "09:40", end: "10:00", subject: "Istirahat 1" },
-          { start: "10:00", end: "11:20", subject: "PAI" },
-          { start: "11:20", end: "12:00", subject: "BTQ" },
-          { start: "12:00", end: "12:30", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:30", end: "13:50", subject: "Bahasa Sunda" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:40", subject: "Upacara Bendera" },
+          { jp: "Jam 1–2", start: "07:40", end: "09:00", subject: "Matematika" },
+          { jp: "Jam 3", start: "09:00", end: "09:40", subject: "Bahasa Indonesia" },
+          { jp: "Istirahat", start: "09:40", end: "10:00", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "10:00", end: "11:20", subject: "PAI" },
+          { jp: "Jam 6", start: "11:20", end: "12:00", subject: "BTQ" },
+          { jp: "Istirahat", start: "12:00", end: "12:30", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:30", end: "13:50", subject: "Bahasa Sunda" }
         ],
         Selasa: [
-          { start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Tadarus" },
-          { start: "07:20", end: "08:40", subject: "IPA" },
-          { start: "08:40", end: "10:00", subject: "Bahasa Inggris" },
-          { start: "10:00", end: "10:20", subject: "Istirahat 1" },
-          { start: "10:20", end: "11:40", subject: "IPS" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Informatika" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Tadarus" },
+          { jp: "Jam 1–2", start: "07:20", end: "08:40", subject: "IPA" },
+          { jp: "Jam 3–4", start: "08:40", end: "10:00", subject: "Bahasa Inggris" },
+          { jp: "Istirahat", start: "10:00", end: "10:20", subject: "Istirahat 1" },
+          { jp: "Jam 5–6", start: "10:20", end: "11:40", subject: "IPS" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Informatika" }
         ],
         Rabu: [
-          { start: "07:00", end: "07:20", subject: "Literasi Pagi" },
-          { start: "07:20", end: "09:20", subject: "Matematika" },
-          { start: "09:20", end: "09:40", subject: "Istirahat 1" },
-          { start: "09:40", end: "11:40", subject: "Pendidikan Pancasila" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Bahasa Indonesia" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Literasi Pagi" },
+          { jp: "Jam 1–3", start: "07:20", end: "09:20", subject: "Matematika" },
+          { jp: "Istirahat", start: "09:20", end: "09:40", subject: "Istirahat 1" },
+          { jp: "Jam 4–6", start: "09:40", end: "11:40", subject: "Pendidikan Pancasila" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Bahasa Indonesia" }
         ],
         Kamis: [
-          { start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Asmaul Husna" },
-          { start: "07:20", end: "09:20", subject: "IPA" },
-          { start: "09:20", end: "09:40", subject: "Istirahat 1" },
-          { start: "09:40", end: "11:00", subject: "Bahasa Indonesia" },
-          { start: "11:00", end: "11:40", subject: "Bimbingan Konseling" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Seni Budaya" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Asmaul Husna" },
+          { jp: "Jam 1–3", start: "07:20", end: "09:20", subject: "IPA" },
+          { jp: "Istirahat", start: "09:20", end: "09:40", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "09:40", end: "11:00", subject: "Bahasa Indonesia" },
+          { jp: "Jam 6", start: "11:00", end: "11:40", subject: "Bimbingan Konseling" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Seni Budaya" }
         ],
         Jumat: [
-          { start: "07:00", end: "07:40", subject: "Pembiasaan Jumat Taqwa / Yasinan" },
-          { start: "07:40", end: "09:00", subject: "PJOK" },
-          { start: "09:00", end: "09:20", subject: "Istirahat" },
-          { start: "09:20", end: "10:40", subject: "Bahasa Inggris" },
-          { start: "10:40", end: "11:20", subject: "Prakarya" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:40", subject: "Pembiasaan Jumat Taqwa / Yasinan" },
+          { jp: "Jam 1–2", start: "07:40", end: "09:00", subject: "PJOK" },
+          { jp: "Istirahat", start: "09:00", end: "09:20", subject: "Istirahat" },
+          { jp: "Jam 3–4", start: "09:20", end: "10:40", subject: "Bahasa Inggris" },
+          { jp: "Jam 5", start: "10:40", end: "11:20", subject: "Prakarya" }
         ],
         Sabtu: [
-          { start: "07:30", end: "09:30", subject: "Kokurikuler P5" },
-          { start: "09:30", end: "09:50", subject: "Istirahat" },
-          { start: "09:50", end: "11:30", subject: "Ekstrakurikuler / Pramuka" }
+          { jp: "Jam 1–3", start: "07:30", end: "09:30", subject: "Kokurikuler P5" },
+          { jp: "Istirahat", start: "09:30", end: "09:50", subject: "Istirahat" },
+          { jp: "Ekskul", start: "09:50", end: "11:30", subject: "Ekstrakurikuler / Pramuka" }
         ]
       },
       "8": {
         Senin: [
-          { start: "07:00", end: "07:40", subject: "Upacara Bendera" },
-          { start: "07:40", end: "09:00", subject: "IPA" },
-          { start: "09:00", end: "09:40", subject: "Matematika" },
-          { start: "09:40", end: "10:00", subject: "Istirahat 1" },
-          { start: "10:00", end: "11:20", subject: "Pendidikan Pancasila" },
-          { start: "11:20", end: "12:00", subject: "BTQ" },
-          { start: "12:00", end: "12:30", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:30", end: "13:50", subject: "IPS" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:40", subject: "Upacara Bendera" },
+          { jp: "Jam 1–2", start: "07:40", end: "09:00", subject: "IPA" },
+          { jp: "Jam 3", start: "09:00", end: "09:40", subject: "Matematika" },
+          { jp: "Istirahat", start: "09:40", end: "10:00", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "10:00", end: "11:20", subject: "Pendidikan Pancasila" },
+          { jp: "Jam 6", start: "11:20", end: "12:00", subject: "BTQ" },
+          { jp: "Istirahat", start: "12:00", end: "12:30", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:30", end: "13:50", subject: "IPS" }
         ],
         Selasa: [
-          { start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Tadarus" },
-          { start: "07:20", end: "09:20", subject: "Bahasa Indonesia" },
-          { start: "09:20", end: "09:40", subject: "Istirahat 1" },
-          { start: "09:40", end: "11:00", subject: "PAI" },
-          { start: "11:00", end: "11:40", subject: "Bimbingan Konseling" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Bahasa Sunda" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Tadarus" },
+          { jp: "Jam 1–3", start: "07:20", end: "09:20", subject: "Bahasa Indonesia" },
+          { jp: "Istirahat", start: "09:20", end: "09:40", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "09:40", end: "11:00", subject: "PAI" },
+          { jp: "Jam 6", start: "11:00", end: "11:40", subject: "Bimbingan Konseling" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Bahasa Sunda" }
         ],
         Rabu: [
-          { start: "07:00", end: "07:20", subject: "Literasi Pagi" },
-          { start: "07:20", end: "08:40", subject: "Bahasa Inggris" },
-          { start: "08:40", end: "10:00", subject: "Matematika" },
-          { start: "10:00", end: "10:20", subject: "Istirahat 1" },
-          { start: "10:20", end: "11:40", subject: "Informatika" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "IPS" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Literasi Pagi" },
+          { jp: "Jam 1–2", start: "07:20", end: "08:40", subject: "Bahasa Inggris" },
+          { jp: "Jam 3–4", start: "08:40", end: "10:00", subject: "Matematika" },
+          { jp: "Istirahat", start: "10:00", end: "10:20", subject: "Istirahat 1" },
+          { jp: "Jam 5–6", start: "10:20", end: "11:40", subject: "Informatika" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "IPS" }
         ],
         Kamis: [
-          { start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Asmaul Husna" },
-          { start: "07:20", end: "09:20", subject: "IPA" },
-          { start: "09:20", end: "09:40", subject: "Istirahat 1" },
-          { start: "09:40", end: "11:00", subject: "Seni Budaya" },
-          { start: "11:00", end: "11:40", subject: "Bahasa Indonesia" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Bahasa Inggris" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Asmaul Husna" },
+          { jp: "Jam 1–3", start: "07:20", end: "09:20", subject: "IPA" },
+          { jp: "Istirahat", start: "09:20", end: "09:40", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "09:40", end: "11:00", subject: "Seni Budaya" },
+          { jp: "Jam 6", start: "11:00", end: "11:40", subject: "Bahasa Indonesia" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Bahasa Inggris" }
         ],
         Jumat: [
-          { start: "07:00", end: "07:40", subject: "Pembiasaan Jumat Taqwa / Yasinan" },
-          { start: "07:40", end: "09:00", subject: "PJOK" },
-          { start: "09:00", end: "09:20", subject: "Istirahat" },
-          { start: "09:20", end: "10:40", subject: "Prakarya" },
-          { start: "10:40", end: "11:20", subject: "Matematika" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:40", subject: "Pembiasaan Jumat Taqwa / Yasinan" },
+          { jp: "Jam 1–2", start: "07:40", end: "09:00", subject: "PJOK" },
+          { jp: "Istirahat", start: "09:00", end: "09:20", subject: "Istirahat" },
+          { jp: "Jam 3–4", start: "09:20", end: "10:40", subject: "Prakarya" },
+          { jp: "Jam 5", start: "10:40", end: "11:20", subject: "Matematika" }
         ],
         Sabtu: [
-          { start: "07:30", end: "09:30", subject: "Kokurikuler P5" },
-          { start: "09:30", end: "09:50", subject: "Istirahat" },
-          { start: "09:50", end: "11:30", subject: "Ekstrakurikuler / Pramuka" }
+          { jp: "Jam 1–3", start: "07:30", end: "09:30", subject: "Kokurikuler P5" },
+          { jp: "Istirahat", start: "09:30", end: "09:50", subject: "Istirahat" },
+          { jp: "Ekskul", start: "09:50", end: "11:30", subject: "Ekstrakurikuler / Pramuka" }
         ]
       },
       "9": {
         Senin: [
-          { start: "07:00", end: "07:40", subject: "Upacara Bendera" },
-          { start: "07:40", end: "09:00", subject: "Matematika" },
-          { start: "09:00", end: "09:40", subject: "IPA" },
-          { start: "09:40", end: "10:00", subject: "Istirahat 1" },
-          { start: "10:00", end: "11:20", subject: "Bahasa Inggris" },
-          { start: "11:20", end: "12:00", subject: "BTQ" },
-          { start: "12:00", end: "12:30", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:30", end: "13:50", subject: "Bahasa Indonesia" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:40", subject: "Upacara Bendera" },
+          { jp: "Jam 1–2", start: "07:40", end: "09:00", subject: "Matematika" },
+          { jp: "Jam 3", start: "09:00", end: "09:40", subject: "IPA" },
+          { jp: "Istirahat", start: "09:40", end: "10:00", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "10:00", end: "11:20", subject: "Bahasa Inggris" },
+          { jp: "Jam 6", start: "11:20", end: "12:00", subject: "BTQ" },
+          { jp: "Istirahat", start: "12:00", end: "12:30", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:30", end: "13:50", subject: "Bahasa Indonesia" }
         ],
         Selasa: [
-          { start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Tadarus" },
-          { start: "07:20", end: "08:40", subject: "IPS" },
-          { start: "08:40", end: "10:00", subject: "Informatika" },
-          { start: "10:00", end: "10:20", subject: "Istirahat 1" },
-          { start: "10:20", end: "11:40", subject: "Bahasa Sunda" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Bahasa Indonesia" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Tadarus" },
+          { jp: "Jam 1–2", start: "07:20", end: "08:40", subject: "IPS" },
+          { jp: "Jam 3–4", start: "08:40", end: "10:00", subject: "Informatika" },
+          { jp: "Istirahat", start: "10:00", end: "10:20", subject: "Istirahat 1" },
+          { jp: "Jam 5–6", start: "10:20", end: "11:40", subject: "Bahasa Sunda" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Bahasa Indonesia" }
         ],
         Rabu: [
-          { start: "07:00", end: "07:20", subject: "Literasi Pagi" },
-          { start: "07:20", end: "09:20", subject: "Matematika" },
-          { start: "09:20", end: "09:40", subject: "Istirahat 1" },
-          { start: "09:40", end: "11:00", subject: "PAI" },
-          { start: "11:00", end: "11:40", subject: "Bimbingan Konseling" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Pendidikan Pancasila" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Literasi Pagi" },
+          { jp: "Jam 1–3", start: "07:20", end: "09:20", subject: "Matematika" },
+          { jp: "Istirahat", start: "09:20", end: "09:40", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "09:40", end: "11:00", subject: "PAI" },
+          { jp: "Jam 6", start: "11:00", end: "11:40", subject: "Bimbingan Konseling" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Pendidikan Pancasila" }
         ],
         Kamis: [
-          { start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Asmaul Husna" },
-          { start: "07:20", end: "09:20", subject: "IPA" },
-          { start: "09:20", end: "09:40", subject: "Istirahat 1" },
-          { start: "09:40", end: "11:00", subject: "Bahasa Inggris" },
-          { start: "11:00", end: "11:40", subject: "IPS" },
-          { start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
-          { start: "12:15", end: "13:35", subject: "Seni Budaya" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:20", subject: "Pembiasaan Pagi & Asmaul Husna" },
+          { jp: "Jam 1–3", start: "07:20", end: "09:20", subject: "IPA" },
+          { jp: "Istirahat", start: "09:20", end: "09:40", subject: "Istirahat 1" },
+          { jp: "Jam 4–5", start: "09:40", end: "11:00", subject: "Bahasa Inggris" },
+          { jp: "Jam 6", start: "11:00", end: "11:40", subject: "IPS" },
+          { jp: "Istirahat", start: "11:40", end: "12:15", subject: "Istirahat 2 & Sholat Dzuhur" },
+          { jp: "Jam 7–8", start: "12:15", end: "13:35", subject: "Seni Budaya" }
         ],
         Jumat: [
-          { start: "07:00", end: "07:40", subject: "Pembiasaan Jumat Taqwa / Yasinan" },
-          { start: "07:40", end: "09:00", subject: "PJOK" },
-          { start: "09:00", end: "09:20", subject: "Istirahat" },
-          { start: "09:20", end: "10:40", subject: "Prakarya" },
-          { start: "10:40", end: "11:20", subject: "Pemantapan Ujian / Tryout" }
+          { jp: "Pra-KBM", start: "07:00", end: "07:40", subject: "Pembiasaan Jumat Taqwa / Yasinan" },
+          { jp: "Jam 1–2", start: "07:40", end: "09:00", subject: "PJOK" },
+          { jp: "Istirahat", start: "09:00", end: "09:20", subject: "Istirahat" },
+          { jp: "Jam 3–4", start: "09:20", end: "10:40", subject: "Prakarya" },
+          { jp: "Jam 5", start: "10:40", end: "11:20", subject: "Pemantapan Ujian / Tryout" }
         ],
         Sabtu: [
-          { start: "07:30", end: "09:30", subject: "Kokurikuler P5" },
-          { start: "09:30", end: "09:50", subject: "Istirahat" },
-          { start: "09:50", end: "11:30", subject: "Ekstrakurikuler / Pramuka" }
+          { jp: "Jam 1–3", start: "07:30", end: "09:30", subject: "Kokurikuler P5" },
+          { jp: "Istirahat", start: "09:30", end: "09:50", subject: "Istirahat" },
+          { jp: "Ekskul", start: "09:50", end: "11:30", subject: "Ekstrakurikuler / Pramuka" }
         ]
       }
     };
@@ -5402,11 +5635,526 @@
       ]
     };
 
+    /* ================= KATALOG MULTI-BUKU LENGKAP PER MAPEL (KBM KAB. LEBAK — KELAS 7, 8 & 9) ================= */
+    const SIBI_KEMDIKBUD_URL = "https://buku.kemdikbud.go.id/katalog/buku-teks-kurikulum-merdeka";
+
+    const SMP_BOOK_METADATA = {
+      "Matematika": {
+        cat: "inti", color: "linear-gradient(135deg,#1d4ed8,#1e3a8a)", color2: "linear-gradient(135deg,#2563eb,#0f172a)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket Matematika SMP Kelas VII (Sem 1 & 2)",
+          "8": "Buku Paket Matematika SMP Kelas VIII (Sem 1 & 2)",
+          "9": "Buku Paket Matematika SMP Kelas IX (Sem 1 & 2)"
+        },
+        lksTitle: {
+          "7": "LKS & Panduan Orang Tua Matematika Kelas VII",
+          "8": "LKS & Panduan Orang Tua Matematika Kelas VIII",
+          "9": "LKS & Panduan Orang Tua Matematika Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 4: Bangun Datar, Segitiga & Segiempat", goal: "Menghitung keliling dan luas bangun datar dalam masalah sehari-hari.", b: "• Persegi: K = 4s, L = s².\n• Persegi Panjang: K = 2(p+l), L = p×l.\n• Segitiga: K = a+b+c, L = ½×a×t; jumlah ketiga sudut segitiga selalu 180°.\n• Jajar genjang: L = a×t; Trapesium: L = ½×(a+b)×t; Belah ketupat & Layang-layang: L = ½×d₁×d₂.", ex: "Contoh: Kebun berbentuk trapesium sisi sejajar 12 m dan 18 m, tinggi 10 m → Luas = ½ × (12+18) × 10 = 150 m².", lat: "Latihan: Hitung luas segitiga alas 14 cm dan tinggi 9 cm! (Kunci: 63 cm²)" },
+            { sem: "Sem 2", t: "Bab 5: Kesebangunan Dasar & Transformasi Sederhana", goal: "Mengenali sifat dua bangun datar sebangun dan sudut pada garis sejajar.", b: "• Dua garis sejajar dipotong garis transversal menghasilkan: sudut sehadap (sama), dalam berseberangan (sama), luar berseberangan (sama), dan dalam sepihak (jumlah 180°).\n• Pada segitiga sebangun, perbandingan sisi-sisi bersesuaian selalu sama.", ex: "Contoh: Tinggi tiang bendera bisa dihitung memakai perbandingan bayangan tiang dan bayangan siswa pada jam yang sama.", lat: "Latihan: Jika sudut sehadap pertama 72°, berapa besar sudut pasangannya? (Kunci: 72°)" },
+            { sem: "Sem 2", t: "Bab 6: Penyajian Data & Statistika Dasar", goal: "Membaca dan menyajikan data dalam tabel, diagram batang, garis, dan lingkaran.", b: "• Data diperoleh lewat wawancara, kuesioner, atau observasi.\n• Diagram Batang untuk kategori; Diagram Garis untuk perubahan waktu; Diagram Lingkaran untuk persentase (360° atau 100%).", ex: "Contoh: Jika 25% siswa ikut Pramuka, sudut lingkaran = 25% × 360° = 90°.", lat: "Latihan: Dari 40 siswa, 10 orang hobi membaca. Berapa persen? (Kunci: 25%)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 4: Lingkaran, Garis Singgung & Busur", goal: "Menghitung panjang busur, luas juring, dan panjang garis singgung lingkaran.", b: "• Panjang busur = (α/360°) × 2πr; Luas juring = (α/360°) × πr².\n• Sudut keliling menghadap diameter selalu siku-siku (90°).\n• Garis singgung persekutuan luar: l = √(p² - (R-r)²); dalam: d = √(p² - (R+r)²).", ex: "Contoh: Jari-jari 7 cm, sudut pusat 90° → Luas juring = (90/360) × (22/7) × 7 × 7 = 38,5 cm².", lat: "Latihan: Hitung keliling lingkaran dengan diameter 14 cm! (Kunci: 44 cm)" },
+            { sem: "Sem 2", t: "Bab 5: Bangun Ruang Sisi Datar (Kubus, Balok, Prisma, Limas)", goal: "Menentukan luas permukaan dan volume bangun ruang sisi datar.", b: "• Kubus: V = s³, Lp = 6s².\n• Balok: V = p×l×t, Lp = 2(pl + pt + lt).\n• Prisma: V = La × t; Lp = 2La + (Ka × t).\n• Limas: V = ⅓ × La × t.", ex: "Contoh: Bak mandi 100×60×50 cm → V = 300.000 cm³ = 300 liter.", lat: "Latihan: Volume kubus rusuk 8 cm adalah ... (Kunci: 512 cm³)" },
+            { sem: "Sem 2", t: "Bab 6: Statistika & Peluang Teoretik", goal: "Menghitung mean, median, modus, kuartil, dan peluang kejadian.", b: "• Mean = jumlah data / banyak data; Median = nilai tengah data terurut; Modus = paling sering muncul.\n• Peluang P(A) = n(A) / n(S); Frekuensi harapan Fh = P(A) × N.", ex: "Contoh: 1 dadu dilempar 60 kali, frekuensi harapan muncul angka genap = (3/6) × 60 = 30 kali.", lat: "Latihan: Median dari data 5, 8, 6, 9, 7 adalah ... (Kunci: 7)" }
+          ],
+          "9": [
+            { sem: "Sem 1", t: "Bab 4: Fungsi Kuadrat & Grafiknya", goal: "Menggambar dan menganalisis titik puncak, sumbu simetri, dan nilai optimum.", b: "• f(x) = ax² + bx + c: jika a > 0 terbuka ke atas (nilai minimum); a < 0 terbuka ke bawah (nilai maksimum).\n• Sumbu simetri: x = -b / (2a); Titik puncak: (-b/2a, -D/4a).", ex: "Contoh: f(x) = x² - 4x + 3 → sumbu simetri x = 2, nilai minimum = -1.", lat: "Latihan: Tentukan sumbu simetri f(x) = x² - 6x + 5! (Kunci: x = 3)" },
+            { sem: "Sem 2", t: "Bab 5: Peluang Lanjut & Pemecahan Masalah Ujian", goal: "Menyelesaikan soal cerita gabungan aljabar, geometri, dan peluang untuk Ujian Sekolah.", b: "• Kejadian saling lepas: P(A∪B) = P(A) + P(B).\n• Ruang sampel 2 koin = 4; 2 dadu = 36.\n• Strategi soal cerita: tulis Diketahui → Ditanya → Rumus → Cek satuan akhir.", ex: "Contoh: Pelemparan 2 dadu, peluang jumlah mata dadu 7 (6 pasangan: 1-6, 2-5, 3-4, 4-3, 5-2, 6-1) = 6/36 = 1/6.", lat: "Latihan: Berapa banyak ruang sampel pada pelemparan 3 koin sekaligus? (Kunci: 2³ = 8)" }
+          ]
+        }
+      },
+      "IPA": {
+        cat: "inti", color: "linear-gradient(135deg,#047857,#064e3b)", color2: "linear-gradient(135deg,#059669,#022c22)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket IPA SMP Kelas VII (Sem 1 & 2)",
+          "8": "Buku Paket IPA SMP Kelas VIII (Sem 1 & 2)",
+          "9": "Buku Paket IPA SMP Kelas IX (Sem 1 & 2)"
+        },
+        lksTitle: {
+          "7": "LKS, Praktikum & Panduan Orang Tua IPA Kelas VII",
+          "8": "LKS, Praktikum & Panduan Orang Tua IPA Kelas VIII",
+          "9": "LKS, Praktikum & Panduan Orang Tua IPA Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 4: Gerak & Gaya Dasar", goal: "Membedakan jarak–perpindahan, kelajuan–kecepatan, serta pengaruh gaya.", b: "• Kelajuan v = s / t (m/s); GLB (kecepatan tetap) vs GLBB (dipercepat/diperlambat).\n• Resultan gaya searah dijumlahkan (F₁+F₂); berlawanan arah dikurangkan (|F₁-F₂|).\n• Gaya gesek menghambat gerak benda (menguntungkan pada rem/alas sepatu, merugikan pada mesin).", ex: "Contoh: Sepeda menempuh 600 m dalam 120 detik → kelajuan = 600 / 120 = 5 m/s.", lat: "Latihan: Dua anak mendorong meja searah masing-masing 30 N dan 45 N. Resultan gayanya? (Kunci: 75 N)" },
+            { sem: "Sem 2", t: "Bab 5: Ekologi & Pelestarian Keanekaragaman Hayati", goal: "Memahami interaksi makhluk hidup, simbiosis, dan pencegahan pencemaran.", b: "• Simbiosis: Mutualisme (saling untung: lebah & bunga), Komensalisme (satu untung, satu tak terpengaruh: anggrek & pohon), Parasitisme (satu untung, satu rugi: benalu).\n• Konservasi di Banten: Taman Nasional Ujung Kulon (Badak Jawa) & Hutan Adat Baduy Lebak.", ex: "Contoh: Menjaga sungai Ciujung di Lebak dari sampah plastik melindungi ekosistem air tawar.", lat: "Latihan: Hubungan ikan remora dan hiu termasuk simbiosis ... (Kunci: Komensalisme)" },
+            { sem: "Sem 2", t: "Bab 6: Bumi dan Tata Surya", goal: "Memahami gerak bumi, bulan, planet, serta gerhana.", b: "• 8 planet: Merkurius, Venus, Bumi, Mars, Yupiter, Saturnus, Uranus, Neptunus.\n• Rotasi Bumi (24 jam) → siang–malam & zona waktu.\n• Revolusi Bumi (365¼ hari) → pergantian musim & kalender Masehi.", ex: "Contoh: Gerhana Matahari: Matahari – Bulan – Bumi segaris.", lat: "Latihan: Planet terbesar di Tata Surya adalah ... (Kunci: Yupiter)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 4: Sistem Ekskresi & Pernapasan Lanjut", goal: "Mengenali organ pengeluaran (ginjal, kulit, paru-paru, hati) serta cara menjaganya.", b: "• Ginjal menyaring darah menghasilkan urine (Filtrasi → Reabsorpsi → Augmentasi).\n• Kulit mengeluarkan keringat; Paru-paru mengeluarkan CO₂ & uap air; Hati menghasilkan empedu & menetralkan racun.", ex: "Contoh: Minum cukup air putih membantu ginjal bekerja ringan dan mencegah batu ginjal.", lat: "Latihan: Urutan 3 tahap pembentukan urine di ginjal adalah ... (Kunci: Filtrasi, Reabsorpsi, Augmentasi)" },
+            { sem: "Sem 2", t: "Bab 5: Unsur, Senyawa, Campuran & Zat Aditif", goal: "Membedakan unsur–senyawa–campuran serta memilih jajanan sehat.", b: "• Unsur (1 jenis atom: O, Fe, Au); Senyawa (gabungan kimia: H₂O, NaCl); Campuran (homogen: air gula; heterogen: air pasir).\n• Zat aditif alami: kunyit, daun pandan, gula aren Lebak; hindari pewarna tekstil (Rhodamin B) & pengawet boraks/formalin.", ex: "Contoh: Pemisahan garam dari air laut memakai teknik evaporasi (penguapan).", lat: "Latihan: Air murni (H₂O) termasuk unsur, senyawa, atau campuran? (Kunci: Senyawa)" },
+            { sem: "Sem 2", t: "Bab 6: Struktur Bumi & Mitigasi Bencana Banten–Lebak", goal: "Memahami lapisan bumi, gempa, gunung api, dan langkah penyelamatan diri.", b: "• Lapisan bumi: Kerak, Mantel, Inti Luar, Inti Dalam.\n• Wilayah Lebak & selatan Banten berada dekat jalur tumbukan lempeng Indo-Australia & Eurasia sehingga edukasi siaga gempa/tsunami sangat penting.", ex: "Contoh: Saat gempa: lindungi kepala, berlindung di bawah meja kokoh, lalu keluar menuju titik kumpul lapangan.", lat: "Latihan: Alat pengukur getaran gempa disebut ... (Kunci: Seismograf)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 4: Reaksi Kimia, Asam–Basa & pH", goal: "Mengidentifikasi sifat asam, basa, garam, dan skala pH.", b: "• Asam (pH < 7, masam, mengubah lakmus biru → merah: jeruk, cuka, HCl).\n• Basa (pH > 7, licin/pahit, mengubah lakmus merah → biru: sabun, obat maag, NaOH).\n• Netral (pH = 7: air murni); Reaksi netralisasi: Asam + Basa → Garam + Air.", ex: "Contoh: Obat maag bersifat basa lemah untuk menetralkan kelebihan asam lambung (HCl).", lat: "Latihan: Kertas lakmus merah dicelupkan ke air sabun akan berubah menjadi warna ... (Kunci: Biru)" },
+            { sem: "Sem 2", t: "Bab 5: Tanah, Bioteknologi & Energi Ramah Lingkungan", goal: "Memahami pelestarian tanah dan pemanfaatan teknologi hijau.", b: "• Bioteknologi konvensional (fermentasi: tempe, yoghurt, tapai) vs modern (rekayasa genetika, kultur jaringan, insulin).\n• Energi ramah lingkungan: PLTS (surya), PLTB (angin), biogas, dan pengolahan air bersih.", ex: "Contoh: Kultur jaringan memperbanyak bibit pisang/anggrek unggul dalam waktu cepat dan seragam.", lat: "Latihan: Sebutkan 2 contoh energi terbarukan ramah lingkungan! (Kunci: Surya & angin/biogas)" }
+          ]
+        }
+      },
+      "IPS": {
+        cat: "inti", color: "linear-gradient(135deg,#b45309,#78350f)", color2: "linear-gradient(135deg,#d97706,#451a03)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket IPS SMP Kelas VII (Sem 1 & 2)",
+          "8": "Buku Paket IPS SMP Kelas VIII (Sem 1 & 2)",
+          "9": "Buku Paket IPS SMP Kelas IX (Sem 1 & 2)"
+        },
+        lksTitle: {
+          "7": "LKS, Peta & Panduan Orang Tua IPS Kelas VII",
+          "8": "LKS, Sejarah & Panduan Orang Tua IPS Kelas VIII",
+          "9": "LKS, Globalisasi & Panduan Orang Tua IPS Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 3: Potensi Ekonomi Lingkungan & Sejarah Lokal Lebak", goal: "Mengidentifikasi potensi sumber daya alam dan ekonomi sekitar Kabupaten Lebak.", b: "• SDA dapat diperbarui (hutan, padi, perikanan) vs tak dapat diperbarui (batu bara, minyak bumi).\n• Potensi unggulan Kab. Lebak: pertanian padi, gula aren semut, pariwisata Pantai Sawarna, Negeri di Atas Awan Citorek, dan Wisata Budaya Baduy.", ex: "Contoh: UMKM gula aren semut Lebak membuka lapangan kerja dan menaikkan pendapatan warga.", lat: "Latihan: Sebutkan 2 produk/wisata unggulan Kabupaten Lebak! (Kunci: Gula aren & Pantai Sawarna / Baduy)" },
+            { sem: "Sem 2", t: "Bab 4: Pemberdayaan Masyarakat, Uang & Literasi Keuangan", goal: "Memahami fungsi uang, menabung, dan menyusun anggaran uang jajan.", b: "• Fungsi asli uang: alat tukar dan satuan hitung; fungsi turunan: alat penyimpan nilai.\n• Prinsip bijak pelajar: bedakan KEBUTUHAN (buku, makan siang) vs KEINGINAN (jajan berlebihan), sisihkan tabungan di awal.", ex: "Contoh: Dari uang saku Rp15.000/hari, sisihkan Rp3.000 untuk ditabung → sebulan terkumpul Rp75.000.", lat: "Latihan: Membeli buku tulis termasuk kebutuhan atau keinginan? (Kunci: Kebutuhan)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 3: Kolonialisme, Multatuli di Lebak & Pergerakan Nasional", goal: "Memahami sejarah perlawanan kolonialisme termasuk kisah bersejarah di Lebak.", b: "• Tahun 1856, Eduard Douwes Dekker (Multatuli) bertugas sebagai Asisten Residen di Lebak (Rangkasbitung) dan menulis 'Max Havelaar' (1860) yang membela rakyat dari ketidakadilan Tanam Paksa.\n• Kebangkitan Nasional: Budi Utomo (1908), Sumpah Pemuda (1928), hingga Proklamasi 17 Agustus 1945.", ex: "Contoh: Museum Multatuli di alun-alun Rangkasbitung adalah museum anti-kolonialisme pertama di Indonesia.", lat: "Latihan: Apa judul novel terkenal karya Multatuli tentang Kabupaten Lebak? (Kunci: Max Havelaar)" },
+            { sem: "Sem 2", t: "Bab 4: Pemerataan Pembangunan & Lembaga Keuangan", goal: "Mengenal peran bank, koperasi, pasar modal, dan pajak untuk pembangunan.", b: "• Bank menghimpun dana masyarakat (tabungan) dan menyalurkan kredit produktif.\n• Koperasi berasas kekeluargaan (Bapak Koperasi Indonesia: Drs. Mohammad Hatta).", ex: "Contoh: Koperasi sekolah membantu siswa membeli alat tulis dengan harga terjangkau.", lat: "Latihan: Siapakah Bapak Koperasi Indonesia? (Kunci: Drs. Mohammad Hatta)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 3: Perdagangan Internasional & Ekonomi Kreatif", goal: "Memahami ekspor–impor, kurs valuta asing, serta ekonomi kreatif.", b: "• Ekspor = menjual barang ke luar negeri; Impor = membeli dari luar negeri.\n• Ekonomi kreatif berbasis ide & bakat: kuliner, kriya tenun Baduy, aplikasi digital, desain grafis.", ex: "Contoh: Produk gula aren organik Lebak mampu menembus pasar ekspor berkat standar kualitas dan kemasan modern.", lat: "Latihan: Kegiatan menjual barang ke luar negeri disebut ... (Kunci: Ekspor)" },
+            { sem: "Sem 2", t: "Bab 4: Tantangan Pembangunan Indonesia & Kerja Sama Dunia", goal: "Mengenal peran Indonesia di PBB, ASEAN, G20, dan tujuan pembangunan berkelanjutan (SDGs).", b: "• Politik luar negeri Indonesia: Bebas dan Aktif.\n• Indonesia aktif menjaga perdamaian dunia (Pasukan Garuda PBB) dan mendorong ekonomi hijau.", ex: "Contoh: Indonesia menjadi tuan rumah KTT G20 Bali (2022) dan Keketuaan ASEAN (2023).", lat: "Latihan: Prinsip politik luar negeri Indonesia adalah ... (Kunci: Bebas dan Aktif)" }
+          ]
+        }
+      },
+      "Bahasa Indonesia": {
+        cat: "inti", color: "linear-gradient(135deg,#be123c,#881337)", color2: "linear-gradient(135deg,#e11d48,#4c0519)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket Bahasa Indonesia SMP Kelas VII",
+          "8": "Buku Paket Bahasa Indonesia SMP Kelas VIII",
+          "9": "Buku Paket Bahasa Indonesia SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "LKS, EYD V & Panduan Menulis Kelas VII",
+          "8": "LKS, EYD V & Panduan Menulis Kelas VIII",
+          "9": "LKS, EYD V & Latihan Ujian B. Indonesia Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 3: Puisi Rakyat (Pantun, Gurindam, Syair)", goal: "Mengenali ciri dan menulis pantun nasihat yang santun.", b: "• Pantun: 4 baris/bait, rima a-b-a-b, baris 1–2 sampiran, baris 3–4 isi.\n• Gurindam: 2 baris/bait, rima a-a, baris 1 sebab, baris 2 akibat/nasihat.\n• Syair: 4 baris/bait, rima a-a-a-a, semua baris adalah isi.", ex: "Contoh Pantun: 'Jalan-jalan ke Rangkasbitung / Membeli buku serta pena / Rajin belajar biar beruntung / Masa depan cerah bermakna.'", lat: "Latihan: Pola rima pantun adalah ... (Kunci: a-b-a-b)" },
+            { sem: "Sem 2", t: "Bab 4: Surat Pribadi, Surat Dinas & Buku Fiksi/Nonfiksi", goal: "Membedakan bahasa surat pribadi dengan surat dinas serta merangkum buku.", b: "• Surat Pribadi: untuk keluarga/teman, bahasa akrab tapi sopan.\n• Surat Dinas: dari instansi/sekolah (kop surat, nomor surat, perihal, stempel), bahasa baku.\n• Fiksi = imajinasi (cerpen, novel); Nonfiksi = fakta/ilmu (biografi, buku teks).", ex: "Contoh surat dinas: Undangan rapat komite SMP.", lat: "Latihan: Sebutkan 2 unsur khas surat dinas! (Kunci: Kop surat & nomor surat)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 3: Teks Persuasi & Teks Eksplanasi", goal: "Menulis ajakan santun dan menjelaskan proses terjadinya fenomena alam/sosial.", b: "• Eksplanasi menjelaskan 'mengapa' dan 'bagaimana' suatu peristiwa terjadi (Pernyataan Umum → Deretan Penjelas → Interpretasi).\n• Persuasi mengajak pembaca (memakai kata: ayo, mari, sebaiknya, hendaknya).", ex: "Contoh Eksplanasi: Proses terjadinya hujan atau gempa bumi.", lat: "Latihan: Teks yang menjelaskan proses terjadinya fenomena alam disebut ... (Kunci: Teks Eksplanasi)" },
+            { sem: "Sem 2", t: "Bab 4: Karya Fiksi, Ulasan Buku & Teks Drama", goal: "Mengulas kelebihan/kekurangan karya dan memahami struktur drama.", b: "• Teks Ulasan/Resensi: Identitas karya → Orientasi → Sinopsis → Analisis/Evaluasi → Rekomendasi.\n• Drama: Prolog → Dialog (Orientasi, Komplikasi, Resolusi) → Epilog.", ex: "Contoh: Mengulas novel 'Laskar Pelangi' dengan menilai amanat dan alurnya.", lat: "Latihan: Percakapan antartokoh dalam drama disebut ... (Kunci: Dialog)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 3: Cerita Inspiratif & Teks Laporan Percobaan", goal: "Menulis laporan percobaan ilmiah dan cerita inspiratif yang menggugah empati.", b: "• Laporan Percobaan: Tujuan → Alat & Bahan → Langkah Kerja → Hasil → Simpulan.\n• Cerita Inspiratif: Orientasi → Perumitan → Komplikasi → Resolusi → Koda.", ex: "Contoh: Laporan percobaan uji kandungan amilum pada makanan memakai larutan iodin.", lat: "Latihan: Bagian akhir cerita inspiratif yang berisi pesan moral disebut ... (Kunci: Koda)" },
+            { sem: "Sem 2", t: "Bab 4: Menyunting Ejaan (EYD V) & Kalimat Efektif", goal: "Memperbaiki kesalahan ejaan, tanda baca, dan kata tidak baku.", b: "• Kata baku vs tidak baku: praktik (bukan praktek), nasihat (bukan nasehat), risiko (bukan resiko), izin (bukan ijin), apotek (bukan apotik), aktivitas (bukan aktifitas).\n• Hindari pleonasme (pemborosan kata), misal 'agar supaya' → cukup 'agar' atau 'supaya'.", ex: "Contoh perbaikan: 'Para siswa-siswa sekalian masuk ke dalam kelas' → 'Para siswa masuk ke kelas.'", lat: "Latihan: Manakah kata baku: 'apotik' atau 'apotek'? (Kunci: apotek)" }
+          ]
+        }
+      },
+      "Bahasa Inggris": {
+        cat: "inti", color: "linear-gradient(135deg,#0284c7,#0c4a6e)", color2: "linear-gradient(135deg,#0369a1,#082f49)",
+        pub: "Kemendikbudristek • English for Nusantara",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "English for Nusantara SMP Kelas VII (Sem 1 & 2)",
+          "8": "English for Nusantara SMP Kelas VIII (Sem 1 & 2)",
+          "9": "English for Nusantara SMP Kelas IX (Sem 1 & 2)"
+        },
+        lksTitle: {
+          "7": "LKS, Grammar & Vocabulary Guide Kelas VII",
+          "8": "LKS, Grammar & Reading Practice Kelas VIII",
+          "9": "LKS, Grammar & Exam Practice Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Unit 3: My House, Rooms & Daily Chores", goal: "Describing rooms in a house and household activities using There is / There are.", b: "• 'There is' untuk benda tunggal (There is a sofa in the living room); 'There are' untuk benda jamak (There are two bedrooms).\n• Prepositions of place: in, on, under, next to, behind, in front of, between.", ex: "Example: 'My study desk is next to the window. I clean my bedroom every morning.'", lat: "Exercise: Complete: '___ three books on the table.' (Answer: There are)" },
+            { sem: "Sem 2", t: "Unit 4: My School, Class Schedule & Culinary", goal: "Talking about class timetables and favorite local dishes.", b: "• Asking schedule: 'What do we have on Monday at 07:40?' → 'We have Mathematics.'\n• Taste adjectives: sweet, spicy, salty, sour, delicious, crispy.", ex: "Example: 'I have English class on Tuesday and Friday. My favorite food is Sate Bandeng.'", lat: "Exercise: Translate 'Saya belajar IPA hari Selasa' → 'I study Science on Tuesday.'" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Unit 3: Past Continuous, Narrative & Fable", goal: "Telling past events in progress (was/were + V-ing) and reading moral stories.", b: "• Past Continuous: S + was/were + V-ing (I/He/She/It → was; You/We/They → were).\n• Digabung dengan Simple Past memakai 'when/while': 'I was studying when my father arrived.'", ex: "Example: 'While my mother was cooking, my brother was reading a book.'", lat: "Exercise: Complete: 'They ___ playing football at 4 PM yesterday.' (Answer: were)" },
+            { sem: "Sem 2", t: "Unit 4: Notice, Announcement & Short Message", goal: "Understanding public signs and writing brief functional texts.", b: "• Notice: 'Keep the classroom clean!', 'Do not litter!', 'Turn off the lights.'\n• Announcement: Title, Date/Time, Place, Event, Contact Person.", ex: "Example: 'Attention! Scout practice starts at 09:50 AM on Saturday.'", lat: "Exercise: What does 'No Littering' mean? (Answer: Dilarang membuang sampah sembarangan)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Unit 3: Label, Advertisement & Procedure Text", goal: "Reading food/medicine labels carefully and following step-by-step instructions.", b: "• Label info: Brand, Product name, Net weight, Ingredients, Nutrition facts, Direction to use, Expiration date (EXP).\n• Procedure Text uses imperative verbs: Cut, Mix, Pour, Boil, Stir, Serve.", ex: "Example: 'Keep out of reach of children. Store below 30°C.'", lat: "Exercise: What does 'Ingredients' mean? (Answer: Bahan-bahan / komposisi)" },
+            { sem: "Sem 2", t: "Unit 4: Direct–Indirect Speech & Song Message", goal: "Understanding wishes, hopes, agreements, and positive values in English texts.", b: "• Expressing Hope & Wish: 'I hope you pass the exam with flying colors!', 'Congratulations on your graduation!'\n• Agreement: 'I agree with you' / Disagreement politely: 'I see your point, but...'", ex: "Example: 'Congratulations on winning the math competition! I am proud of you.'", lat: "Exercise: How do you congratulate a friend who won a speech contest? (Answer: Congratulations on winning the speech contest!)" }
+          ]
+        }
+      },
+      "PAI": {
+        cat: "inti", color: "linear-gradient(135deg,#059669,#065f46)", color2: "linear-gradient(135deg,#10b981,#022c22)",
+        pub: "Kemendikbudristek & Kemenag • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket PAI & Budi Pekerti SMP Kelas VII",
+          "8": "Buku Paket PAI & Budi Pekerti SMP Kelas VIII",
+          "9": "Buku Paket PAI & Budi Pekerti SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "LKS Ibadah, Doa & Panduan Orang Tua PAI Kls VII",
+          "8": "LKS Ibadah, Akhlak & Panduan Orang Tua PAI Kls VIII",
+          "9": "LKS Ibadah, Tarikh & Ujian PAI Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 3: Iman kepada Malaikat & Sholat Jumat", goal: "Mengenal 10 malaikat beserta tugasnya serta ketentuan Sholat Jumat.", b: "• 10 Malaikat wajib diketahui: Jibril (wahyu), Mikail (rezeki), Israfil (sangkakala), Izrail (nyawa), Munkar & Nakir (kubur), Raqib (amal baik), Atid (amal buruk), Malik (neraka), Ridwan (surga).\n• Sholat Jumat: wajib bagi laki-laki baligh & mukim, didahului 2 khutbah, dilaksanakan berjamaah 2 rakaat.", ex: "Contoh: Mengimani Malaikat Raqib dan Atid mendorong anak selalu jujur meski tidak diawasi guru.", lat: "Latihan: Malaikat yang bertugas mencatat amal kebaikan adalah ... (Kunci: Malaikat Raqib)" },
+            { sem: "Sem 2", t: "Bab 4: Sholat Jamak, Qashar & Akhlak Terpuji", goal: "Memahami keringanan sholat safar serta membiasakan jujur dan birrul walidain.", b: "• Jamak (menggabungkan 2 sholat: Dzuhur+Ashar atau Maghrib+Isya); Qashar (meringkas 4 rakaat menjadi 2 rakaat saat safar ±82 km).\n• Akhlak mulia: jujur, berbakti pada Ayah & Ibu, dan menghormati guru.", ex: "Contoh: Safar Lebak ke Bandung boleh Jamak Qashar Dzuhur 2 rakaat + Ashar 2 rakaat.", lat: "Latihan: Sholat fardhu yang tidak dapat diqashar adalah ... (Kunci: Subuh & Maghrib)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 2: Sujud Syukur, Sujud Sahwi & Sujud Tilawah", goal: "Mempraktikkan 3 sujud sunnah sesuai tuntunan syariat.", b: "• Sujud Syukur (1x sujud): saat mendapat nikmat/terhindar musibah.\n• Sujud Sahwi (2x sujud): saat lupa rakaat/tasyahud awal.\n• Sujud Tilawah (1x sujud): saat membaca/mendengar ayat sajdah.", ex: "Bacaan Sujud Sahwi: 'Subhaana man laa yanaamu wa laa yashuu.'", lat: "Latihan: Berapa kali sujud dilakukan pada Sujud Sahwi? (Kunci: 2 kali)" },
+            { sem: "Sem 2", t: "Bab 3: Makanan Halal–Haram & Sejarah Ilmuwan Muslim", goal: "Memilih makanan halalan thayyiban serta meneladani ilmuwan Islam (Bani Abbasiyah).", b: "• Halal dzatnya (bukan bangkai, darah, babi, khamr) dan halal cara mendapatkannya.\n• Ilmuwan Muslim: Al-Khawarizmi (Aljabar/Algoritma), Ibnu Sina (Kedokteran), Al-Biruni (Astronomi).", ex: "Contoh: Selalu cek label Halal MUI dan tanggal kedaluwarsa sebelum jajan.", lat: "Latihan: Ilmuwan Muslim penemu dasar Aljabar dan Algoritma adalah ... (Kunci: Al-Khawarizmi)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 2: Penyembelihan, Kurban, Akikah & Kesultanan Banten", goal: "Memahami ketentuan kurban–akikah serta peran Kesultanan Banten dalam dakwah Islam.", b: "• Akikah: 2 kambing (anak laki-laki), 1 kambing (anak perempuan), sunnah hari ke-7.\n• Kurban: 10–13 Dzulhijjah (Idul Adha & hari Tasyrik).\n• Kesultanan Banten: Sunan Gunung Jati & Sultan Maulana Hasanuddin membangun pusat dakwah Islam yang damai di Tanah Banten & Lebak.", ex: "Contoh: Masjid Agung Banten Lama adalah warisan sejarah Islam Banten yang terkenal hingga mancanegara.", lat: "Latihan: Sultan pertama Kesultanan Banten adalah ... (Kunci: Sultan Maulana Hasanuddin)" },
+            { sem: "Sem 2", t: "Bab 3: Tata Krama, Sopan Santun & Rasa Malu (Al-Haya')", goal: "Membiasakan adab berbicara, berpakaian, dan bermedia sosial secara Islami.", b: "• Sabda Nabi SAW: 'Rasa malu itu sebagian dari iman.'\n• Adab kepada orang tua: berkata lembut (qaulan karima), mendoakan tiap selesai sholat, membantu di rumah.", ex: "Contoh: Mengucapkan salam saat masuk/keluar rumah dan mencium tangan orang tua.", lat: "Latihan: Apa arti 'Birrul Walidain'? (Kunci: Berbakti kepada kedua orang tua)" }
+          ]
+        }
+      },
+      "Pendidikan Pancasila": {
+        cat: "inti", color: "linear-gradient(135deg,#dc2626,#7f1d1d)", color2: "linear-gradient(135deg,#ef4444,#450a0a)",
+        pub: "Kemendikbudristek & BPIP • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket Pendidikan Pancasila SMP Kelas VII",
+          "8": "Buku Paket Pendidikan Pancasila SMP Kelas VIII",
+          "9": "Buku Paket Pendidikan Pancasila SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "LKS & Panduan Penerapan Pancasila Kelas VII",
+          "8": "LKS & Panduan Kewarganegaraan Kelas VIII",
+          "9": "LKS & Latihan Ujian Pancasila Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 2: Keberagaman Suku, Agama, Budaya & Gotong Royong", goal: "Menumbuhkan sikap toleransi dalam bingkai Bhinneka Tunggal Ika.", b: "• 'Bhinneka Tunggal Ika' berasal dari Kitab Sutasoma karya Mpu Tantular.\n• Gotong royong di sekolah: piket kelas, kerja bakti, saling menghormati antar teman.", ex: "Contoh: Masyarakat Lebak hidup rukun berdampingan dengan masyarakat adat Baduy dan Kasepuhan.", lat: "Latihan: Semboyan Bhinneka Tunggal Ika berasal dari kitab ... (Kunci: Sutasoma)" },
+            { sem: "Sem 2", t: "Bab 3: Wilayah NKRI & Karakteristik Daerah", goal: "Mengenal batas wilayah Indonesia dan pemerintahan daerah Kabupaten/Kota.", b: "• NKRI adalah negara kesatuan berbentuk republik (Pasal 1 ayat 1 UUD 1945).\n• Otonomi daerah memungkinkan Kabupaten Lebak mengembangkan pendidikan, pariwisata, dan budaya lokalnya sendiri.", ex: "Contoh: Pemda Kabupaten Lebak dipimpin oleh Bupati dan diawasi DPRD Kabupaten Lebak.", lat: "Latihan: Bentuk negara Indonesia menurut Pasal 1 ayat 1 UUD 1945 adalah ... (Kunci: Negara Kesatuan berbentuk Republik)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 2: Semangat Kebangkitan Nasional & Sumpah Pemuda", goal: "Meneladani perjuangan pemuda 1908 dan 1928 dalam menjaga persatuan.", b: "• Sumpah Pemuda (28 Oktober 1928): Satu Tanah Air, Satu Bangsa, Satu Bahasa Persatuan Bahasa Indonesia.\n• Lagu Indonesia Raya ciptaan W.R. Supratman pertama kali dikumandangkan pada Kongres Pemuda II.", ex: "Contoh: Berprestasi di sekolah dan menjauhi tawuran/bullying adalah wujud semangat pemuda masa kini.", lat: "Latihan: Pencipta lagu kebangsaan Indonesia Raya adalah ... (Kunci: W.R. Supratman)" },
+            { sem: "Sem 2", t: "Bab 3: Budaya Nasional & Jati Diri Bangsa di Era Global", goal: "Menyaring budaya asing dan melestarikan budaya daerah Banten & Nusantara.", b: "• Budaya lokal daerah adalah penyusun kekayaan budaya nasional.\n• Sikap bijak globalisasi: ambil ilmu & teknologinya, tolak budaya yang bertentangan dengan nilai Pancasila & agama.", ex: "Contoh: Mengenakan Batik Lebak pada hari batik sekolah dengan bangga.", lat: "Latihan: Mengapa kita perlu melestarikan budaya daerah? (Kunci: Karena budaya daerah adalah identitas & kekayaan budaya nasional)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 2: Hak & Kewajiban Warga Negara serta Bela Negara", goal: "Memahami keseimbangan hak dan kewajiban sesuai UUD NRI Tahun 1945.", b: "• Hak: pendidikan (Pasal 31), kebebasan beragama (Pasal 29), persamaan hukum (Pasal 27).\n• Kewajiban pelajar: menaati aturan, menghormati guru/orang tua, belajar sungguh-sungguh sebagai Bela Negara.", ex: "Contoh: Mengikuti upacara bendera hari Senin dengan khidmat.", lat: "Latihan: Hak mendapat pendidikan diatur dalam UUD 1945 Pasal ... (Kunci: Pasal 31)" },
+            { sem: "Sem 2", t: "Bab 3: Kemerdekaan Berpendapat & Literasi Demokrasi", goal: "Menyampaikan pendapat secara santun, bertanggung jawab, dan bebas hoaks.", b: "• Kemerdekaan menyampaikan pendapat dijamin Pasal 28E ayat (3) UUD 1945, namun tetap wajib menghormati hak orang lain & ketertiban umum.\n• Musyawarah mufakat adalah ciri khas demokrasi Pancasila.", ex: "Contoh: Musyawarah pemilihan ketua kelas secara jujur, tertib, dan menerima hasil bersama.", lat: "Latihan: Pengambilan keputusan bersama secara kekeluargaan disebut ... (Kunci: Musyawarah mufakat)" }
+          ]
+        }
+      },
+      "Bahasa Sunda": {
+        cat: "lebak", color: "linear-gradient(135deg,#0f766e,#115e59)", color2: "linear-gradient(135deg,#14b8a6,#042f2e)",
+        pub: "Mulok Wajib Kab. Lebak, Banten • Gapura Basa / Pamekar Diajar",
+        officialUrl: "",
+        titles: {
+          "7": "Buku Basa Sunda SMP Kelas VII (Mulok Kab. Lebak)",
+          "8": "Buku Basa Sunda SMP Kelas VIII (Mulok Kab. Lebak)",
+          "9": "Buku Basa Sunda SMP Kelas IX (Mulok Kab. Lebak)"
+        },
+        lksTitle: {
+          "7": "Buku Kamus Undak-Usuk & LKS Basa Sunda Kls VII",
+          "8": "Buku Aksara Sunda Kaganga & LKS Basa Sunda Kls VIII",
+          "9": "Buku Paribasa, Biantara & LKS Basa Sunda Kls IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 3: Sajak Sunda & Pupujian", goal: "Maca jeung maham eusi sajak Sunda sarta pupujian di lembur.", b: "• Pupujian nyaéta puisi buhun nu eusina muji ka Gusti Allah, shalawat ka Kangjeng Nabi, jeung naséhat agama.\n• Sajak Sunda (puisi modéren) mibanda unsur: téma, rasa, nada, jeung amanat.", ex: "Conto Pupujian nu kasohor di Lebak: 'Éling-éling dulur kabéh, ibadah ulah campoléh, beurang peuting ulah weléh, bisina kaburu paéh.'", lat: "Latihan: Naon ari pupujian téh? (Kunci: Puisi buhun eusi pujian ka Allah, shalawat, jeung pepeling)" },
+            { sem: "Sem 2", t: "Bab 4: Kamus Mini Undak-Usuk Basa Sunda Sapopoé", goal: "Ngalatih ngagunakeun kecap lemes nu merenah ka kolot jeung guru.", b: "• Dahar (loma) → Neda (sorangan) → Tuang (kolot/guru).\n• Saré (loma) → Mondok (sorangan) → Kulem (kolot/guru).\n• Indit (loma) → Mios (sorangan) → Angkat (kolot/guru).\n• Imah (loma) → Rorompok (sorangan) → Bumi (kolot/guru).\n• Nyaho (loma) → Terang (sorangan) → Uninga (kolot/guru).", ex: "Conto kalimah nu bener: 'Punten Bu, abdi badé mios ka sakola. Dupi Ibu badé angkat tabuh sabaraha?'", lat: "Latihan: Naon kecap lemes keur guru tina 'dahar'? (Kunci: Tuang)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 3: Warta (Berita) Basa Sunda & Carita Pondok", goal: "Nyusun warta basajan maké rumus 5W+1H dina Basa Sunda.", b: "• Warta nyaéta béja ngeunaan kajadian nyata nu kakara lumangsung.\n• Unsur warta (5W+1H): Naon, Saha, Di mana, Iraha, Naha, Kumaha.", ex: "Conto judul warta: 'Pelajar SMP di Rangkasbitung Ngagelar Lomba Maca Sajak jeung Aksara Sunda.'", lat: "Latihan: Dina basa Sunda, 'Iraha' nuduhkeun pertanyaan ngeunaan ... (Kunci: Waktu)" },
+            { sem: "Sem 2", t: "Bab 4: Mengenal Dialék Sunda Banten / Lebak", goal: "Ngahargaan kabeungharan basa daérah di wilayah Kabupatén Lebak.", b: "• Basa Sunda di Lebak (Banten Kidul) mibanda kekecapan has saperti 'aing/kuring', 'nyaho', 'ja' (da/sabab), 'mantak' (matak).\n• Di sakola tetep diajar Basa Sunda lulugu (standar) jeung tatakrama basa nu santun.", ex: "Conto: 'Ulah poho ngapalkeun ja isukan aya ulangan!' = 'Ulah hilap ngapalkeun da énjing aya ulangan!'", lat: "Latihan: Naon hartina kecap 'ngamumulé'? (Kunci: Ngariksa / melestarikan)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 3: Drama Sunda & Pakeman Basa (Paribasa)", goal: "Maham hartina paribasa Sunda jeung ngalarapkeunana dina kahirupan.", b: "• 'Cikaracak ninggang batu, laun-laun jadi legok' = usaha terus-terusan sanajan leutik, lila-lila pasti hasil.\n• 'Buruk-buruk papan jati' = sanajan dulur kungsi salah, tetep kudu dipikanyaah jeung dibéré hampura.\n• 'Ulah ngaliarkeun taleus ateul' = ulah nyebarkeun gosip/hoaks nu ngarugikeun batur.", ex: "Conto: Belajar di imah kudu kawas 'cikaracak ninggang batu', rutin unggal poé.", lat: "Latihan: Naon harti 'Cikaracak ninggang batu, laun-laun jadi legok'? (Kunci: Ketekunan terus-menerus pasti membuahkan hasil)" },
+            { sem: "Sem 2", t: "Bab 4: Bahasan Budaya Adat Baduy & Kasepuhan Lebak", goal: "Nulis bahasan pondok ngeunaan tradisi adat Kabupatén Lebak.", b: "• Masyarakat Baduy (Kanékés, Kec. Leuwidamar) ngajaga pikukuh karuhun pikeun ngariksa leuweung jeung alam.\n• Upacara Sérén Taun di Kasepuhan Cisungsang & Ciptagelar mangrupa tanda sukur hasil panén paré.", ex: "Pikukuh Baduy: 'Lojor teu meunang dipotong, pondok teu meunang disambung.'", lat: "Latihan: Di kacamatan mana wilayah adat Kanékés (Baduy) ayana? (Kunci: Kecamatan Leuwidamar, Kab. Lebak)" }
+          ]
+        }
+      },
+      "BTQ": {
+        cat: "lebak", color: "linear-gradient(135deg,#0d9488,#134e4a)", color2: "linear-gradient(135deg,#0f766e,#042f2e)",
+        pub: "Mulok Wajib Kab. Lebak, Banten • Baca Tulis Al-Qur'an & Tajwid",
+        officialUrl: "",
+        titles: {
+          "7": "Buku Panduan BTQ & Tajwid SMP Kelas VII (Mulok Lebak)",
+          "8": "Buku Panduan BTQ & Tajwid SMP Kelas VIII (Mulok Lebak)",
+          "9": "Buku Panduan BTQ & Tajwid SMP Kelas IX (Mulok Lebak)"
+        },
+        lksTitle: {
+          "7": "Buku Latihan Imla, Tajwid & Setoran Juz 30 Kls VII",
+          "8": "Buku Latihan Tajwid, Mad & Setoran Juz 30 Kls VIII",
+          "9": "Buku Persiapan Ujian Praktik BTQ & Khatam Juz 30 Kls IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 3: Praktik Menulis Sambung (Khat Naskhi) & Harakat", goal: "Terampil menyambung huruf hijaiyah dengan kaidah Khat Naskhi yang rapi.", b: "• 6 huruf potong (tidak bisa disambung ke kiri): ا د ذ ر ز و.\n• 22 huruf lainnya dapat disambung di awal, tengah, dan akhir kata.\n• Tanda baca: Fathah, Kasrah, Dhammah, Tanwin, Sukun, Tasydid.", ex: "Contoh: كَ + تَ + بَ = كَتَبَ  |  رَ + سُ + وْ + لٌ = رَسُوْلٌ.", lat: "Latihan: Sebutkan 6 huruf hijaiyah yang tidak bisa disambung ke kiri! (Kunci: ا د ذ ر ز و)" },
+            { sem: "Sem 2", t: "Bab 4: Panduan Setoran Hafalan Juz 30 (An-Nas – Ad-Dhuha)", goal: "Memantau setoran hafalan surat-surat pendek anak bersama Ayah & Ibu di rumah.", b: "• Daftar surat target Kelas 7: An-Nas, Al-Falaq, Al-Ikhlas, Al-Lahab, An-Nashr, Al-Kafirun, Al-Kautsar, Al-Ma'un, Quraisy, Al-Fil, Al-Humazah, Al-'Ashr, At-Takatsur, Al-Qari'ah, Al-'Adiyat, Az-Zalzalah, Al-Bayyinah, Al-Qadr, Al-'Alaq, At-Tin, Al-Insyirah, Ad-Dhuha.\n• Metode mudah: baca 1 ayat diulang 5 kali tiap bakda Maghrib.", ex: "Tips orang tua: dengarkan setoran 1 surat pendek setiap malam sebelum mulai belajar PR.", lat: "Latihan: Surat Al-'Alaq ayat 1–5 adalah wahyu pertama yang diawali kata ... (Kunci: Iqra' / اِقْرَأْ)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 3: Alif Lam Syamsiyah & Alif Lam Qamariyah", goal: "Membedakan bacaan Al-Syamsiyah dan Al-Qamariyah dalam ayat Al-Qur'an.", b: "• Al-Qamariyah (14 huruf): Lam dibaca JELAS (sukun), contoh: اَلْقَمَرُ, اَلْحَمْدُ.\n• Al-Syamsiyah (14 huruf): Lam melebur ke huruf bertasydid, contoh: اَلشَّمْسُ, اَلرَّحْمٰنُ.", ex: "Trik cepat: Sesudah ال ada tasydid (ّ) = Syamsiyah; di atas ل ada sukun (ْ) = Qamariyah.", lat: "Latihan: Lafadz 'اَلنَّاسُ' termasuk hukum ... (Kunci: Al-Syamsiyah)" },
+            { sem: "Sem 2", t: "Bab 4: Panduan Setoran Hafalan Juz 30 (Al-Lail – Al-Ghasyiyah)", goal: "Melanjutkan hafalan Juz 30 dengan memperhatikan panjang pendek (Mad) dan Qalqalah.", b: "• Daftar surat target Kelas 8: Al-Lail, Asy-Syams, Al-Balad, Al-Fajr, Al-Ghasyiyah.\n• Perhatikan pantulan Qalqalah di akhir ayat surat Al-Balad & Al-Fajr.", ex: "Tips: Tandai surat yang sudah lancar dengan tombol 'Selesai Dibaca' dan catat kemajuan di Catatan Sekolah.", lat: "Latihan: Sebutkan 5 huruf Qalqalah! (Kunci: ب ج د ط ق)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 3: Ayat Gharib, Saktah & Persiapan Ujian Praktik BTQ", goal: "Membaca ayat-ayat khusus Al-Qur'an secara benar untuk ujian praktik kelas 9.", b: "• Saktah: berhenti sejenak (±2 harakat) tanpa mengambil napas (QS. Al-Kahfi: 1, Yasin: 52, Al-Qiyamah: 27, Al-Muthaffifin: 14).\n• Imalah: memiringkan fathah ke kasrah (QS. Hud: 41).\n• Ujian praktik BTQ Kab. Lebak: kefasihan bacaan (tajwid & makhraj), imla/menulis ayat, dan setoran hafalan Juz 30.", ex: "Tips: Biasakan tadarus 1 halaman tiap bakda Maghrib bersama keluarga.", lat: "Latihan: Apa arti bacaan Saktah? (Kunci: Berhenti sejenak tanpa mengambil napas)" },
+            { sem: "Sem 2", t: "Bab 4: Target Khatam Juz 30 (Al-A'la – An-Naba')", goal: "Menyelesaikan muraja'ah seluruh Juz 30 menjelang kelulusan SMP.", b: "• Daftar surat target Kelas 9: Al-A'la, Ath-Thariq, Al-Buruj, Al-Insyiqaq, Al-Muthaffifin, Al-Infithar, At-Takwir, 'Abasa, An-Nazi'at, An-Naba'.\n• Lakukan muraja'ah 2–3 surat pendek setiap hari agar hafalan Kelas 7–8 tetap terjaga.", ex: "Tips orang tua: Buat tantangan kecil akhir pekan — setor 1 surat panjang bersama Ayah/Ibu.", lat: "Latihan: Surat pembuka di Juz 30 adalah surat ... (Kunci: An-Naba')" }
+          ]
+        }
+      },
+      "Informatika": {
+        cat: "inti", color: "linear-gradient(135deg,#4f46e5,#312e81)", color2: "linear-gradient(135deg,#6366f1,#1e1b4b)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket Informatika SMP Kelas VII",
+          "8": "Buku Paket Informatika SMP Kelas VIII",
+          "9": "Buku Paket Informatika SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "LKS Praktik Komputer & Etika Digital Kelas VII",
+          "8": "LKS Logika, Biner & Scratch Kelas VIII",
+          "9": "LKS Keamanan Siber & Coding Dasar Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 2: Aplikasi Perkantoran & Etika Digital", goal: "Mengoperasikan pengolah kata, angka, presentasi, dan etika berinternet.", b: "• Docs/Word (makalah), Sheets/Excel (tabel & rumus SUM/AVERAGE), Slides/PPT (presentasi).\n• Etika digital: hargai hak cipta, jaga privasi, sopan di grup chat.", ex: "Rumus Spreadsheet: =SUM(B2:B6) menjumlahkan; =AVERAGE(B2:B6) mencari rata-rata.", lat: "Latihan: Rumus rata-rata di Excel/Sheets adalah ... (Kunci: =AVERAGE(...))" },
+            { sem: "Sem 2", t: "Bab 3: Pengenalan Algoritma & Pemrograman Visual", goal: "Menyusun langkah logis berurutan dan mengenal blok Scratch.", b: "• Algoritma adalah urutan langkah logis & sistematis untuk menyelesaikan masalah.\n• Contoh sehari-hari: algoritma membuat teh manis atau berangkat sekolah tepat waktu.", ex: "Blok Scratch: When green flag clicked → Move 10 steps → Say 'Halo!'.", lat: "Latihan: Urutan langkah logis untuk menyelesaikan masalah disebut ... (Kunci: Algoritma)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 2: Sistem Bilangan Biner & Pemrograman Scratch", goal: "Mengonversi bilangan desimal ke biner dan menyusun percabangan.", b: "• Biner (basis 2: 0 dan 1). Desimal 5 = 101; Desimal 10 = 1010.\n• Percabangan (If–Else) membuat program mengambil keputusan berdasarkan kondisi.", ex: "Contoh: 1 Byte = 8 Bit; 1 KB = 1.024 Byte.", lat: "Latihan: Bentuk biner dari angka desimal 6 adalah ... (Kunci: 110)" },
+            { sem: "Sem 2", t: "Bab 3: Analisis Data Sederhana & Dampak Sosial Informatika", goal: "Mengolah grafik data di spreadsheet dan mewaspadai berita bohong (hoaks).", b: "• Gunakan fungsi MAX, MIN, COUNT, dan SORT untuk merapikan tabel nilai.\n• Cek kebenaran berita: periksa sumber media resmi, tanggal berita, dan jangan asal meneruskan pesan berantai.", ex: "Contoh: =MAX(C2:C10) mencari nilai tertinggi di kelas.", lat: "Latihan: Fungsi untuk mencari nilai tertinggi di Spreadsheet adalah ... (Kunci: =MAX(...))" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 2: Blog, Konten Kreatif & Struktur Data Dasar", goal: "Membuat konten edukatif yang bermanfaat dan mengenal struktur Tree & Graph.", b: "• Tree (pohon): silsilah keluarga & folder komputer.\n• Graph (graf): peta rute jalan (Google Maps) & jaringan pertemanan.", ex: "Contoh: Membuat blog/vlog edukasi wisata Kabupaten Lebak.", lat: "Latihan: Struktur data pada peta rute Google Maps adalah ... (Kunci: Graph)" },
+            { sem: "Sem 2", t: "Bab 3: Praktik Lintas Bidang & Proyek Aplikasi Sederhana", goal: "Berkolaborasi merancang solusi digital untuk masalah di sekolah atau rumah.", b: "• Tahapan proyek: Identifikasi masalah → Perancangan (Desain) → Pembuatan → Pengujian → Presentasi.\n• Contoh nyata: Aplikasi OZNET FAMILY yang sedang dipakai keluarga kita!", ex: "Tips: Dokumentasikan setiap proyek digital sebagai portofolio menuju SMA/SMK.", lat: "Latihan: Tahap memastikan program berjalan tanpa error disebut ... (Kunci: Pengujian / Testing)" }
+          ]
+        }
+      },
+      "PJOK": {
+        cat: "inti", color: "linear-gradient(135deg,#ea580c,#9a3412)", color2: "linear-gradient(135deg,#f97316,#431407)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket PJOK SMP Kelas VII",
+          "8": "Buku Paket PJOK SMP Kelas VIII",
+          "9": "Buku Paket PJOK SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "LKS Olahraga & Panduan Gizi Remaja Kelas VII",
+          "8": "LKS Olahraga & Keselamatan Pelajar Kelas VIII",
+          "9": "LKS Kebugaran, P3K & Ujian PJOK Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 2: Pola Makan Bergizi Seimbang & Kebersihan Diri", goal: "Menerapkan gizi seimbang ('Isi Piringku') untuk pertumbuhan remaja.", b: "• 'Isi Piringku': ½ piring sayur & buah, ½ piring makanan pokok dan lauk berprotein.\n• Minum air putih min. 8 gelas/hari, tidur 8 jam/malam, olahraga 30 menit.", ex: "Contoh: Sarapan sehat sebelum jam 07:00 meningkatkan daya konsentrasi di kelas.", lat: "Latihan: Sebutkan 2 contoh sumber protein nabati! (Kunci: Tempe & tahu)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 2: Senam Irama, Renang & Keselamatan Jalan Raya", goal: "Memahami keselamatan lalu lintas bagi pelajar serta renang gaya dada.", b: "• Pelajar SMP belum memiliki SIM sehingga dilarang mengendarai motor sendiri di jalan raya.\n• Wajib memakai helm SNI saat dibonceng orang tua.", ex: "Rambu kuning = peringatan; rambu merah = larangan; rambu biru = perintah.", lat: "Latihan: Warna dasar rambu peringatan lalu lintas adalah ... (Kunci: Kuning)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 2: Kebugaran Jasmani Lanjut & Penanganan Cedera (RICE)", goal: "Mengetahui pertolongan pertama cedera terkilir dengan metode RICE.", b: "• RICE: Rest (istirahatkan), Ice (kompres dingin), Compression (balut elastis), Elevation (tinggikan bagian cedera).\n• Selalu lakukan pemanasan & pendinginan saat berolahraga.", ex: "Latihan push-up (otot lengan/dada), sit-up (perut), jogging (daya tahan jantung).", lat: "Latihan: Huruf 'I' pada metode RICE berarti ... (Kunci: Ice / kompres dingin)" }
+          ]
+        }
+      },
+      "Seni Budaya": {
+        cat: "inti", color: "linear-gradient(135deg,#9333ea,#581c87)", color2: "linear-gradient(135deg,#a855f7,#3b0764)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka (+ Kearifan Banten)",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket Seni Budaya SMP Kelas VII (+ Banten)",
+          "8": "Buku Paket Seni Budaya SMP Kelas VIII (+ Banten)",
+          "9": "Buku Paket Seni Budaya SMP Kelas IX (+ Banten)"
+        },
+        lksTitle: {
+          "7": "LKS Seni Rupa, Musik & Batik Lebak Kelas VII",
+          "8": "LKS Lagu Daerah Banten & Tari Kelas VIII",
+          "9": "LKS Seni Grafis & Pameran Karya Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 2: Ragam Hias Nusantara & Batik Khas Kab. Lebak", goal: "Menggambar ragam hias geometris dan mengenal motif Batik Lebak.", b: "• 4 jenis ragam hias: Flora, Fauna, Geometris, Figuratif.\n• Motif Batik Lebak: Leuit (lumbung padi), Gula Aren, Kahirupan Baduy, Seren Taun, Sawarna.", ex: "Contoh: Motif 'Leuit' melambangkan ketahanan pangan masyarakat Lebak.", lat: "Latihan: Motif batik Lebak berbentuk lumbung padi disebut ... (Kunci: Motif Leuit)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 2: Lagu Daerah Banten & Permainan Musik Ansambel", goal: "Menyanyikan lagu daerah Banten dengan teknik vokal yang tepat.", b: "• Lagu daerah Banten: 'Jereh Bu Guru', 'Tong Sarakah', 'Dayung Sampan', 'Yu Ragem Belajar'.\n• Teknik vokal: artikulasi, intonasi, pernapasan diafragma, phrasering.", ex: "Lagu 'Jereh Bu Guru' berpesan agar anak rajin belajar dan hormat kepada guru.", lat: "Latihan: Pernapasan terbaik untuk bernyanyi adalah ... (Kunci: Pernapasan diafragma)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 2: Seni Grafis & Apresiasi Pameran Karya Siswa", goal: "Membuat karya cetak sederhana dan mengelola pameran kelas.", b: "• Seni grafis: Cetak Tinggi (stempel/cukil), Cetak Datar, Cetak Dalam, Cetak Saring (sablon).\n• Pameran melatih apresiasi seni, percaya diri, dan kerja sama.", ex: "Sablon kaos kelas termasuk teknik cetak saring.", lat: "Latihan: Teknik sablon termasuk jenis seni grafis cetak ... (Kunci: Cetak saring)" }
+          ]
+        }
+      },
+      "Prakarya": {
+        cat: "inti", color: "linear-gradient(135deg,#ca8a04,#854d0e)", color2: "linear-gradient(135deg,#eab308,#422006)",
+        pub: "Kemendikbudristek • Kurikulum Merdeka",
+        officialUrl: SIBI_KEMDIKBUD_URL,
+        titles: {
+          "7": "Buku Paket Prakarya SMP Kelas VII",
+          "8": "Buku Paket Prakarya SMP Kelas VIII",
+          "9": "Buku Paket Prakarya SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "LKS Kerajinan & Pengolahan Pangan Kelas VII",
+          "8": "LKS Budidaya & Penjernihan Air Kelas VIII",
+          "9": "LKS Kelistrikan & Wirausaha Lokal Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Bab 2: Pengolahan Buah, Sayur & Budidaya Sayuran", goal: "Mengolah bahan pangan segar & menanam sayur di pekarangan.", b: "• Teknik memasak: merebus, mengukus, menumis, menggoreng, memanggang.\n• Budidaya polybag di rumah: kangkung, bayam, cabai, tomat.", ex: "Mengukus menjaga vitamin sayur lebih utuh dibanding menggoreng terlalu lama.", lat: "Latihan: Teknik memasak memakai uap air mendidih disebut ... (Kunci: Mengukus / steaming)" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Bab 2: Pengolahan Serealia, Umbi & Penjernihan Air", goal: "Membuat olahan singkong/ubi dan merakit alat penyaring air sederhana.", b: "• Serealia (beras, jagung) & Umbi (singkong, ubi jalar, talas).\n• Lapisan penjernih air: kerikil, pasir, arang aktif (serap bau), ijuk aren Lebak, kapas.", ex: "Ijuk pohon aren yang banyak di Lebak sangat efektif menyaring air keruh.", lat: "Latihan: Bahan penyaring air yang berfungsi menyerap bau adalah ... (Kunci: Arang aktif)" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Bab 2: Pengolahan Hasil Perikanan/Peternakan & Kemasan", goal: "Merancang olahan higienis beserta kemasan produk menarik.", b: "• Ikan, ayam, telur, susu kaya protein hewani.\n• Syarat kemasan baik: food grade, memuat nama produk, komposisi, halal, dan tanggal kedaluwarsa.", ex: "Olahan ikan pesisir selatan Banten menjadi abon/bakso ikan.", lat: "Latihan: Mengapa kemasan wajib mencantumkan tanggal kedaluwarsa? (Kunci: Mengetahui batas aman konsumsi)" }
+          ]
+        }
+      },
+      "Bimbingan Konseling": {
+        cat: "lebak", color: "linear-gradient(135deg,#0891b2,#155e75)", color2: "linear-gradient(135deg,#06b6d4,#083344)",
+        pub: "Layanan BK SMP • Zona KBM Kab. Lebak",
+        officialUrl: "",
+        titles: {
+          "7": "Buku Saku Bimbingan Konseling SMP Kelas VII",
+          "8": "Buku Saku Bimbingan Konseling SMP Kelas VIII",
+          "9": "Buku Saku Bimbingan Konseling SMP Kelas IX"
+        },
+        lksTitle: {
+          "7": "Buku Panduan Ayah & Ibu: Mendampingi Anak Kelas VII",
+          "8": "Buku Panduan Ayah & Ibu: Mendampingi Remaja Kelas VIII",
+          "9": "Buku Panduan Ayah & Ibu: Persiapan Lulus SMP Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Topik 2: Manajemen Waktu Belajar & Ibadah di Rumah", goal: "Menyusun jadwal harian seimbang antara sekolah, mengaji, dan istirahat.", b: "• Teknik Pomodoro: belajar fokus 25 menit, istirahat 5 menit.\n• Jauhkan game saat mengerjakan PR dan siapkan buku besok tiap malam bakda Isya.", ex: "Jadwal ideal: 18:00 Maghrib & mengaji → 19:30 Belajar/PR → 21:00 Siapkan tas & tidur.", lat: "Refleksi: Jam berapa biasanya kamu mulai menyiapkan buku besok?" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Topik 2: Mengelola Emosi Remaja & Komunikasi Keluarga", goal: "Mampu mengungkapkan perasaan dengan tenang serta terbuka kepada Ayah dan Ibu.", b: "• Teknik napas 4-4-4 saat kesal/stres.\n• Ceritakan kesulitan pelajaran ke Ayah/Ibu atau guru BK agar segera dibantu.", ex: "Komunikasi baik: 'Yah/Bu, aku agak bingung di bab Pythagoras, boleh bantu latihan?'", lat: "Refleksi: Tuliskan 1 hal baik yang kamu syukuri hari ini!" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Topik 2: Strategi Ujian & Pilih SMA/SMK/MA di Kab. Lebak", goal: "Menetapkan target nilai dan rencana sekolah lanjutan sejak dini.", b: "• Kenali minat: SMA (akademik), SMK (kejuruan/siap kerja), MA (berbasis agama).\n• Belajar bertahap 30–45 menit/hari jauh lebih efektif daripada sistem kebut semalam.", ex: "Diskusikan pilihan sekolah tujuan bersama Ayah & Ibu sejak Semester 1 Kelas 9.", lat: "Refleksi: Sekolah lanjutan apa yang paling kamu minati setelah lulus SMP?" }
+          ]
+        }
+      },
+      "Kokurikuler P5": {
+        cat: "lebak", color: "linear-gradient(135deg,#16a34a,#14532d)", color2: "linear-gradient(135deg,#22c55e,#052e16)",
+        pub: "Panduan P5 Kurikulum Merdeka • Kab. Lebak, Banten",
+        officialUrl: "",
+        titles: {
+          "7": "Buku Panduan Projek P5 & Kearifan Lokal Lebak Kls VII",
+          "8": "Buku Panduan Projek P5 & Kearifan Lokal Lebak Kls VIII",
+          "9": "Buku Panduan Projek P5 & Kearifan Lokal Lebak Kls IX"
+        },
+        lksTitle: {
+          "7": "Buku Jurnal Projek & Aksi Nyata P5 Kelas VII",
+          "8": "Buku Jurnal Projek & Aksi Nyata P5 Kelas VIII",
+          "9": "Buku Jurnal Projek & Wirausaha P5 Kelas IX"
+        },
+        extraChapters: {
+          "7": [
+            { sem: "Sem 2", t: "Modul 2: 6 Dimensi Profil Pelajar Pancasila", goal: "Menerapkan 6 dimensi Profil Pelajar Pancasila di rumah & sekolah.", b: "1. Beriman, bertakwa & berakhlak mulia.\n2. Berkebinekaan global.\n3. Bergotong royong.\n4. Mandiri.\n5. Bernalar kritis.\n6. Kreatif.", ex: "Aksi nyata: membantu orang tua di rumah & sholat tepat waktu.", lat: "Refleksi: Dimensi mana yang sudah kamu praktikkan minggu ini?" }
+          ],
+          "8": [
+            { sem: "Sem 2", t: "Modul 2: Projek Sekolah Ramah Lingkungan (3R)", goal: "Mengelola sampah kelas dengan prinsip Reduce, Reuse, Recycle.", b: "• Reduce: bawa tumbler & kotak bekal sendiri.\n• Reuse: gunakan kertas bekas untuk coretan hitung.\n• Recycle: olah botol plastik jadi pot tanaman/ecobrick.", ex: "Target: kurangi sampah plastik kelas hingga 70%.", lat: "Refleksi: Sudahkah kamu membawa botol minum sendiri hari ini?" }
+          ],
+          "9": [
+            { sem: "Sem 2", t: "Modul 2: Bazar Kewirausahaan Produk Khas Lebak", goal: "Menyusun rencana usaha sederhana dari ide hingga pemasaran.", b: "• Pilih produk kreatif (es cendol gula aren Lebak, keripik pisang, kriya bambu).\n• Hitung modal + kemasan + laba wajar, lalu buat poster promosi.", ex: "Harga Jual = (Total Modal / Jumlah Produk) + Laba per buah.", lat: "Latihan: Modal Rp50.000 jadi 25 porsi, laba Rp1.000/porsi → Harga jual? (Kunci: Rp3.000)" }
+          ]
+        }
+      }
+    };
+
+    function buildCompanionBookChapters(grade, subjectId) {
+      const mainChaps = buildMainBookChapters(grade, subjectId);
+      const sem1List = mainChaps.filter((c) => c.sem === "Sem 1").map((c, i) => `${i + 1}. ${c.t}`).join("\n");
+      const sem2List = mainChaps.filter((c) => c.sem === "Sem 2").map((c, i) => `${i + 1}. ${c.t}`).join("\n");
+      const quizForSub = SMP_QUIZ_BANK.filter((q) => q.g === String(grade) && q.s === subjectId);
+      const letters = ["A", "B", "C", "D"];
+
+      const soalText = quizForSub.length
+        ? quizForSub.map((q, idx) =>
+            `Soal ${idx + 1}: ${q.q}\n` +
+            q.o.map((opt, oi) => `   ${letters[oi]}. ${opt}`).join("\n") +
+            `\n   ✅ Kunci: ${letters[q.a]} (${q.o[q.a]})\n   💡 Pembahasan: ${q.e}`
+          ).join("\n\n")
+        : `1. Mintalah anak menjelaskan kembali inti dari ${mainChaps[0] ? mainChaps[0].t : subjectId} dengan bahasa sendiri.\n2. Cek catatan buku tulis sekolah anak dan cocokkan dengan daftar bab di Buku Paket Utama.\n3. Buat 3 pertanyaan singkat dari buku cetak/LKS anak lalu bahas bersama.`;
+
+      const parentGuide = [
+        {
+          sem: "Panduan",
+          t: `Bab 1: Peta Materi ${subjectId} Kelas ${grade} (Untuk Ayah & Ibu)`,
+          goal: `Membantu Ayah & Ibu mengetahui seluruh cakupan materi ${subjectId} Kelas ${grade} selama 1 tahun agar mudah dicocokkan dengan buku di sekolah.`,
+          b: `📘 SEMESTER 1 (Ganjil):\n${sem1List || "• Materi Dasar Semester 1"}\n\n📗 SEMESTER 2 (Genap):\n${sem2List || "• Materi Lanjutan Semester 2"}\n\n📌 Cara Menyesuaikan dengan Sekolah:\n1. Lihat buku tulis / LKS anak minggu ini sedang belajar bab apa.\n2. Buka Buku Paket Utama mapel ini, masuk ke bab tersebut, lalu tekan tombol "🏫 Tandai Sedang Diajarkan di Sekolah".\n3. Tulis nomor halaman buku sekolah anak di kolom "📝 Catatan Sekolah" agar Ayah/Ibu selalu sinkron dengan guru di sekolah.`,
+          ex: `Tips Pendampingan 15 Menit: Cukup tanyakan "Hari ini ${subjectId} di sekolah sampai bab & halaman berapa?" lalu cocokkan dengan daftar di atas.`,
+          lat: `Ceklis Orang Tua: Sudahkah kamu menandai bab ${subjectId} yang sedang diajarkan minggu ini?`
+        },
+        {
+          sem: "Latihan",
+          t: `Bab 2: Kumpulan Soal LKS & Pembahasan (${subjectId} Kls ${grade})`,
+          goal: `Latihan soal beserta kunci jawaban dan pembahasan lengkap agar Ayah/Ibu bisa ikut mengoreksi pekerjaan anak di rumah.`,
+          b: soalText,
+          ex: `Cara pakai: Bacakan soalnya ke anak tanpa melihat kunci jawaban, beri waktu 2–3 menit, lalu cocokkan bersama dengan pembahasannya.`,
+          lat: `Ingin latihan interaktif berwaktu? Pindah ke tab 🧠 Kuis dan pilih mapel ${subjectId}!`
+        },
+        {
+          sem: "Evaluasi",
+          t: `Bab 3: Persiapan Ulangan Harian, PTS & PAS (${subjectId})`,
+          goal: `Strategi belajar H-3 sebelum ulangan agar nilai ${subjectId} maksimal tanpa begadang.`,
+          b: `• H-3 Ulangan: Baca ulang rangkuman bab yang ditandai "🏫 Sedang Diajarkan di Sekolah" di Buku Paket Utama.\n• H-2 Ulangan: Kerjakan ulang contoh soal dari catatan guru & buku LKS sekolah (bisa difoto/dilampirkan di menu + Tambah Buku).\n• H-1 Ulangan: Uji pemahaman lewat tab 🧠 Kuis di OZNET FAMILY, pastikan tidur cukup sebelum jam 21:30.\n• Hari H: Sarapan sehat, berdoa (lihat tab 🤲 Doa → Doa Sebelum Belajar), dan periksa teliti sebelum mengumpulkan lembar ujian.`,
+          ex: `Jika ada PR atau jadwal ulangan ${subjectId}, langsung catat di tab 📝 PR agar muncul pengingat otomatis di Beranda semua HP keluarga.`,
+          lat: `Target Nilai Ulangan Berikutnya: Tulis target bersama anak dan beri apresiasi ❤️ saat nilainya tercapai!`
+        }
+      ];
+
+      // Tambahan bab khusus rumus/kamus untuk mapel inti & Mulok Lebak
+      if (subjectId === "Matematika") {
+        parentGuide.push({
+          sem: "Rumus",
+          t: "Bab 4: Lembar Contekan Rumus Cepat Matematika SMP",
+          goal: "Referensi cepat semua rumus inti Matematika SMP saat mendampingi PR anak.",
+          b: SMP_FORMULAS.mtk.map((r) => `▸ ${r.title}\n  ${r.code.replace(/\n/g, "\n  ")}\n  (${r.note})`).join("\n\n"),
+          ex: "Bisa dibuka 100% offline kapan pun anak butuh cek rumus.",
+          lat: ""
+        });
+      } else if (subjectId === "IPA") {
+        parentGuide.push({
+          sem: "Rumus",
+          t: "Bab 4: Lembar Rumus Cepat Fisika & Sains IPA SMP",
+          goal: "Referensi cepat rumus-rumus IPA SMP beserta satuan SI-nya.",
+          b: SMP_FORMULAS.ipa.map((r) => `▸ ${r.title}\n  ${r.code.replace(/\n/g, "\n  ")}\n  (${r.note})`).join("\n\n"),
+          ex: "Cocok untuk mengecek jawaban PR hitungan Fisika (kalor, gaya, usaha, listrik, optik).",
+          lat: ""
+        });
+      }
+      return parentGuide;
+    }
+
+    function inferJpForSlot(slot, idx, allSlots) {
+      if (slot.jp && String(slot.jp).trim()) return String(slot.jp).trim();
+      const subj = String(slot.subject || "");
+      if (isBreakSlotName(subj)) return "Istirahat";
+      if (/upacara|pembiasaan|literasi|tadarus|yasinan|asmaul/i.test(subj)) return "Pra-KBM";
+      if (/ekstra|pramuka/i.test(subj)) return "Ekskul";
+      // Hitung estimasi jam pelajaran berdasarkan durasi 40 menit per JP
+      let jpCursor = 1;
+      for (let i = 0; i < idx; i++) {
+        const s = allSlots[i];
+        if (!s || isBreakSlotName(s.subject) || /upacara|pembiasaan|literasi|tadarus|yasinan|asmaul|ekstra|pramuka/i.test(s.subject)) continue;
+        const dur = (s.start && s.end) ? Math.max(40, timeToMinutes(s.end) - timeToMinutes(s.start)) : 80;
+        jpCursor += Math.max(1, Math.round(dur / 40));
+      }
+      const myDur = (slot.start && slot.end) ? Math.max(40, timeToMinutes(slot.end) - timeToMinutes(slot.start)) : 80;
+      const myCount = Math.max(1, Math.round(myDur / 40));
+      return myCount > 1 ? `Jam ${jpCursor}–${jpCursor + myCount - 1}` : `Jam ${jpCursor}`;
+    }
+
     function normalizeDaySlots(rawList) {
       if (!Array.isArray(rawList)) return [];
-      return rawList.map((item) => {
+      const prelim = rawList.map((item) => {
         if (item && typeof item === "object") {
           return {
+            jp: String(item.jp || "").trim(),
             start: String(item.start || "").trim(),
             end: String(item.end || "").trim(),
             subject: String(item.subject || "").trim()
@@ -5414,9 +6162,15 @@
         }
         const s = String(item || "").trim();
         const m = s.match(/^(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})\s+(.+)$/);
-        if (m) return { start: m[1], end: m[2], subject: m[3].trim() };
-        return { start: "", end: "", subject: s };
+        if (m) return { jp: "", start: m[1], end: m[2], subject: m[3].trim() };
+        return { jp: "", start: "", end: "", subject: s };
       }).filter((x) => x.subject);
+      return prelim.map((sl, idx) => ({
+        jp: inferJpForSlot(sl, idx, prelim),
+        start: sl.start,
+        end: sl.end,
+        subject: sl.subject
+      }));
     }
 
     function normalizeAllSchedules(incoming) {
@@ -5427,7 +6181,6 @@
             SMP_DAYS.forEach((day) => {
               if (Array.isArray(incoming[g][day])) {
                 const norm = normalizeDaySlots(incoming[g][day]);
-                // Jika data lama dari v14 tidak memiliki jam sama sekali, gunakan standar jam KBM Lebak
                 const hasAnyTime = norm.some((x) => x.start || x.end);
                 if (norm.length && hasAnyTime) {
                   out[g][day] = norm;
@@ -5475,6 +6228,10 @@
             schedules: normalizeAllSchedules(p.schedules),
             tasks: Array.isArray(p.tasks) ? p.tasks : [],
             customMaterials: Array.isArray(p.customMaterials) ? p.customMaterials : [],
+            customBooks: Array.isArray(p.customBooks) ? p.customBooks : [],
+            readChapters: (p.readChapters && typeof p.readChapters === "object") ? p.readChapters : {},
+            schoolActiveChapters: (p.schoolActiveChapters && typeof p.schoolActiveChapters === "object") ? p.schoolActiveChapters : {},
+            chapterNotes: (p.chapterNotes && typeof p.chapterNotes === "object") ? p.chapterNotes : {},
             bestScores: (p.bestScores && typeof p.bestScores === "object") ? p.bestScores : {}
           };
         }
@@ -5484,6 +6241,10 @@
         schedules: JSON.parse(JSON.stringify(DEFAULT_SMP_SCHEDULES)),
         tasks: [],
         customMaterials: [],
+        customBooks: [],
+        readChapters: {},
+        schoolActiveChapters: {},
+        chapterNotes: {},
         bestScores: {}
       };
     }
@@ -5491,12 +6252,15 @@
     let smpState = loadSmpState();
     let activeSmpSubtab = "materi";
     let activeSmpPrFilter = "pending";
+    let activeSmpBookFilter = "all";
     let activeSmpQuizMode = "quiz"; // "quiz" | "rumus"
     let activeSmpRumusFilter = "mtk";
     let editingSmpDayName = "";
     let editingDayDraftSlots = [];
     const expandedSmpSubjects = new Set(["Matematika", "IPA", "Bahasa Sunda", "BTQ"]);
     let smpQuizSession = null;
+    let activeBookReader = null; // { grade, subjectId, chapIdx }
+    let readerFontSizePx = 15;
 
     function saveSmpStateLocal() {
       try { localStorage.setItem(SMP_STORE_KEY, JSON.stringify(smpState)); } catch (e) {}
@@ -5509,6 +6273,10 @@
       }
       if (Array.isArray(d.tasks)) smpState.tasks = d.tasks;
       if (Array.isArray(d.customMaterials)) smpState.customMaterials = d.customMaterials;
+      if (Array.isArray(d.customBooks)) smpState.customBooks = d.customBooks;
+      if (d.readChapters && typeof d.readChapters === "object") smpState.readChapters = Object.assign({}, smpState.readChapters, d.readChapters);
+      if (d.schoolActiveChapters && typeof d.schoolActiveChapters === "object") smpState.schoolActiveChapters = d.schoolActiveChapters;
+      if (d.chapterNotes && typeof d.chapterNotes === "object") smpState.chapterNotes = d.chapterNotes;
       saveSmpStateLocal();
       renderHomeSmpCard();
       if (!$("smp-modal").classList.contains("hidden")) renderSmpActiveTab();
@@ -5522,6 +6290,10 @@
         schedules: smpState.schedules,
         tasks: smpState.tasks,
         customMaterials: smpState.customMaterials,
+        customBooks: smpState.customBooks,
+        readChapters: smpState.readChapters,
+        schoolActiveChapters: smpState.schoolActiveChapters,
+        chapterNotes: smpState.chapterNotes,
         updatedAt: Date.now()
       }, { merge: true }).then(markServerConnected).catch((err) => {
         handleCloudError(err);
@@ -5568,7 +6340,7 @@
         prev.style.color = "var(--text)";
         prev.style.fontWeight = "700";
       } else if (nowSlot) {
-        prev.textContent = `🟢 Sekarang (${nowSlot.start}–${nowSlot.end}): ${nowSlot.subject}`;
+        prev.textContent = `🟢 ${nowSlot.jp} (${nowSlot.start}–${nowSlot.end}): ${nowSlot.subject}`;
         prev.style.color = "var(--emerald)";
         prev.style.fontWeight = "700";
       } else if (todaySlots.length) {
@@ -5581,7 +6353,7 @@
         const tomNames = tomSlots.filter((x) => !isBreakSlotName(x.subject)).map((x) => x.subject).slice(0, 3);
         prev.textContent = tomNames.length
           ? `Kls ${g} • Besok (${tomName}): ${tomNames.join(", ")}`
-          : "15 Mapel KBM Lebak • Jadwal & Jam • PR • Kuis";
+          : "15 Mapel • Multi-Buku & LKS Lebak • Cek Materi Sekolah";
         prev.style.color = "var(--text-muted)";
         prev.style.fontWeight = "500";
       }
@@ -5599,6 +6371,7 @@
       const opts = SMP_SUBJECTS.map((s) => `<option value="${s.id}">${s.ico} ${s.label}</option>`).join("");
       if ($("smp-pr-subject")) $("smp-pr-subject").innerHTML = opts;
       if ($("smp-cm-subject")) $("smp-cm-subject").innerHTML = opts;
+      if ($("smp-cb-subject")) $("smp-cb-subject").innerHTML = opts;
       const dl = $("smp-subject-suggestions");
       if (dl) {
         const extras = [
@@ -5629,7 +6402,7 @@
       document.querySelectorAll("#smp-subtabs .smp-subtab").forEach((b) => {
         b.classList.toggle("active", b.dataset.smptab === tab);
       });
-      ["materi", "jadwal", "pr", "kuis"].forEach((t) => {
+      ["materi", "buku", "jadwal", "pr", "kuis"].forEach((t) => {
         const el = $("smp-pane-" + t);
         if (el) el.classList.toggle("hidden", t !== tab);
       });
@@ -5639,6 +6412,7 @@
 
     function renderSmpActiveTab() {
       if (activeSmpSubtab === "materi") renderSmpMateri();
+      else if (activeSmpSubtab === "buku") renderSmpBuku();
       else if (activeSmpSubtab === "jadwal") renderSmpJadwal();
       else if (activeSmpSubtab === "pr") renderSmpTasks();
       else if (activeSmpSubtab === "kuis") renderSmpQuizOrRumus();
@@ -5648,33 +6422,476 @@
       return currentUserId === "ayah" || currentUserId === "ibu";
     }
 
+    function buildMainBookChapters(grade, subjectId) {
+      const builtIn = (SMP_BUILTIN_MATERIALS[grade] && SMP_BUILTIN_MATERIALS[grade][subjectId]) || [];
+      const meta = SMP_BOOK_METADATA[subjectId] || {};
+      const extras = (meta.extraChapters && meta.extraChapters[grade]) || [];
+      const customs = smpState.customMaterials.filter((c) => String(c.grade) === String(grade) && c.subject === subjectId);
+
+      const chapters = [];
+      builtIn.forEach((m) => {
+        chapters.push({
+          sem: "Sem 1",
+          t: m.t,
+          goal: `Memahami konsep utama dan penerapan ${m.t} untuk SMP Kelas ${grade} (KBM Kab. Lebak).`,
+          b: m.b,
+          ex: "",
+          lat: ""
+        });
+      });
+      extras.forEach((exCh) => {
+        chapters.push({
+          sem: exCh.sem || "Sem 2",
+          t: exCh.t,
+          goal: exCh.goal || "",
+          b: exCh.b || "",
+          ex: exCh.ex || "",
+          lat: exCh.lat || ""
+        });
+      });
+      customs.forEach((c) => {
+        chapters.push({
+          sem: "Sekolah",
+          t: "⭐ " + c.title,
+          goal: "Catatan tambahan dari Ayah/Ibu sesuai materi di sekolah.",
+          b: c.content || "",
+          ex: "",
+          lat: "",
+          link: c.link || ""
+        });
+      });
+      return chapters;
+    }
+
+    function getBooksForSubject(grade, subjectId) {
+      const sub = getSubjectMetaByName(subjectId);
+      const meta = SMP_BOOK_METADATA[subjectId] || {
+        cat: "inti", color: "linear-gradient(135deg,#0f766e,#115e59)", color2: "linear-gradient(135deg,#1d4ed8,#1e3a8a)",
+        pub: "KBM Kab. Lebak", officialUrl: "", titles: {}, lksTitle: {}
+      };
+      const mainTitle = (meta.titles && meta.titles[grade]) || `Buku Paket ${sub.label} Kelas ${grade}`;
+      const lksTitle = (meta.lksTitle && meta.lksTitle[grade]) || `LKS & Panduan Orang Tua ${sub.label} Kls ${grade}`;
+      const mainChaps = buildMainBookChapters(grade, subjectId);
+      const lksChaps = buildCompanionBookChapters(grade, subjectId);
+
+      const books = [
+        {
+          id: `main_${grade}_${subjectId}`,
+          bookKey: "main",
+          kind: "digital",
+          isBuiltIn: true,
+          badge: "Buku 1 • Paket",
+          cat: meta.cat,
+          color: meta.color,
+          ico: sub.ico,
+          title: mainTitle,
+          pub: meta.pub,
+          officialUrl: meta.officialUrl || "",
+          chapters: mainChaps
+        },
+        {
+          id: `lks_${grade}_${subjectId}`,
+          bookKey: "lks",
+          kind: "digital",
+          isBuiltIn: true,
+          badge: "Buku 2 • LKS & Ortu",
+          cat: meta.cat,
+          color: meta.color2 || meta.color,
+          ico: "📝",
+          title: lksTitle,
+          pub: `Peta Materi, Soal Pembahasan & Pendampingan Orang Tua • Kls ${grade}`,
+          officialUrl: "",
+          chapters: lksChaps
+        }
+      ];
+
+      // Tambahkan semua buku kustom (PDF/Drive maupun Buku Digital Ketik Sendiri) milik mapel & kelas ini
+      const customs = smpState.customBooks.filter((b) => String(b.grade) === String(grade) && b.subject === subjectId);
+      customs.forEach((cb, idx) => {
+        const isDigital = cb.mode === "digital" || Array.isArray(cb.chapters);
+        books.push({
+          id: cb.id,
+          bookKey: cb.id,
+          kind: isDigital ? "custom_digital" : "pdf",
+          isBuiltIn: false,
+          badge: isDigital ? `Buku ${idx + 3} • Sekolah` : `Buku ${idx + 3} • PDF`,
+          cat: "custom",
+          color: isDigital ? "linear-gradient(135deg,#b45309,#78350f)" : "linear-gradient(135deg,#eab308,#a16207)",
+          ico: isDigital ? "📓" : "📎",
+          title: cb.title,
+          pub: cb.pub || (isDigital ? "Buku Digital Sekolah (Buatan Keluarga)" : "Buku PDF / Google Drive Sekolah"),
+          url: cb.url || "",
+          createdBy: cb.createdBy || "",
+          chapters: isDigital ? (Array.isArray(cb.chapters) ? cb.chapters : []) : []
+        });
+      });
+
+      return books;
+    }
+
+    function getChapterKey(grade, subjectId, bookKey, chapIdx) {
+      // Backward compatible untuk buku utama v16 (`g|sub|idx`)
+      if (bookKey === "main") return `${grade}|${subjectId}|${chapIdx}`;
+      return `${grade}|${subjectId}|${bookKey}|${chapIdx}`;
+    }
+
+    function countSchoolActiveInSubject(grade, subjectId) {
+      const books = getBooksForSubject(grade, subjectId);
+      let count = 0;
+      const activeTitles = [];
+      books.forEach((bk) => {
+        if (!bk.chapters || !bk.chapters.length) return;
+        bk.chapters.forEach((ch, idx) => {
+          const k = getChapterKey(grade, subjectId, bk.bookKey, idx);
+          if (smpState.schoolActiveChapters && smpState.schoolActiveChapters[k]) {
+            count++;
+            activeTitles.push(ch.t);
+          }
+        });
+      });
+      return { count, activeTitles };
+    }
+
+    function convertToEmbedPdfUrl(rawUrl) {
+      const url = String(rawUrl || "").trim();
+      if (!/^https?:\/\//i.test(url)) return "";
+      const mDrive = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/i);
+      if (mDrive) return `https://drive.google.com/file/d/${mDrive[1]}/preview`;
+      const mOpen = url.match(/drive\.google\.com\/open\?id=([^&#]+)/i);
+      if (mOpen) return `https://drive.google.com/file/d/${mOpen[1]}/preview`;
+      if (/dropbox\.com/i.test(url)) return url.replace(/dl=0/i, "raw=1");
+      return url;
+    }
+
+    function renderSmpBuku() {
+      const addBtn = $("btn-smp-add-book");
+      if (addBtn) addBtn.classList.toggle("hidden", !canManageSmpCustom());
+
+      document.querySelectorAll("#smp-buku-filters .pill-opt").forEach((b) => {
+        b.classList.toggle("active", b.dataset.bfilter === activeSmpBookFilter);
+      });
+
+      const g = smpState.grade;
+      const q = ($("smp-buku-search") ? $("smp-buku-search").value : "").trim().toLowerCase();
+      const customBooksForGrade = smpState.customBooks.filter((b) => String(b.grade) === String(g));
+      const totalBooks = SMP_SUBJECTS.length * 2 + customBooksForGrade.length;
+
+      const statsEl = $("smp-buku-stats");
+      if (statsEl) {
+        statsEl.textContent = `Kelas ${g} • Total ${totalBooks} Buku (Tiap mapel punya Buku Paket Utama + LKS/Panduan Ortu${customBooksForGrade.length ? ` + ${customBooksForGrade.length} Buku Sekolah` : ""}). Tandai bab yang sedang diajarkan guru agar sesuai sekolah!`;
+      }
+
+      const box = $("smp-buku-list");
+      let htmlOut = "";
+
+      SMP_SUBJECTS.forEach((sub) => {
+        const meta = SMP_BOOK_METADATA[sub.id];
+        if (!meta) return;
+        if (activeSmpBookFilter === "inti" && meta.cat !== "inti") return;
+        if (activeSmpBookFilter === "lebak" && meta.cat !== "lebak") return;
+
+        const books = getBooksForSubject(g, sub.id);
+        const schoolInfo = countSchoolActiveInSubject(g, sub.id);
+        if (activeSmpBookFilter === "school" && schoolInfo.count === 0) return;
+
+        const visibleBooks = books.filter((bk) => {
+          if (activeSmpBookFilter === "custom" && bk.isBuiltIn) return false;
+          if (!q) return true;
+          const blob = (sub.label + " " + bk.title + " " + bk.pub + " " + (bk.chapters || []).map((c) => c.t).join(" ")).toLowerCase();
+          return blob.includes(q);
+        });
+
+        if (!visibleBooks.length) return;
+
+        htmlOut += `
+          <div class="smp-book-group-head">
+            <div style="font-weight:800;font-size:0.86rem;color:var(--accent);">
+              ${sub.ico} ${escapeHtml(sub.label)} <span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">(${visibleBooks.length} buku)</span>
+            </div>
+            ${canManageSmpCustom() ? `<button type="button" class="btn btn-sm" onclick="openAddSmpBookModal('${escapeHtml(sub.id)}')" style="padding:3px 8px;font-size:0.69rem;">+ Buku</button>` : ""}
+          </div>
+        `;
+
+        visibleBooks.forEach((bk) => {
+          const isPdf = bk.kind === "pdf";
+          const chapCount = (bk.chapters || []).length;
+          const doneCount = isPdf ? 0 : bk.chapters.filter((_, i) => !!smpState.readChapters[getChapterKey(g, sub.id, bk.bookKey, i)]).length;
+          const schoolCount = isPdf ? 0 : bk.chapters.filter((_, i) => !!(smpState.schoolActiveChapters && smpState.schoolActiveChapters[getChapterKey(g, sub.id, bk.bookKey, i)])).length;
+          const canDel = !bk.isBuiltIn && (isAdmin() || bk.createdBy === currentUserId);
+
+          htmlOut += `
+            <div class="smp-book-card">
+              <div class="smp-book-cover" style="background:${bk.color};">
+                <span class="smp-book-cover-ico">${bk.ico}</span>
+                <span class="smp-book-cover-cls">${isPdf ? "PDF" : "Kls " + g}</span>
+              </div>
+              <div class="smp-book-info">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+                  <div class="smp-book-title">${escapeHtml(bk.title)}</div>
+                  ${canDel ? `<button type="button" class="report-comment-del" onclick="deleteSmpCustomBook('${bk.id}')" title="Hapus buku">🗑️</button>` : ""}
+                </div>
+                <div class="smp-book-pub">${escapeHtml(bk.pub)}</div>
+                <div class="smp-book-tags">
+                  <span class="role-tag">${escapeHtml(bk.badge)}</span>
+                  ${!isPdf ? `<span class="smp-due-pill ok">📑 ${chapCount} Bab • ${doneCount}/${chapCount} selesai</span>` : ""}
+                  ${schoolCount > 0 ? `<span class="smp-school-pill">🏫 ${schoolCount} Bab di Sekolah</span>` : ""}
+                </div>
+                <div class="smp-book-actions">
+                  ${isPdf
+                    ? `<button type="button" class="btn btn-sm btn-primary" onclick="openSmpPdfViewer('${escapeHtml(bk.title)}','${escapeHtml(bk.url)}')">📖 Buka PDF di Aplikasi</button>`
+                    : `<button type="button" class="btn btn-sm btn-primary" onclick="openSmpBookReader('${escapeHtml(sub.id)}',0,'${escapeHtml(bk.bookKey)}')">📖 Buka & Baca Buku</button>`
+                  }
+                  ${bk.officialUrl ? `<a href="${bk.officialUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="text-decoration:none;">🌐 SIBI PDF</a>` : ""}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      });
+
+      if (!htmlOut) {
+        const emptyMsg = activeSmpBookFilter === "school"
+          ? "Belum ada bab yang ditandai <strong>🏫 Sedang Diajarkan di Sekolah</strong>. Buka salah satu buku lalu ketuk tombol <em>🏫 Tandai Materi Sekolah Sekarang</em> pada bab yang sedang dipelajari anak."
+          : (activeSmpBookFilter === "custom"
+            ? "Belum ada Buku Sekolah tambahan untuk Kelas " + g + ". Ketuk <strong>+ Buku PDF</strong> untuk menambahkan LKS / link Google Drive / buku ketik sendiri."
+            : "Buku tidak ditemukan untuk kata kunci tersebut.");
+        box.innerHTML = `<div class="card glass" style="text-align:center;color:var(--text-muted);font-size:0.82rem;padding:18px;line-height:1.5;">${emptyMsg}</div>`;
+        return;
+      }
+      box.innerHTML = htmlOut;
+    }
+
+    window.openAddSmpBookModal = (presetSubject = "") => {
+      if (!canManageSmpCustom()) return showToast("Hanya Ayah/Ibu yang dapat menambah buku pelajaran.");
+      renderSmpSelects();
+      if (presetSubject && $("smp-cb-subject")) $("smp-cb-subject").value = presetSubject;
+      $("smp-cb-mode").value = "pdf";
+      $("smp-cb-url-wrap").classList.remove("hidden");
+      $("smp-cb-digital-wrap").classList.add("hidden");
+      $("smp-cb-title").value = "";
+      $("smp-cb-pub").value = "";
+      $("smp-cb-url").value = "";
+      $("smp-cb-ch1-title").value = "";
+      $("smp-cb-ch1-body").value = "";
+      openModalById("smp-add-book-modal");
+    };
+
+    window.openSmpBookReader = (subjectId, chapIdx = 0, bookKey = "main") => {
+      const g = smpState.grade;
+      activeBookReader = { grade: g, subjectId, bookKey: bookKey || "main", chapIdx };
+      renderSmpBookReader();
+      openModalById("smp-book-reader-modal");
+    };
+
+    function renderSmpBookReader() {
+      if (!activeBookReader) return;
+      const { grade, subjectId, bookKey, chapIdx } = activeBookReader;
+      const allBooks = getBooksForSubject(grade, subjectId);
+      const book = allBooks.find((b) => b.bookKey === bookKey) || allBooks[0];
+      if (!book) return;
+      activeBookReader.bookKey = book.bookKey;
+
+      const chapters = book.chapters || [];
+      const idx = Math.max(0, Math.min(chapIdx, Math.max(0, chapters.length - 1)));
+      activeBookReader.chapIdx = idx;
+
+      $("smp-reader-title").textContent = `${book.ico} ${book.title}`;
+      $("smp-reader-sub").textContent = `${book.badge} • Bab ${idx + 1} dari ${chapters.length}`;
+
+      const chapsBar = $("smp-reader-chaps");
+      chapsBar.innerHTML = chapters.map((c, i) => {
+        const k = getChapterKey(grade, subjectId, book.bookKey, i);
+        const isDone = !!smpState.readChapters[k];
+        const isSchool = !!(smpState.schoolActiveChapters && smpState.schoolActiveChapters[k]);
+        return `<button type="button" class="smp-reader-chap-pill ${i === idx ? "active" : ""} ${isDone ? "done" : ""} ${isSchool ? "school-now" : ""}" onclick="selectSmpReaderChapter(${i})">${isSchool ? "🏫 " : (isDone ? "✓ " : "")}Bab ${i + 1}</button>`;
+      }).join("") + (book.kind === "custom_digital" && canManageSmpCustom()
+        ? `<button type="button" class="smp-reader-chap-pill" style="border-color:var(--accent);color:var(--accent);" onclick="promptAddCustomBookChapter('${escapeHtml(book.id)}')">+ Bab</button>`
+        : "");
+
+      const cur = chapters[idx];
+      const chapKey = getChapterKey(grade, subjectId, book.bookKey, idx);
+      const isDone = !!smpState.readChapters[chapKey];
+      const isSchool = !!(smpState.schoolActiveChapters && smpState.schoolActiveChapters[chapKey]);
+      const savedNote = (smpState.chapterNotes && smpState.chapterNotes[chapKey]) || "";
+      const body = $("smp-reader-body");
+      body.style.fontSize = readerFontSizePx + "px";
+
+      if (!cur) {
+        body.innerHTML = '<div class="card glass">Bab buku belum tersedia.</div>';
+        return;
+      }
+
+      const safeLink = cur.link && /^https?:\/\//i.test(cur.link) ? cur.link : "";
+      // Pindah cepat antar buku dalam mapel yang sama
+      const otherDigitalBooks = allBooks.filter((b) => b.kind !== "pdf");
+      const switcherHtml = otherDigitalBooks.length > 1 ? `
+        <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px;">
+          ${otherDigitalBooks.map((b) => `
+            <button type="button" class="pill-opt ${b.bookKey === book.bookKey ? "active" : ""}" style="white-space:nowrap;font-size:0.72rem;padding:5px 9px;" onclick="openSmpBookReader('${escapeHtml(subjectId)}',0,'${escapeHtml(b.bookKey)}')">${b.ico} ${escapeHtml(b.badge)}</button>
+          `).join("")}
+        </div>
+      ` : "";
+
+      body.innerHTML = `
+        ${switcherHtml}
+        <div class="smp-reader-sec" style="border-color:${isSchool ? "var(--accent)" : "var(--glass-border)"};">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+            ${cur.sem ? `<span class="smp-sem-pill">${escapeHtml(cur.sem)}</span>` : ""}
+            ${isSchool ? `<span class="smp-school-pill">🏫 Sedang Diajarkan di Sekolah</span>` : ""}
+            ${isDone ? `<span class="smp-due-pill ok">✅ Selesai Dipelajari</span>` : ""}
+          </div>
+          <h4 style="font-size:1.02rem;margin-bottom:5px;">${escapeHtml(cur.t)}</h4>
+          ${cur.goal ? `<div style="font-size:0.8em;color:var(--text-muted);">🎯 <strong>Tujuan Belajar:</strong> ${escapeHtml(cur.goal)}</div>` : ""}
+        </div>
+
+        <div class="smp-reader-sec">
+          <h4>📖 Isi & Uraian Materi</h4>
+          <div class="smp-reader-sec-text">${escapeHtml(cur.b)}</div>
+          ${safeLink ? `<div style="margin-top:10px;"><button type="button" class="btn btn-sm btn-primary" onclick="openSmpPdfViewer('${escapeHtml(cur.t)}','${escapeHtml(safeLink)}')">🔗 Buka Lampiran PDF / Video</button></div>` : ""}
+        </div>
+
+        ${cur.ex ? `
+          <div class="smp-reader-sec">
+            <h4>💡 Contoh Penerapan / Soal</h4>
+            <div class="smp-reader-sec-text">${escapeHtml(cur.ex)}</div>
+          </div>
+        ` : ""}
+
+        ${cur.lat ? `
+          <div class="smp-reader-sec" style="border-color:rgba(16,185,129,0.45);">
+            <h4 style="color:var(--emerald);">✍️ Latihan & Cek Pemahaman</h4>
+            <div class="smp-reader-sec-text">${escapeHtml(cur.lat)}</div>
+          </div>
+        ` : ""}
+
+        <div class="smp-reader-sec" style="border-color:rgba(234,179,8,0.4);">
+          <h4>🏫 Penyesuaian dengan Buku / Guru Sekolah</h4>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px;">
+            <button type="button" class="btn btn-sm ${isSchool ? "btn-primary" : ""}" style="flex:1;" onclick="toggleSmpChapterSchoolActive()">
+              ${isSchool ? "🏫 Sedang Diajarkan di Sekolah ✓" : "🏫 Tandai Materi Sekolah Sekarang"}
+            </button>
+            <button type="button" class="btn btn-sm ${isDone ? "btn-emerald" : ""}" style="flex:1;" onclick="toggleSmpChapterRead()">
+              ${isDone ? "✅ Selesai Dipelajari" : "☑️ Tandai Selesai"}
+            </button>
+          </div>
+          <div style="font-size:0.74rem;color:var(--text-muted);margin-bottom:5px;">📝 Catatan Halaman Buku Sekolah / Pesan Guru (tersinkron ke semua HP):</div>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="smp-chap-note-input" class="input" value="${escapeHtml(savedNote)}" placeholder="Misal: LKS Hal. 24-29, ulangan hari Kamis..." style="padding:8px 10px;font-size:0.8rem;" />
+            <button type="button" class="btn btn-sm btn-emerald" onclick="saveSmpChapterNote()">Simpan</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button type="button" class="btn btn-sm" style="flex:1;" ${idx === 0 ? "disabled" : ""} onclick="selectSmpReaderChapter(${idx - 1})">← Bab Sebelumnya</button>
+          <button type="button" class="btn btn-sm" style="flex:1;" ${idx >= chapters.length - 1 ? "disabled" : ""} onclick="selectSmpReaderChapter(${idx + 1})">Bab Berikutnya →</button>
+        </div>
+      `;
+      body.scrollTop = 0;
+    }
+
+    window.selectSmpReaderChapter = (newIdx) => {
+      if (!activeBookReader) return;
+      activeBookReader.chapIdx = newIdx;
+      renderSmpBookReader();
+    };
+
+    window.toggleSmpChapterSchoolActive = () => {
+      if (!activeBookReader) return;
+      const { grade, subjectId, bookKey, chapIdx } = activeBookReader;
+      const key = getChapterKey(grade, subjectId, bookKey, chapIdx);
+      if (!smpState.schoolActiveChapters) smpState.schoolActiveChapters = {};
+      if (smpState.schoolActiveChapters[key]) delete smpState.schoolActiveChapters[key];
+      else smpState.schoolActiveChapters[key] = Date.now();
+      syncSmpToCloud();
+      renderSmpBookReader();
+      renderSmpActiveTab();
+      showToast(smpState.schoolActiveChapters[key] ? "🏫 Bab ditandai sebagai Materi Sekolah Sekarang!" : "Tanda materi sekolah dilepas.", 2200);
+    };
+
+    window.toggleSmpChapterRead = () => {
+      if (!activeBookReader) return;
+      const { grade, subjectId, bookKey, chapIdx } = activeBookReader;
+      const key = getChapterKey(grade, subjectId, bookKey, chapIdx);
+      if (smpState.readChapters[key]) delete smpState.readChapters[key];
+      else smpState.readChapters[key] = Date.now();
+      syncSmpToCloud();
+      renderSmpBookReader();
+      renderSmpActiveTab();
+      showToast(smpState.readChapters[key] ? "✅ Mantap! Bab ditandai selesai dipelajari." : "Tanda selesai dilepas.", 2000);
+    };
+
+    window.saveSmpChapterNote = () => {
+      if (!activeBookReader) return;
+      const { grade, subjectId, bookKey, chapIdx } = activeBookReader;
+      const key = getChapterKey(grade, subjectId, bookKey, chapIdx);
+      const val = ($("smp-chap-note-input") ? $("smp-chap-note-input").value : "").trim();
+      if (!smpState.chapterNotes) smpState.chapterNotes = {};
+      if (val) smpState.chapterNotes[key] = val;
+      else delete smpState.chapterNotes[key];
+      syncSmpToCloud();
+      renderSmpActiveTab();
+      showToast("📝 Catatan buku sekolah tersimpan & tersinkron!", 2200);
+    };
+
+    window.promptAddCustomBookChapter = (bookId) => {
+      if (!canManageSmpCustom()) return;
+      const bk = smpState.customBooks.find((b) => b.id === bookId);
+      if (!bk) return;
+      const t = prompt("Judul Bab baru (misal: Bab 2 - Persamaan Linear):");
+      if (!t || !t.trim()) return;
+      const b = prompt("Tulis ringkasan / isi materi bab ini:");
+      if (!b || !b.trim()) return;
+      if (!Array.isArray(bk.chapters)) bk.chapters = [];
+      bk.chapters.push({ sem: "Sekolah", t: t.trim(), goal: "Materi buku sekolah.", b: b.trim(), ex: "", lat: "" });
+      syncSmpToCloud();
+      activeBookReader.chapIdx = bk.chapters.length - 1;
+      renderSmpBookReader();
+      renderSmpActiveTab();
+      showToast("✅ Bab baru berhasil ditambahkan ke buku!");
+    };
+
+    window.openSmpPdfViewer = (title, rawUrl) => {
+      const embedUrl = convertToEmbedPdfUrl(rawUrl);
+      if (!embedUrl) return showToast("Link PDF tidak valid.");
+      $("smp-pdf-title").textContent = "📕 " + (title || "Buku PDF");
+      $("smp-pdf-ext-link").href = rawUrl;
+      $("smp-pdf-frame").src = embedUrl;
+      openModalById("smp-pdf-viewer-modal");
+    };
+
+    window.deleteSmpCustomBook = (id) => {
+      if (!confirm("Hapus buku ini dari rak mata pelajaran?")) return;
+      smpState.customBooks = smpState.customBooks.filter((x) => x.id !== id);
+      syncSmpToCloud();
+      renderSmpActiveTab();
+      showToast("Buku dihapus.");
+    };
+
     function renderSmpMateri() {
       const addBtn = $("btn-smp-add-materi");
       if (addBtn) addBtn.classList.toggle("hidden", !canManageSmpCustom());
 
       const q = ($("smp-materi-search") ? $("smp-materi-search").value : "").trim().toLowerCase();
       const g = smpState.grade;
-      const builtInMap = SMP_BUILTIN_MATERIALS[g] || {};
       const box = $("smp-materi-list");
       let htmlOut = "";
 
       SMP_SUBJECTS.forEach((sub) => {
-        const builtIns = builtInMap[sub.id] || [];
-        const customs = smpState.customMaterials.filter((c) => String(c.grade) === g && c.subject === sub.id);
-        const allItems = [
-          ...customs.map((c) => ({ isCustom: true, id: c.id, t: c.title, b: c.content, link: c.link || "", by: c.createdBy || "" })),
-          ...builtIns.map((m) => ({ isCustom: false, t: m.t, b: m.b }))
-        ];
+        const books = getBooksForSubject(g, sub.id);
+        const mainBook = books[0];
+        const chapters = mainBook ? (mainBook.chapters || []) : [];
+        const schoolInfo = countSchoolActiveInSubject(g, sub.id);
 
-        const filtered = q
-          ? allItems.filter((item) =>
+        const filteredChaps = q
+          ? chapters.map((c, idx) => ({ c, idx })).filter(({ c }) =>
               sub.label.toLowerCase().includes(q) ||
-              (item.t || "").toLowerCase().includes(q) ||
-              (item.b || "").toLowerCase().includes(q)
+              (c.t || "").toLowerCase().includes(q) ||
+              (c.b || "").toLowerCase().includes(q)
             )
-          : allItems;
+          : chapters.map((c, idx) => ({ c, idx }));
 
-        if (q && !filtered.length) return;
+        const bookMatchesQ = !q || books.some((bk) => (bk.title + " " + bk.pub).toLowerCase().includes(q));
+        if (q && !filteredChaps.length && !bookMatchesQ) return;
         const isOpen = !!q || expandedSmpSubjects.has(sub.id);
 
         htmlOut += `
@@ -5684,26 +6901,63 @@
                 <div class="smp-mapel-ico">${sub.ico}</div>
                 <div style="min-width:0;">
                   <div style="font-weight:800;font-size:0.9rem;">${escapeHtml(sub.label)}</div>
-                  <div style="font-size:0.72rem;color:var(--text-muted);">Kelas ${g} • ${filtered.length} bab/catatan${customs.length ? ` (${customs.length} tambahan)` : ""}</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);">
+                    Kelas ${g} • <strong>${books.length} Buku</strong> • ${chapters.length} Bab
+                    ${schoolInfo.count > 0 ? `<span class="smp-school-pill" style="margin-left:4px;">🏫 ${schoolInfo.count} aktif</span>` : ""}
+                  </div>
                 </div>
               </div>
               <span style="font-size:0.85rem;color:var(--accent);font-weight:800;">${isOpen ? "▲" : "▼"}</span>
             </div>
-            ${isOpen ? filtered.map((item) => {
-              const safeUrl = item.link && /^https?:\/\//i.test(item.link) ? item.link : "";
-              return `
-                <div class="smp-chap-item">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">
-                    <div class="smp-chap-title">${item.isCustom ? "⭐ " : ""}${escapeHtml(item.t)}</div>
-                    ${(item.isCustom && (isAdmin() || item.by === currentUserId))
-                      ? `<button type="button" class="report-comment-del" onclick="deleteSmpCustomMateri('${item.id}')" title="Hapus catatan">🗑️</button>`
-                      : ""}
-                  </div>
-                  <div class="smp-chap-body">${escapeHtml(item.b)}</div>
-                  ${safeUrl ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="smp-link-chip">🔗 Buka PDF / Video Materi</a>` : ""}
+            ${isOpen ? `
+              <div class="smp-mini-shelf">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                  <span style="font-size:0.73rem;font-weight:800;color:var(--accent);">📚 Rak Buku ${escapeHtml(sub.id)} (${books.length} Buku)</span>
+                  ${canManageSmpCustom() ? `<button type="button" class="btn btn-sm" onclick="openAddSmpBookModal('${escapeHtml(sub.id)}')" style="padding:3px 8px;font-size:0.69rem;">+ Tambah Buku</button>` : ""}
                 </div>
-              `;
-            }).join("") : ""}
+                ${books.map((bk) => {
+                  const isPdf = bk.kind === "pdf";
+                  const clickAttr = isPdf
+                    ? `onclick="openSmpPdfViewer('${escapeHtml(bk.title)}','${escapeHtml(bk.url)}')"`
+                    : `onclick="openSmpBookReader('${escapeHtml(sub.id)}',0,'${escapeHtml(bk.bookKey)}')"`;
+                  return `
+                    <div class="smp-mini-book ${!bk.isBuiltIn ? "is-school-book" : ""}" ${clickAttr}>
+                      <div class="smp-mini-cover" style="background:${bk.color};">
+                        <span>${bk.ico}</span>
+                        <small>${isPdf ? "PDF" : (bk.chapters.length + " BAB")}</small>
+                      </div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-weight:800;font-size:0.81rem;line-height:1.25;">${escapeHtml(bk.title)}</div>
+                        <div style="font-size:0.69rem;color:var(--text-muted);margin-top:2px;">${escapeHtml(bk.badge)} • ${escapeHtml(bk.pub)}</div>
+                      </div>
+                      <span style="font-size:0.78rem;color:var(--accent);font-weight:800;">Baca ›</span>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+
+              <div style="font-size:0.73rem;font-weight:800;color:var(--text-muted);margin:8px 0 4px;">📑 Daftar Isi Bab (Ketuk bab untuk baca & tandai sesuai sekolah):</div>
+              ${filteredChaps.map(({ c, idx }) => {
+                const k = getChapterKey(g, sub.id, "main", idx);
+                const isSchool = !!(smpState.schoolActiveChapters && smpState.schoolActiveChapters[k]);
+                const isDone = !!smpState.readChapters[k];
+                const note = (smpState.chapterNotes && smpState.chapterNotes[k]) || "";
+                return `
+                  <div class="smp-chap-toc-row ${isSchool ? "school-now" : ""}" onclick="openSmpBookReader('${escapeHtml(sub.id)}',${idx},'main')">
+                    <div style="flex:1;min-width:0;">
+                      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:2px;">
+                        ${c.sem ? `<span class="smp-sem-pill">${escapeHtml(c.sem)}</span>` : ""}
+                        ${isSchool ? `<span class="smp-school-pill">🏫 Di Sekolah</span>` : ""}
+                        ${isDone ? `<span style="font-size:0.68rem;color:var(--emerald);font-weight:800;">✅ Selesai</span>` : ""}
+                      </div>
+                      <div style="font-weight:700;font-size:0.82rem;color:var(--text);">${escapeHtml(c.t)}</div>
+                      ${note ? `<div style="font-size:0.71rem;color:var(--accent);margin-top:2px;">📝 ${escapeHtml(note)}</div>` : ""}
+                    </div>
+                    <span style="font-size:0.8rem;color:var(--text-muted);font-weight:800;">›</span>
+                  </div>
+                `;
+              }).join("")}
+            ` : ""}
           </div>
         `;
       });
@@ -5741,10 +6995,10 @@
       $("smp-jadwal-highlight").innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">
           <span style="font-size:0.84rem;font-weight:800;color:var(--emerald);">📌 Zona KBM Kab. Lebak — Kelas ${g}</span>
-          <span style="font-size:0.7rem;color:var(--text-muted);font-weight:700;">WIB (1 JP = 40m)</span>
+          <span style="font-size:0.7rem;color:var(--text-muted);font-weight:700;">1 JP = 40 Menit (WIB)</span>
         </div>
         ${nowSlot
-          ? `<div style="padding:7px 10px;border-radius:11px;background:rgba(16,185,129,0.16);border:1px solid rgba(16,185,129,0.45);font-size:0.8rem;font-weight:700;margin-bottom:8px;">🟢 Sedang Berlangsung (${escapeHtml(nowSlot.start)}–${escapeHtml(nowSlot.end)}): <span style="color:var(--accent);">${escapeHtml(nowSlot.subject)}</span></div>`
+          ? `<div style="padding:7px 10px;border-radius:11px;background:rgba(16,185,129,0.16);border:1px solid rgba(16,185,129,0.45);font-size:0.8rem;font-weight:700;margin-bottom:8px;">🟢 Sedang Berlangsung • ${escapeHtml(nowSlot.jp)} (${escapeHtml(nowSlot.start)}–${escapeHtml(nowSlot.end)}): <span style="color:var(--accent);">${escapeHtml(nowSlot.subject)}</span></div>`
           : `<div style="font-size:0.8rem;color:var(--text);margin-bottom:8px;"><strong>Hari Ini (${todayName}):</strong> ${todayBooks.length ? todayBooks.map(escapeHtml).join(" • ") : "Hari libur 🎉 — Istirahat & muraja'ah!"}</div>`
         }
         <div style="font-size:0.77rem;font-weight:800;color:var(--accent);margin-bottom:2px;">🎒 Siapkan Buku Besok (${tomName}):</div>
@@ -5777,11 +7031,15 @@
                 const isBrk = isBreakSlotName(sl.subject);
                 const meta = getSubjectMetaByName(sl.subject);
                 const timeStr = (sl.start && sl.end) ? `${sl.start}–${sl.end}` : (sl.start || "--:--");
+                const hasBook = !!SMP_BOOK_METADATA[sl.subject];
                 return `
-                  <div class="smp-slot-row ${isNow ? "is-now" : (isBrk ? "is-break" : "")}">
-                    <span class="smp-slot-time">${escapeHtml(timeStr)}</span>
+                  <div class="smp-slot-row ${isNow ? "is-now" : (isBrk ? "is-break" : "")}" ${hasBook ? `onclick="openSmpBookReader('${escapeHtml(sl.subject)}',0)" style="cursor:pointer;"` : ""}>
+                    <div class="smp-slot-meta-col">
+                      <span class="smp-slot-jp">${escapeHtml(sl.jp || "Jam")}</span>
+                      <span class="smp-slot-time">${escapeHtml(timeStr)}</span>
+                    </div>
                     <span class="smp-slot-subj">${meta.ico} ${escapeHtml(sl.subject)}</span>
-                    ${isNow ? '<span class="smp-slot-live">● LIVE</span>' : ""}
+                    ${isNow ? '<span class="smp-slot-live">● LIVE</span>' : (hasBook ? '<span style="font-size:0.7rem;color:var(--text-muted);">📕 ›</span>' : "")}
                   </div>
                 `;
               }).join("") : '<span style="font-size:0.78rem;color:var(--text-muted);">Belum ada jadwal.</span>'}
@@ -5798,13 +7056,14 @@
     }
 
     function syncDraftFromEditDayDOM() {
-      const rows = document.querySelectorAll("#smp-edit-day-rows .smp-ed-slot-row");
+      const cards = document.querySelectorAll("#smp-edit-day-rows .smp-ed-slot-card");
       const out = [];
-      rows.forEach((row) => {
-        const start = row.querySelector(".ed-sl-start").value.trim();
-        const end = row.querySelector(".ed-sl-end").value.trim();
-        const subject = row.querySelector(".ed-sl-subj").value.trim();
-        out.push({ start, end, subject });
+      cards.forEach((card) => {
+        const jp = card.querySelector(".ed-sl-jp").value.trim();
+        const start = card.querySelector(".ed-sl-start").value.trim();
+        const end = card.querySelector(".ed-sl-end").value.trim();
+        const subject = card.querySelector(".ed-sl-subj").value.trim();
+        out.push({ jp, start, end, subject });
       });
       editingDayDraftSlots = out;
     }
@@ -5813,14 +7072,17 @@
       const box = $("smp-edit-day-rows");
       if (!box) return;
       if (!editingDayDraftSlots.length) {
-        editingDayDraftSlots = [{ start: "07:00", end: "08:20", subject: "" }];
+        editingDayDraftSlots = [{ jp: "Jam 1–2", start: "07:00", end: "08:20", subject: "" }];
       }
       box.innerHTML = editingDayDraftSlots.map((sl, idx) => `
-        <div class="smp-ed-slot-row">
-          <input type="time" class="input ed-sl-start" value="${escapeHtml(sl.start || "07:00")}" />
-          <input type="time" class="input ed-sl-end" value="${escapeHtml(sl.end || "08:20")}" />
-          <input type="text" class="input ed-sl-subj" list="smp-subject-suggestions" value="${escapeHtml(sl.subject || "")}" placeholder="Nama mapel..." />
-          <button type="button" class="btn btn-sm btn-danger" onclick="removeEditDaySlot(${idx})" style="padding:5px 7px;font-size:0.72rem;">✕</button>
+        <div class="smp-ed-slot-card">
+          <div class="smp-ed-slot-top">
+            <input type="text" class="input ed-sl-jp" list="smp-jp-suggestions" value="${escapeHtml(sl.jp || "")}" placeholder="Jam 1–2" />
+            <input type="time" class="input ed-sl-start" value="${escapeHtml(sl.start || "07:00")}" />
+            <input type="time" class="input ed-sl-end" value="${escapeHtml(sl.end || "08:20")}" />
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeEditDaySlot(${idx})" style="padding:5px 7px;font-size:0.72rem;">✕</button>
+          </div>
+          <input type="text" class="input ed-sl-subj" list="smp-subject-suggestions" value="${escapeHtml(sl.subject || "")}" placeholder="Pilih / ketik Mata Pelajaran..." />
         </div>
       `).join("");
     }
@@ -5837,7 +7099,7 @@
       const g = smpState.grade;
       const sched = (smpState.schedules && smpState.schedules[g]) || DEFAULT_SMP_SCHEDULES[g];
       editingDayDraftSlots = normalizeDaySlots(sched[dayName] || []);
-      $("smp-edit-day-title").textContent = `📅 Edit Jadwal ${dayName} (Kelas ${g})`;
+      $("smp-edit-day-title").textContent = `📅 Edit Jam Pelajaran ${dayName} (Kls ${g})`;
       renderEditDaySlotRows();
       openModalById("smp-edit-day-modal");
     };
@@ -6066,6 +7328,76 @@
 
       $("smp-materi-search").oninput = () => renderSmpMateri();
 
+      // Buku Pelajaran Filters, Search, Reader & Custom PDF Book
+      $("smp-buku-search").oninput = () => renderSmpBuku();
+      document.querySelectorAll("#smp-buku-filters .pill-opt").forEach((btn) => {
+        btn.onclick = () => {
+          activeSmpBookFilter = btn.dataset.bfilter;
+          renderSmpBuku();
+        };
+      });
+      $("btn-close-book-reader").onclick = () => closeModalById("smp-book-reader-modal");
+      $("btn-reader-font-dec").onclick = () => {
+        readerFontSizePx = Math.max(12, readerFontSizePx - 1);
+        renderSmpBookReader();
+      };
+      $("btn-reader-font-inc").onclick = () => {
+        readerFontSizePx = Math.min(24, readerFontSizePx + 1);
+        renderSmpBookReader();
+      };
+      $("btn-close-pdf-viewer").onclick = () => closeModalById("smp-pdf-viewer-modal");
+
+      $("btn-smp-add-book").onclick = () => openAddSmpBookModal("");
+      $("smp-cb-mode").onchange = (e) => {
+        const isDig = e.target.value === "digital";
+        $("smp-cb-url-wrap").classList.toggle("hidden", isDig);
+        $("smp-cb-digital-wrap").classList.toggle("hidden", !isDig);
+      };
+      $("btn-close-smp-add-book").onclick = () => closeModalById("smp-add-book-modal");
+      $("btn-save-smp-cb").onclick = () => {
+        const subject = $("smp-cb-subject").value;
+        const mode = $("smp-cb-mode").value;
+        const title = $("smp-cb-title").value.trim();
+        const pub = $("smp-cb-pub").value.trim();
+        if (!title) return showToast("Judul buku wajib diisi.");
+
+        if (mode === "digital") {
+          const ch1Title = $("smp-cb-ch1-title").value.trim() || "Bab 1 - Ringkasan Materi Sekolah";
+          const ch1Body = $("smp-cb-ch1-body").value.trim();
+          if (!ch1Body) return showToast("Isi materi bab pertama wajib diisi.");
+          smpState.customBooks.unshift({
+            id: "bk-" + Date.now() + "-" + Math.random().toString(36).slice(2, 5),
+            grade: smpState.grade,
+            subject,
+            mode: "digital",
+            title,
+            pub: pub || "Buku / LKS Sekolah",
+            chapters: [{ sem: "Sekolah", t: ch1Title, goal: "Materi sesuai buku/LKS di sekolah.", b: ch1Body, ex: "", lat: "" }],
+            createdBy: currentUserId || "ayah",
+            createdAt: Date.now()
+          });
+        } else {
+          const url = $("smp-cb-url").value.trim();
+          if (!/^https?:\/\//i.test(url)) return showToast("Masukkan link PDF / Google Drive yang valid (diawali https://).");
+          smpState.customBooks.unshift({
+            id: "bk-" + Date.now() + "-" + Math.random().toString(36).slice(2, 5),
+            grade: smpState.grade,
+            subject,
+            mode: "pdf",
+            title,
+            pub,
+            url,
+            createdBy: currentUserId || "ayah",
+            createdAt: Date.now()
+          });
+        }
+        expandedSmpSubjects.add(subject);
+        syncSmpToCloud();
+        closeModalById("smp-add-book-modal");
+        renderSmpActiveTab();
+        showToast("✅ Buku baru masuk ke Rak Mapel & tersinkron ke semua HP!");
+      };
+
       // Add Custom Materi Modal
       $("btn-smp-add-materi").onclick = () => {
         if (!canManageSmpCustom()) return showToast("Hanya Ayah/Ibu yang dapat menambah catatan materi.");
@@ -6099,14 +7431,15 @@
         showToast("✅ Catatan materi tersimpan & tersinkron!");
       };
 
-      // Edit Day Schedule Modal (Timed Rows)
+      // Edit Day Schedule Modal (Jam Pelajaran + Waktu)
       $("btn-close-smp-edit-day").onclick = () => closeModalById("smp-edit-day-modal");
       $("btn-smp-add-slot").onclick = () => {
         syncDraftFromEditDayDOM();
         const last = editingDayDraftSlots[editingDayDraftSlots.length - 1];
         const nextStart = (last && last.end) ? last.end : "07:00";
         const nextEnd = addMinutesToHM(nextStart, 80);
-        editingDayDraftSlots.push({ start: nextStart, end: nextEnd, subject: "" });
+        const nextJp = inferJpForSlot({ jp: "", start: nextStart, end: nextEnd, subject: "Pelajaran" }, editingDayDraftSlots.length, editingDayDraftSlots);
+        editingDayDraftSlots.push({ jp: nextJp, start: nextStart, end: nextEnd, subject: "" });
         renderEditDaySlotRows();
         const rowsBox = $("smp-edit-day-rows");
         if (rowsBox) rowsBox.scrollTop = rowsBox.scrollHeight;
@@ -6116,22 +7449,23 @@
         const g = smpState.grade;
         editingDayDraftSlots = JSON.parse(JSON.stringify((DEFAULT_SMP_SCHEDULES[g] && DEFAULT_SMP_SCHEDULES[g][editingSmpDayName]) || []));
         renderEditDaySlotRows();
-        showToast("↺ Jadwal dikembalikan ke standar KBM Kab. Lebak.");
+        showToast("↺ Jadwal & jam pelajaran dikembalikan ke standar KBM Kab. Lebak.");
       };
       $("btn-save-smp-day").onclick = () => {
         if (!editingSmpDayName) return;
         syncDraftFromEditDayDOM();
-        const cleaned = editingDayDraftSlots
-          .map((x) => ({ start: x.start || "", end: x.end || "", subject: x.subject.trim() }))
+        const rawCleaned = editingDayDraftSlots
+          .map((x) => ({ jp: (x.jp || "").trim(), start: x.start || "", end: x.end || "", subject: x.subject.trim() }))
           .filter((x) => x.subject)
           .sort((a, b) => String(a.start || "99:99").localeCompare(String(b.start || "99:99")));
+        const cleaned = normalizeDaySlots(rawCleaned);
         const g = smpState.grade;
         if (!smpState.schedules[g]) smpState.schedules[g] = JSON.parse(JSON.stringify(DEFAULT_SMP_SCHEDULES[g]));
         smpState.schedules[g][editingSmpDayName] = cleaned;
         syncSmpToCloud();
         closeModalById("smp-edit-day-modal");
         renderSmpJadwal();
-        showToast(`✅ Jadwal & jam ${editingSmpDayName} (Kelas ${g}) tersimpan!`);
+        showToast(`✅ Jam pelajaran ${editingSmpDayName} (Kelas ${g}) tersimpan!`);
       };
 
       // PR & Ulangan
